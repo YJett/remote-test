@@ -5,7 +5,7 @@ module.exports = {
         port: 8080,
         proxy: {
             '/api': {
-                target: 'https://localhost:5001/', // 对应自己的接口
+                target: 'https://localhost:5001/api', // 对应自己的接口
                 changeOrigin: true,
                 ws: true,
                 pathRewrite: {

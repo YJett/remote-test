@@ -1,51 +1,95 @@
 <template>
     <div>
-        基本资料
-        <input type="text">
-        <Table :data="tableData" :columns="columns"></Table>
+        <Table :data="tableData1" :columns="tableColumns1" stripe>
+            <template slot-scope="{ row }" slot="name">
+                <strong>{{ row.name }}</strong>
+            </template>
+            <template slot-scope="{ row }" slot="action">
+                <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>
+                <Button type="error" size="small" @click="unfroze(row)">解冻</Button>
+            </template>
+        </Table>
+        <div style="margin: 10px;overflow: hidden">
+            <div style="float: right;">
+                <Page :total=total :current=curPage @on-change="changePage"></Page>
+            </div>
+        </div>
     </div>
 </template>
-
 <script>
-import { queryUser } from '@/api/usermanage'
+// eslint-disable-next-line import/no-unresolved
+import { queryUser } from '../api/usermanage'
 
 export default {
     name: 'usermanage',
     data() {
         return {
-            tableData: [],
-            columns: [
+            total: 11,
+            curPage: 1,
+            tableData1: [],
+            tableColumns1: [
                 {
-                    title: '姓名',
+                    title: 'Name',
                     key: 'name',
+                },
+                {
+                    title: '用户状态',
+                    key: 'isFreezed',
+                    render: (h, params) => {
+                        const row = params.row
+                        // eslint-disable-next-line no-nested-ternary
+                        const color = row.isFreezed === false ? 'success' : 'error'
+                        // eslint-disable-next-line no-nested-ternary
+                        const text = row.isFreezed === false ? '正常' : '冻结中'
+
+                        return h('Tag', {
+                            props: {
+                                type: 'dot',
+                                color,
+                            },
+                        }, text)
+                    },
+                },
+                {
+                    title: 'sno',
+                    key: 'sno',
                 },
                 {
                     title: '班级',
                     key: 'class',
                 },
                 {
-                    title: '是否冻结',
-                    key: 'isFreezed',
+                    title: '解冻时间',
+                    key: 'unFreezeTime',
+                },
+                {
+                    title: 'Action',
+                    slot: 'action',
+                    width: 150,
+                    align: 'center',
                 },
             ],
         }
     },
     methods: {
-        query() {
-
+        changePage(page) {
+            queryUser(page).then(res => {
+                this.tableData1 = res.data.users
+            })
+        },
+        froze(param) {
+            console.log(param)
+        },
+        unfroze(param) {
+            console.log(param)
         },
     },
     mounted() {
-        queryUser().then(res => {
+        queryUser(this.curPage).then(res => {
             console.log(res)
-            this.tableData = res.data.users
+            this.total = res.data.allCount
+            this.tableData1 = res.data.users
         })
     },
-
-
 }
 </script>
-
-<style scoped>
-
-</style>

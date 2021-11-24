@@ -20,7 +20,7 @@ service.interceptors.request.use(config => {
 }, (error) => Promise.reject(error))
 
 service.interceptors.response.use(response => {
-    console.log(response)
+//    console.log(response)
     closeLoading()
     const res = response.data
     // 这里是接口处理的一个示范，可以根据自己的项目需求更改

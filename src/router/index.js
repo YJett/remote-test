@@ -39,11 +39,11 @@ export const asyncRoutes = {
         meta: { title: '主页' },
         component: () => import('../views/Home.vue'),
     },
-    reservation: {
-        path: 'Reservation',
-        name: 'reservation',
-        meta: { title: '预约管理' },
-        component: () => import('../views/Reservation.vue'),
+    bulletin: {
+        path: 'bulletin',
+        name: 'bulletin',
+        meta: { title: '公告管理' },
+        component: () => import('../views/bulletin.vue'),
     },
     usermanage: {
         path: 'usermanage',

@@ -11,14 +11,14 @@
         </Table>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
-                <Page :total=total :current=curPage @on-change="changePage"></Page>
+                <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
             </div>
         </div>
     </div>
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { queryUser } from '../api/usermanage'
+import { queryUser, froze } from '../api/usermanage'
 
 export default {
     name: 'usermanage',
@@ -73,12 +73,12 @@ export default {
     },
     methods: {
         changePage(page) {
-            queryUser(page).then(res => {
-                this.tableData1 = res.data.users
-            })
+            this.curPage = page
         },
-        froze(param) {
-            console.log(param)
+        froze(obj) {
+            froze(obj.guid).then(res => {
+                console.log(res)
+            })
         },
         unfroze(param) {
             console.log(param)
@@ -90,6 +90,13 @@ export default {
             this.total = res.data.allCount
             this.tableData1 = res.data.users
         })
+    },
+    watch: {
+        curPage() {
+            queryUser(this.curPage).then(res => {
+                this.tableData1 = res.data.users
+            })
+        },
     },
 }
 </script>

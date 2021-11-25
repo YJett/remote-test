@@ -17,3 +17,10 @@ export function froze(guid) {
         method: 'POST',
     })
 }
+
+export function unForze(guid) {
+    return request({
+        url: 'Account/a4350455-7bb2-471d-8e1d-88b50b6ac535' + guid + '/FreezeAccount',
+        method: 'POST',
+    })
+}

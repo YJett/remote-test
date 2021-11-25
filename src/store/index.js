@@ -33,7 +33,7 @@ const store = new Vuex.Store({
                     {
                         type: 'ios-grid',
                         name: 'userinfo',
-                        text: '值班预约管理',
+                        text: '琴房预约管理',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
                     },
@@ -41,7 +41,7 @@ const store = new Vuex.Store({
                         size: 18, // icon大小
                         type: 'md-arrow-forward', // icon类型
                         name: 'msg',
-                        text: '琴房预约管理',
+                        text: '值班预约管理',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
                     }],

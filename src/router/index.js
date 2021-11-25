@@ -54,13 +54,13 @@ export const asyncRoutes = {
     msg: {
         path: 'msg',
         name: 'msg',
-        meta: { title: '通知消息' },
+        meta: { title: '琴房预约管理' },
         component: () => import('../views/Msg.vue'),
     },
     userinfo: {
         path: 'userinfo',
         name: 'userinfo',
-        meta: { title: '用户信息' },
+        meta: { title: '值班管理' },
         component: () => import('../views/UserInfo.vue'),
     },
 }

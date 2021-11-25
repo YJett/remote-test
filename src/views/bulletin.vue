@@ -36,7 +36,7 @@
                 title="公告详情"
                 @on-ok="update"
             >
-                <bulletin-form :data-obj="curBulletin"></bulletin-form>
+                <bulletin-form :data-obj="curBulletin" @close="showForm=false"></bulletin-form>
                 <div slot="footer"/>
             </Modal>
         </TabPane>
@@ -44,7 +44,7 @@
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { getAssignmentBulletin, getIndexBulletin } from '../api/bulletin'
+import { getAssignmentBulletin, getIndexBulletin, delBulletin } from '../api/bulletin'
 import BulletinForm from '../components/BulletinForm'
 
 export default {
@@ -97,10 +97,6 @@ export default {
             ],
             curName: 'piano',
             curBulletin: {
-                id: 3,
-                title: '标题',
-                content: '内如',
-                isDuty: true,
             },
         }
     },
@@ -114,7 +110,9 @@ export default {
             console.log(this.curName)
         },
         handleDelete(param) {
-            this.curBulletin = param
+            delBulletin(param.id).then(res => {
+                this.fetchData()
+            })
             console.log(param)
         },
         fetchData() {

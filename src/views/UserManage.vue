@@ -18,7 +18,7 @@
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { queryUser, froze } from '../api/usermanage'
+import { queryUser, froze, unForze } from '../api/usermanage'
 
 export default {
     name: 'usermanage',
@@ -72,16 +72,29 @@ export default {
         }
     },
     methods: {
+        fetchData() {
+            queryUser(this.curPage).then(res => {
+                this.tableData1 = res.data.users
+            })
+        },
         changePage(page) {
             this.curPage = page
         },
         froze(obj) {
             froze(obj.guid).then(res => {
-                console.log(res)
+                this.$Message.success({
+                    content: res.msg,
+                })
+                this.fetchData()
             })
         },
         unfroze(param) {
-            console.log(param)
+            unForze(param.guid).then(res => {
+                this.$Message.success({
+                    content: res.msg,
+                })
+                this.fetchData()
+            })
         },
     },
     mounted() {

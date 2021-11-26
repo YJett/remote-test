@@ -29,3 +29,15 @@ export function closePreservation() {
         method: 'POST',
     })
 }
+export function getStatus() {
+    return request({
+        url: 'PracticePreservation/IsOpen',
+        method: 'GET',
+    })
+}
+export function getDetail(id) {
+    return request({
+        url: 'PracticePreservation/detail/' + id,
+        method: 'GET',
+    })
+}

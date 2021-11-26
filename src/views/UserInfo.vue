@@ -5,10 +5,17 @@
                 <strong>{{ row.name }}</strong>
             </template>
             <template slot-scope="{ row }" slot="action">
-                <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>
-                <Button type="error" size="small" @click="unfroze(row)">解冻</Button>
+                <Button type="primary" size="small" style="margin-right: 5px" @click="handleDetail(row)">查看</Button>
+                <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
+        <Modal
+            v-model="showForm"
+            title="当日预约详情"
+        >
+            <preservation-form :dataObj="curDay" @close="showForm=false"></preservation-form>
+            <div slot="footer"/>
+        </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
                 <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
@@ -18,49 +25,31 @@
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { getPreservation } from '../api/pPreservation'
+import { getPreservation, openPreservation, getDetail } from '../api/pPreservation'
+import PreservationForm from '@/components/PreservationForm'
 
 export default {
     name: 'userinfo',
+    components: { PreservationForm },
     data() {
         return {
             total: 11,
             curPage: 1,
             tableData1: [],
+            showForm: false,
+            curDay: [],
             tableColumns1: [
                 {
-                    title: 'Name',
-                    key: 'name',
+                    title: '时间',
+                    key: 'time',
                 },
                 {
-                    title: '用户状态',
-                    key: 'isFreezed',
-                    render: (h, params) => {
-                        const row = params.row
-                        // eslint-disable-next-line no-nested-ternary
-                        const color = row.isFreezed === false ? 'success' : 'error'
-                        // eslint-disable-next-line no-nested-ternary
-                        const text = row.isFreezed === false ? '正常' : '冻结中'
-
-                        return h('Tag', {
-                            props: {
-                                type: 'dot',
-                                color,
-                            },
-                        }, text)
-                    },
+                    title: '可预约人数',
+                    key: 'all',
                 },
                 {
-                    title: 'sno',
-                    key: 'sno',
-                },
-                {
-                    title: '班级',
-                    key: 'class',
-                },
-                {
-                    title: '解冻时间',
-                    key: 'unFreezeTime',
+                    title: '当前人数',
+                    key: 'current',
                 },
                 {
                     title: 'Action',
@@ -75,18 +64,32 @@ export default {
         changePage(page) {
             this.curPage = page
         },
-        froze(obj) {
+        handleDetail(obj) {
+            this.showForm = true
+            getDetail(obj.dayId).then(res => {
+                res.data.forEach(item => {
+                    item.start += ':00'
+                    item.stop += ':00'
+                })
+                this.curDay = res.data
+            })
         },
-        unfroze(param) {
+        handleDelete(param) {
             console.log(param)
         },
     },
     mounted() {
         getPreservation(this.curPage).then(res => {
             console.log(res)
-            this.total = res.data.allCount
+            this.total = res.data.allCounts
             this.tableData1 = res.data.content
         })
+        /*
+        openPreservation().then(res => {
+            console.log(res)
+        })
+
+         */
     },
     watch: {
         curPage() {

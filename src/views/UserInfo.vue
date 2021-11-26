@@ -1,5 +1,11 @@
 <template>
     <div>
+        <div>
+            <label>请选择时间范围</label>
+            <Time-picker type="timerange"/>
+            <Button type="primary" icon="ios-search">搜索</Button>
+            <Button type="primary" class="addbutton" @click="handleAdd">添加</Button>
+        </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row }" slot="name">
                 <strong>{{ row.name }}</strong>
@@ -77,6 +83,9 @@ export default {
         handleDelete(param) {
             console.log(param)
         },
+        handleAdd() {
+
+        },
     },
     mounted() {
         getPreservation(this.curPage).then(res => {
@@ -100,3 +109,9 @@ export default {
     },
 }
 </script>
+<style>
+    .addbutton{
+        float: right;
+        margin-right:30px;
+    }
+</style>

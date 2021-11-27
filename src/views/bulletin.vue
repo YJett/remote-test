@@ -1,6 +1,6 @@
 <template>
     <Tabs v-model="curName">
-        <TabPane label="练琴公告"  name="piano">
+        <TabPane label="值班公告"  name="piano">
             <div>
                 <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
                 <Button type="primary" class="left" @click="handleAdd">添加</Button>
@@ -20,7 +20,7 @@
                 </div>
             </div>
         </TabPane>
-        <TabPane label="预约公告" name="reservation">
+        <TabPane label="练琴公告" name="reservation">
             <div>
                 <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
                 <Button type="primary" class="left" @click="handleAdd">添加</Button>
@@ -42,8 +42,15 @@
             <Modal
                 v-model="showForm"
                 title="公告详情"
+                width="900px"
             >
-                <bulletin-form :data-obj="curBulletin" @close="showForm=false"></bulletin-form>
+                <bulletin-form
+                    :data-obj="curBulletin"
+                    :is-duty="isDuty"
+                    :is-add="isAdd"
+                    @close="showForm=false"
+                    @refresh="fetchData">
+                </bulletin-form>
                 <div slot="footer"/>
             </Modal>
         </TabPane>
@@ -76,7 +83,7 @@ export default {
                         // eslint-disable-next-line no-nested-ternary
                         const color = 'primary'
                         // eslint-disable-next-line no-nested-ternary
-                        const text = row.isDuty === false ? '值班公告' : '练琴公告'
+                        const text = row.isDuty === true ? '值班公告' : '练琴公告'
 
                         return h('Tag', {
                             props: {
@@ -105,6 +112,8 @@ export default {
             curName: 'piano',
             curBulletin: {
             },
+            isDuty: false,
+            isAdd: true,
         }
     },
     methods: {
@@ -112,9 +121,9 @@ export default {
             this.curPage = page
         },
         handleUpdate(obj) {
+            this.isAdd = false
             this.showForm = true
             this.curBulletin = obj
-            console.log(this.curName)
         },
         handleDelete(param) {
             delBulletin(param.id).then(res => {
@@ -138,7 +147,13 @@ export default {
             }
         },
         handleAdd() {
-
+            this.isAdd = true
+            if (this.curName === 'piano') {
+                this.isDuty = true
+            } else {
+                this.isDuty = false
+            }
+            this.showForm = true
         },
     },
     mounted() {

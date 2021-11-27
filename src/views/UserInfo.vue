@@ -24,14 +24,14 @@
             v-model="showForm"
             title="当日预约详情"
         >
-            <preservation-form :dataObj="curDay" @close="showForm=false"></preservation-form>
+            <preservation-form :dataObj="curDay" @close="showForm=false" :cur-date="curDate"></preservation-form>
             <div slot="footer"/>
         </Modal>
         <Modal
             v-model="showAddForm"
             title="当日预约详情"
         >
-            <add-preservation-form @close="showAddForm=false"></add-preservation-form>
+            <add-preservation-form @close="showAddForm=false" :is-duty="false"></add-preservation-form>
             <div slot="footer"/>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
@@ -58,6 +58,7 @@ export default {
             showForm: false,
             showAddForm: false,
             curDay: [],
+            curDate: '',
             tableColumns1: [
                 {
                     title: '时间',
@@ -86,6 +87,7 @@ export default {
             this.curPage = page
         },
         handleDetail(obj) {
+            this.curDate = obj.time.replace('年', '-').replace('月', '-').replace('日', '')
             this.showForm = true
             getDetail(obj.dayId).then(res => {
                 res.data.forEach(item => {

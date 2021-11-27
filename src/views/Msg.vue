@@ -1,5 +1,16 @@
 <template>
     <div>
+        <div>
+            <label>请选择时间范围</label>
+            <Date-picker type="datetimerange"
+                         format="yyyy-MM-dd HH:mm"
+                         placeholder="选择日期和时间（不含秒）"
+                         style="width: 300px"
+                         v-model="timerange">
+            </Date-picker>
+            <Button type="primary" icon="ios-search" @click="search">搜索</Button>
+            <Button type="primary" class="addbutton" @click="handleAdd">添加</Button>
+        </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row }" slot="name">
                 <strong>{{ row.name }}</strong>
@@ -13,7 +24,14 @@
             v-model="showForm"
             title="当日预约详情"
         >
-            <preservation-form :dataObj="curDay" @close="showForm=false"></preservation-form>
+            <preservation-form :dataObj="curDay" @close="showForm=false" :cur-date="curDate"></preservation-form>
+            <div slot="footer"/>
+        </Modal>
+        <Modal
+            v-model="showAddForm"
+            title="当日预约详情"
+        >
+            <add-preservation-form @close="showAddForm=false"></add-preservation-form>
             <div slot="footer"/>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
@@ -24,19 +42,23 @@
     </div>
 </template>
 <script>
-import { getPreservation, openPreservation, getDetail } from '../api/pPreservation'
-import PreservationForm from '@/components/PreservationForm'
+// eslint-disable-next-line import/no-unresolved
+import { getPreservation, openPreservation, getDetail, queryByTime } from '../api/dutyPreservation'
+import PreservationForm from '../components/PreservationForm'
+import AddPreservationForm from '../components/AddPreservationForm'
 
 export default {
     name: 'msg',
-    components: { PreservationForm },
+    components: { PreservationForm, AddPreservationForm },
     data() {
         return {
             total: 11,
             curPage: 1,
             tableData1: [],
             showForm: false,
+            showAddForm: false,
             curDay: [],
+            curDate: '',
             tableColumns1: [
                 {
                     title: '时间',
@@ -57,6 +79,7 @@ export default {
                     align: 'center',
                 },
             ],
+            timerange: [new Date(), new Date()],
         }
     },
     methods: {
@@ -64,6 +87,7 @@ export default {
             this.curPage = page
         },
         handleDetail(obj) {
+            this.curDate = obj.time.replace('年', '-').replace('月', '-').replace('日', '')
             this.showForm = true
             getDetail(obj.dayId).then(res => {
                 res.data.forEach(item => {
@@ -76,6 +100,14 @@ export default {
         handleDelete(param) {
             console.log(param)
         },
+        handleAdd() {
+            this.showAddForm = true
+        },
+        search() {
+            queryByTime(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
+                this.tableData1 = res.data
+            })
+        },
     },
     mounted() {
         getPreservation(this.curPage).then(res => {
@@ -83,6 +115,7 @@ export default {
             this.total = res.data.allCounts
             this.tableData1 = res.data.content
         })
+        openPreservation()
         /*
             openPreservation().then(res => {
                 console.log(res)
@@ -99,3 +132,9 @@ export default {
     },
 }
 </script>
+<style>
+    .addbutton{
+        float: right;
+        margin-right:30px;
+    }
+</style>

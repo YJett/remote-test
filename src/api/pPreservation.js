@@ -10,7 +10,7 @@ export function getPreservation(page) {
         },
     })
 }
-export function addPreservation(data) {
+export function addpPreservation(data) {
     return request({
         url: 'PracticePreservation/CreatePreservation',
         method: 'POST',
@@ -49,5 +49,12 @@ export function queryByTime(start, end) {
             starttime: start,
             endtime: end,
         },
+    })
+}
+export function updatePreservation(data) {
+    return request({
+        url: 'PracticePreservation/Update',
+        method: 'POST',
+        data,
     })
 }

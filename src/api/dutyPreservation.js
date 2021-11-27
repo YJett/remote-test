@@ -10,7 +10,15 @@ export function getPreservation(page) {
         },
     })
 }
-export function addPreservation(data) {
+export function getDetail(id) {
+    return request({
+        url: 'DutyPreservation/detail/' + id,
+        method: 'GET',
+    })
+}
+
+
+export function adddPreservation(data) {
     return request({
         url: 'DutyPreservation/CreatePreservation',
         method: 'POST',

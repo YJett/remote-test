@@ -41,3 +41,13 @@ export function getDetail(id) {
         method: 'GET',
     })
 }
+export function queryByTime(start, end) {
+    return request({
+        url: 'PracticePreservation/QueryByTime',
+        method: 'POST',
+        data: {
+            starttime: start,
+            endtime: end,
+        },
+    })
+}

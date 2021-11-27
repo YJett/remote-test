@@ -24,7 +24,7 @@
 import { getDetail } from '../api/pPreservation'
 
 export default {
-    name: 'preservationform',
+    name: 'PreservationForm',
     props: ['dataObj'],
     data() {
         return {

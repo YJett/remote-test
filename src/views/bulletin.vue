@@ -1,6 +1,10 @@
 <template>
     <Tabs v-model="curName">
         <TabPane label="练琴公告"  name="piano">
+            <div>
+                <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
+                <Button type="primary" class="left" @click="handleAdd">添加</Button>
+            </div>
             <Table :data="tableData1" :columns="tableColumns1" stripe>
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
@@ -17,6 +21,10 @@
             </div>
         </TabPane>
         <TabPane label="预约公告" name="reservation">
+            <div>
+                <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
+                <Button type="primary" class="left" @click="handleAdd">添加</Button>
+            </div>
             <Table :data="tableData1" :columns="tableColumns1" stripe>
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
@@ -34,7 +42,6 @@
             <Modal
                 v-model="showForm"
                 title="公告详情"
-                @on-ok="update"
             >
                 <bulletin-form :data-obj="curBulletin" @close="showForm=false"></bulletin-form>
                 <div slot="footer"/>
@@ -130,7 +137,7 @@ export default {
                 })
             }
         },
-        update() {
+        handleAdd() {
 
         },
     },
@@ -147,3 +154,9 @@ export default {
     },
 }
 </script>
+<style>
+    .left{
+        float:right;
+        margin-right: 30px;
+    }
+</style>

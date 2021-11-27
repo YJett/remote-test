@@ -16,7 +16,7 @@
 import { updateBulletin } from '../api/bulletin'
 
 export default {
-    name: 'bulletinform',
+    name: 'BulletinForm',
     props: ['dataObj'],
     data() {
         return {

@@ -35,7 +35,7 @@
             v-model="showAddForm"
             title="当日预约详情"
         >
-            <add-preservation-form @close="showAddForm=false" :is-duty="false" ></add-preservation-form>
+            <add-preservation-form @close="closeAndRefresh" :is-duty="false" ></add-preservation-form>
             <div slot="footer"/>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
@@ -124,6 +124,10 @@ export default {
                 this.tableData1 = res.data.content
                 this.total = res.data.allCount
             })
+        },
+        closeAndRefresh() {
+            this.showAddForm = false
+            this.search()
         },
     },
     mounted() {

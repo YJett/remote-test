@@ -36,7 +36,7 @@
             v-model="showAddForm"
             title="当日预约详情"
         >
-            <add-preservation-form @close="showAddForm=false" ></add-preservation-form>
+            <add-preservation-form @close="closeAndRefresh" ></add-preservation-form>
             <div slot="footer"/>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
@@ -121,8 +121,13 @@ export default {
         },
         search() {
             queryByTime(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
-                this.tableData1 = res.data
+                this.tableData1 = res.data.content
+                this.total = res.data.allCount
             })
+        },
+        closeAndRefresh() {
+            this.showAddForm = false
+            this.search()
         },
     },
     mounted() {

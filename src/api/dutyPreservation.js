@@ -49,3 +49,26 @@ export function DutyPreservation(id) {
         method: 'GET',
     })
 }
+export function updateDPreservation(data) {
+    return request({
+        url: 'DutyPreservation/Update',
+        method: 'POST',
+        data,
+    })
+}
+export function deleteDPreservation(id) {
+    return request({
+        url: 'DutyPreservation/Delete/' + id,
+        method: 'POST',
+    })
+}
+export function queryByTime(start, end) {
+    return request({
+        url: 'DutyPreservation/QueryByTime',
+        method: 'POST',
+        data: {
+            starttime: start,
+            endtime: end,
+        },
+    })
+}

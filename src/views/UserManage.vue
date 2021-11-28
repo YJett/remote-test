@@ -7,6 +7,8 @@
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>
                 <Button type="error" size="small" @click="unfroze(row)">解冻</Button>
+                <Button type="success" size="small" @click="unfroze(row)">查看预约记录</Button>
+
             </template>
         </Table>
         <div style="margin: 10px;overflow: hidden">
@@ -65,7 +67,7 @@ export default {
                 {
                     title: 'Action',
                     slot: 'action',
-                    width: 150,
+                    width: 200,
                     align: 'center',
                 },
             ],

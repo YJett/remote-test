@@ -51,10 +51,16 @@ export function queryByTime(start, end) {
         },
     })
 }
-export function updatePreservation(data) {
+export function updatePPreservation(data) {
     return request({
         url: 'PracticePreservation/Update',
         method: 'POST',
         data,
+    })
+}
+export function deletePPreservation(id) {
+    return request({
+        url: 'PracticePreservation/Delete/' + id,
+        method: 'POST',
     })
 }

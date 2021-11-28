@@ -17,21 +17,25 @@
             </template>
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="handleDetail(row)">查看</Button>
-                <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
         <Modal
             v-model="showForm"
             title="当日预约详情"
         >
-            <preservation-form :dataObj="curDay" @close="showForm=false" :cur-date="curDate"></preservation-form>
+            <preservation-form
+                :dataObj="curDay"
+                @close="showForm=false"
+                :cur-date="curDate"
+                @refresh="handleRefresh"
+            ></preservation-form>
             <div slot="footer"/>
         </Modal>
         <Modal
             v-model="showAddForm"
             title="当日预约详情"
         >
-            <add-preservation-form @close="showAddForm=false" :is-duty="false"></add-preservation-form>
+            <add-preservation-form @close="showAddForm=false" :is-duty="false" ></add-preservation-form>
             <div slot="footer"/>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
@@ -57,8 +61,9 @@ export default {
             tableData1: [],
             showForm: false,
             showAddForm: false,
-            curDay: [],
-            curDate: '',
+            curDay: [], // 当天数据
+            curDate: '', // 字符串类型
+            curDayId: '', // 当前dayid
             tableColumns1: [
                 {
                     title: '时间',
@@ -87,9 +92,19 @@ export default {
             this.curPage = page
         },
         handleDetail(obj) {
+            this.curDayId = obj.dayId
             this.curDate = obj.time.replace('年', '-').replace('月', '-').replace('日', '')
             this.showForm = true
             getDetail(obj.dayId).then(res => {
+                res.data.forEach(item => {
+                    item.start += ':00'
+                    item.stop += ':00'
+                })
+                this.curDay = res.data
+            })
+        },
+        handleRefresh() {
+            getDetail(this.curDayId).then(res => {
                 res.data.forEach(item => {
                     item.start += ':00'
                     item.stop += ':00'
@@ -105,7 +120,9 @@ export default {
         },
         search() {
             queryByTime(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
-                this.tableData1 = res.data
+                console.log(res.data.content)
+                this.tableData1 = res.data.content
+                this.total = res.data.allCount
             })
         },
     },

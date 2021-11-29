@@ -64,3 +64,9 @@ export function deletePPreservation(id) {
         method: 'POST',
     })
 }
+export function queryOnesPPreservation(id) {
+    return request({
+        url: 'PracticePreservation/' + id + '/Duty',
+        method: 'GET',
+    })
+}

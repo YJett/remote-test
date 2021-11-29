@@ -9,6 +9,14 @@
                          v-model="timerange">
             </Date-picker>
             <Button type="primary" icon="ios-search" @click="search">搜索</Button>
+            <i-switch
+                v-model="status" class="addbutton"
+                size="large"
+                @on-change="changeStatus"
+            >
+                <span slot="open">开启</span>
+                <span slot="close">关闭</span>
+            </i-switch>
             <Button type="primary" class="addbutton" @click="handleAdd">添加</Button>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
@@ -47,7 +55,7 @@
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { getPreservation, openPreservation, getDetail, queryByTime } from '../api/pPreservation'
+import { getPreservation, openPreservation, getDetail, queryByTime, closePreservation, getStatus } from '../api/pPreservation'
 import PreservationForm from '../components/PreservationForm'
 import AddPreservationForm from '../components/AddPreservationForm'
 
@@ -56,6 +64,7 @@ export default {
     components: { PreservationForm, AddPreservationForm },
     data() {
         return {
+            status: false,
             total: 11,
             curPage: 1,
             tableData1: [],
@@ -88,6 +97,23 @@ export default {
         }
     },
     methods: {
+        changeStatus(status) {
+            if (status) {
+                openPreservation().then(res => {
+                    if (res.code === 0) {
+                        this.status = status
+                        this.$Message.info('开关状态：' + status)
+                    }
+                })
+            } else {
+                closePreservation().then(res => {
+                    if (res.code === 0) {
+                        this.status = status
+                        this.$Message.info('开关状态：' + status)
+                    }
+                })
+            }
+        },
         changePage(page) {
             this.curPage = page
         },
@@ -131,12 +157,19 @@ export default {
         },
     },
     mounted() {
+        getStatus().then(res => {
+            if (res.data.isOpen === 'True') {
+                this.status = true
+            }
+            if (res.data.isOpen === 'False') {
+                this.status = false
+            }
+        })
         getPreservation(this.curPage).then(res => {
             console.log(res)
             this.total = res.data.allCounts
             this.tableData1 = res.data.content
         })
-        openPreservation()
         /*
         openPreservation().then(res => {
             console.log(res)

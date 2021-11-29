@@ -7,10 +7,21 @@
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>
                 <Button type="error" size="small" @click="unfroze(row)">解冻</Button>
-                <Button type="success" size="small" @click="unfroze(row)">查看预约记录</Button>
-
+                <Button type="success" size="small" @click="showRecord(row,true)">查看值班预约</Button>
+                <Button type="primary" size="small" @click="showRecord(row,false)">查看练琴预约</Button>
             </template>
         </Table>
+        <Modal
+            v-model="showDetail"
+            title="用户预约记录"
+        >
+            <preservation-record
+                @close="this.showDetail=false"
+                :is-duty="isDuty"
+                :id="curObj.guid"
+            ></preservation-record>
+            <div slot="footer"/>
+        </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
                 <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
@@ -21,11 +32,14 @@
 <script>
 // eslint-disable-next-line import/no-unresolved
 import { queryUser, froze, unForze } from '../api/usermanage'
+import PreservationRecord from '../components/PreservationRecord'
 
 export default {
     name: 'usermanage',
+    components: { PreservationRecord },
     data() {
         return {
+            showDetail: false,
             total: 11,
             curPage: 1,
             tableData1: [],
@@ -71,6 +85,8 @@ export default {
                     align: 'center',
                 },
             ],
+            curObj: {},
+            isDuty: false,
         }
     },
     methods: {
@@ -97,6 +113,15 @@ export default {
                 })
                 this.fetchData()
             })
+        },
+        showRecord(row, isDuty) {
+            if (isDuty) {
+                this.isDuty = true
+            } else {
+                this.isDuty = false
+            }
+            this.curObj = row
+            this.showDetail = true
         },
     },
     mounted() {

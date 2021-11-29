@@ -72,3 +72,9 @@ export function queryByTime(start, end) {
         },
     })
 }
+export function queryOnesDPreservation(id) {
+    return request({
+        url: 'DutyPreservation/' + id + '/Duty',
+        method: 'GET',
+    })
+}

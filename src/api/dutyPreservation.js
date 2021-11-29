@@ -78,3 +78,13 @@ export function queryOnesDPreservation(id) {
         method: 'GET',
     })
 }
+export function exportReport(start, end) {
+    return request({
+        url: '/DutyPreservation/export',
+        method: 'GET',
+        data: {
+            starttime: start,
+            endtime: end,
+        },
+    })
+}

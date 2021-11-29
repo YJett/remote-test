@@ -16,6 +16,3 @@ export function testPost(url, data) {
         },
     })
 }
-export function exportData() {
-    return 't'
-}

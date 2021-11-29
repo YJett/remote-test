@@ -1,19 +1,31 @@
 <template>
-    <Table :data="tableData1" :columns="tableColumns1" stripe>
-        <template slot-scope="{ row }" slot="name">
-            <strong>{{ row.name }}</strong>
-        </template>
-        <template slot-scope="{ row }" slot="action">
-            <Button type="primary" size="small" style="margin-right: 5px" @click="getDetail(row.detail)">查看详情</Button>
-        </template>
-    </Table>
+    <div>
+        <Table :data="tableData1" :columns="tableColumns1" stripe>
+            <template slot-scope="{ row }" slot="name">
+                <strong>{{ row.name }}</strong>
+            </template>
+            <template slot-scope="{ row }" slot="action">
+                <Button type="primary" size="small" style="margin-right: 5px" @click="getDetail(row.detail)">查看详情</Button>
+            </template>
+        </Table>
+        <Modal
+            v-model="detailShow"
+            title="记录详情"
+        >
+            <record-detail @close="handleClose"></record-detail>
+            <div slot="footer"/>
+        </Modal>
+    </div>
+
 </template>
 <script>
 import { queryOnesPPreservation } from '../api/pPreservation'
 import { queryOnesDPreservation } from '../api/dutyPreservation'
+import RecordDetail from './RecordDetail'
 
 export default {
     name: 'PreservationRecord',
+    components: { RecordDetail },
     props: {
         id: {
             type: String,
@@ -25,6 +37,7 @@ export default {
     },
     data() {
         return {
+            detailShow: false,
             tableColumns1: [
                 {
                     title: '开始时间',
@@ -85,11 +98,14 @@ export default {
                 })
             }
         },
+        handleClose() {
+            this.detailShow = false
+        },
         cancel() {
             this.$emit('close')
         },
         getDetail() {
-
+            this.detailShow = true
         },
     },
     mounted() {

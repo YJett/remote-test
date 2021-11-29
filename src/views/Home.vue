@@ -1,26 +1,34 @@
 <template>
     <div class="home-container">
         <div class="home-content">
-            <Button @click="exportData">导出统计表</Button>
+            <label>请选择时间范围</label>
+            <Date-picker type="datetimerange"
+                         format="yyyy-MM-dd HH:mm"
+                         placeholder="选择日期和时间（不含秒）"
+                         style="width: 300px"
+                         v-model="timerange">
+            </Date-picker>
+            <Button type="primary" @click="exportData1">导出统计表</Button>
         </div>
     </div>
 </template>
 
 <script>
-import exportData from '../api/index'
+import { exportReport } from '../api/dutyPreservation'
 
 export default {
     name: 'home',
     data() {
         return {
-            userInfo: '',
-            postData: '',
-            dataUrl: '',
+            timerange: '',
+
         }
     },
     methods: {
-        exportData() {
-            exportData()
+        exportData1() {
+            exportReport(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
+                console.log(res)
+            })
         },
     },
 }

@@ -21,6 +21,6 @@ export function froze(guid) {
 export function unForze(guid) {
     return request({
         url: 'Account/' + guid + '/UnFreezeAccount',
-        method: 'GET',
+        method: 'POST',
     })
 }

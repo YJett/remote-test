@@ -14,6 +14,7 @@
         <Modal
             v-model="showDetail"
             title="用户预约记录"
+            width="850"
         >
             <preservation-record
                 @close="this.showDetail=false"

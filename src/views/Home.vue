@@ -1,12 +1,13 @@
 <template>
     <div class="home-container">
         <div class="home-content">
+            <Button @click="exportData">导出统计表</Button>
         </div>
     </div>
 </template>
 
 <script>
-import { getInfo } from '@/api/login'
+import exportData from '../api/index'
 
 export default {
     name: 'home',
@@ -18,7 +19,9 @@ export default {
         }
     },
     methods: {
-
+        exportData() {
+            exportData()
+        },
     },
 }
 </script>

@@ -82,7 +82,7 @@ export function exportReport(start, end) {
     return request({
         url: '/DutyPreservation/export',
         method: 'GET',
-        data: {
+        params: {
             starttime: start,
             endtime: end,
         },

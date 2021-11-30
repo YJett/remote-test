@@ -24,8 +24,8 @@ export default {
     name: 'login',
     data() {
         return {
-            account: 'root',
-            pwd: '18712337064',
+            account: '',
+            pwd: '',
             accountError: '',
             pwdError: '',
             isShowLoading: false,

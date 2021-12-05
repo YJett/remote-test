@@ -5,7 +5,7 @@ import { showLoading, closeLoading } from '@/utils/loading'
 import { resetTokenAndClearUser } from '@/utils'
 
 const service = axios.create({
-    //   baseURL: '/api/',
+//    baseURL: '/api/',
     timeout: 3000,
     baseURL: 'https://xiaochengxu-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/',
 //    withCredentials: true,

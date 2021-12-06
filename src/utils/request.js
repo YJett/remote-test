@@ -7,7 +7,7 @@ import { resetTokenAndClearUser } from '@/utils'
 const service = axios.create({
 //    baseURL: '/api/',
     timeout: 3000,
-    baseURL: 'https://xiaochengxu-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/',
+    baseURL: 'http://bt.yeep.gay:2468/api/',
 //    withCredentials: true,
 })
 

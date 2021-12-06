@@ -119,7 +119,13 @@ export default {
         },
         handleDetail(obj) {
             this.curDayId = obj.dayId
-            this.curDate = obj.time.replace('年', '-').replace('月', '-').replace('日', '')
+            let dateValue = obj.time.replace('年', '-').replace('月', '-').replace('日', '').split('-')
+            for (let i = 0; i < dateValue.length; i++) {
+                dateValue[i] = dateValue[i].padStart(2, '0')
+            }
+            let date = dateValue[0] + '-' + dateValue[1] + '-' + dateValue[2]
+            this.curDate = date
+            console.log(date)
             this.showForm = true
             getDetail(obj.dayId).then(res => {
                 res.data.forEach(item => {

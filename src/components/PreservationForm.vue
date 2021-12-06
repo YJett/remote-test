@@ -14,7 +14,7 @@
             <FormItem label="已预约人数">
                 <div>{{day.current}}</div>
             </FormItem>
-            <div v-for="person in day.people" :key="person.id">{{person.name}}-{{person.class}}</div>
+            <Tag color="primary" v-for="person in day.people" :key="person.id" >{{person.name}}-{{person.class}}</Tag>
             <FormItem label="可预约人数">
                 <Input  number v-model="day.all"/>
             </FormItem>

@@ -1,6 +1,6 @@
 <template>
     <Tabs v-model="curName">
-        <TabPane label="值班公告"  name="piano">
+        <TabPane label="值班公告"  name="duty">
             <div>
                 <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
                 <Button type="primary" class="left" @click="handleAdd">添加</Button>
@@ -20,7 +20,7 @@
                 </div>
             </div>
         </TabPane>
-        <TabPane label="练琴公告" name="reservation">
+        <TabPane label="练琴公告" name="piano">
             <div>
                 <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
                 <Button type="primary" class="left" @click="handleAdd">添加</Button>
@@ -132,13 +132,13 @@ export default {
             console.log(param)
         },
         fetchData() {
-            if (this.curName === 'piano') {
+            if (this.curName === 'duty') {
                 getAssignmentBulletin(this.curPage).then(res => {
                     console.log(res)
                     this.total = res.data.length
                     this.tableData1 = res.data
                 })
-            } else if (this.curName === 'reservation') {
+            } else if (this.curName === 'piano') {
                 getIndexBulletin(this.curPage).then(res => {
                     console.log(res.data.length)
                     this.total = res.data.length
@@ -148,7 +148,7 @@ export default {
         },
         handleAdd() {
             this.isAdd = true
-            if (this.curName === 'piano') {
+            if (this.curName === 'duty') {
                 this.isDuty = true
             } else {
                 this.isDuty = false

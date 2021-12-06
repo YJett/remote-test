@@ -125,7 +125,6 @@ export default {
             }
             let date = dateValue[0] + '-' + dateValue[1] + '-' + dateValue[2]
             this.curDate = date
-            console.log(date)
             this.showForm = true
             getDetail(obj.dayId).then(res => {
                 res.data.forEach(item => {

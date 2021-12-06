@@ -34,6 +34,7 @@ export default {
         },
         isDuty: {
             type: Boolean,
+            default: false,
         },
     },
     data() {

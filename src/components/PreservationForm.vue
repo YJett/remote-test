@@ -14,7 +14,14 @@
             <FormItem label="已预约人数">
                 <div>{{day.current}}</div>
             </FormItem>
-            <Tag color="primary" v-for="person in day.people" :key="person.id" >{{person.name}}-{{person.class}}</Tag>
+            <Tag
+                color="primary"
+                v-for="person in day.people"
+                :key="person.id"
+                closable
+                @on-close="handleClose(person.id,day.timeId)"
+            >
+                {{person.name}}-{{person.class}}</Tag>
             <FormItem label="可预约人数">
                 <Input  number v-model="day.all"/>
             </FormItem>
@@ -24,7 +31,7 @@
     </i-form>
 </template>
 <script>
-import { getDetail, updatePPreservation, deletePPreservation } from '../api/pPreservation'
+import { getDetail, updatePPreservation, deletePPreservation, deleteRecord } from '../api/pPreservation'
 import { updateDPreservation, deleteDPreservation } from '../api/dutyPreservation'
 
 export default {
@@ -89,6 +96,12 @@ export default {
         },
         refresh() {
             this.$emit('refresh')
+        },
+        handleClose(gid, tid) {
+            deleteRecord(gid, tid).then(res => {
+                console.log(res)
+                this.refresh()
+            })
         },
 
     },

@@ -70,3 +70,14 @@ export function queryOnesPPreservation(id) {
         method: 'GET',
     })
 }
+
+export function deleteRecord(guid, time) {
+    return request({
+        url: 'DutyPreservation/DeleteRecoder',
+        data: {
+            AccountId: guid,
+            timeid: time,
+        },
+        method: 'POST',
+    })
+}

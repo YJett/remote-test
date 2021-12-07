@@ -11,6 +11,9 @@ export default {
     props: {
         dataObj: {
             type: Object,
+            default() {
+                return { Location: 'hello' }
+            },
         },
     },
     computed: {

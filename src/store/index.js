@@ -97,6 +97,12 @@ const store = new Vuex.Store({
             },
              */
         ],
+        rewardDict: {
+            1: '志愿时长',
+            2: '第二课堂',
+            3: '行为学分',
+            4: '重修行为学分',
+        },
     },
     mutations: {
         setMenus(state, items) {

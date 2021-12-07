@@ -19,6 +19,7 @@
 
 </template>
 <script>
+import store from '../store'
 import { queryOnesPPreservation } from '../api/pPreservation'
 import { queryOnesDPreservation } from '../api/dutyPreservation'
 import RecordDetail from './RecordDetail'
@@ -72,11 +73,25 @@ export default {
                 {
                     title: '奖励方式',
                     key: 'rewardWay',
+                    render: (h, params) => {
+                        const row = params.row
+                        // eslint-disable-next-line no-nested-ternary
+                        const color = 'success'
+                        // eslint-disable-next-line no-nested-ternary
+                        const text = store.state.rewardDict[row.rewardWay]
+                        return h('Tag', {
+                            props: {
+                                type: 'dot',
+                                color,
+                            },
+                        }, text)
+                    },
+                    width: 200,
                 },
                 {
                     title: 'Action',
                     slot: 'action',
-                    width: 200,
+                    width: 150,
                     align: 'center',
                 },
             ],

@@ -43,7 +43,8 @@ export default {
 
              */
             // eslint-disable-next-line max-len
-            let url = 'http://bt.yeep.gay:2468/api/DutyPreservation/export?starttime='
+            const baseUrl = 'https://xiaochengxu-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/'
+            let url = baseUrl + 'DutyPreservation/export?starttime='
                 + this.timerange[0].toISOString().split('.')[0]
                 + '&endtime=' + this.timerange[1].toISOString().split('.')[0]
                 + '&token=' + localStorage.getItem('token')

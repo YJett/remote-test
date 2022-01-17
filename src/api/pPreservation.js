@@ -71,9 +71,9 @@ export function queryOnesPPreservation(id) {
     })
 }
 
-export function deleteRecord(guid, time) {
+export function deletePRecord(guid, time) {
     return request({
-        url: 'DutyPreservation/DeleteRecoder',
+        url: 'PracticePreservation/DeleteRecoder',
         data: {
             AccountId: guid,
             timeid: time,

@@ -31,8 +31,8 @@
     </i-form>
 </template>
 <script>
-import { getDetail, updatePPreservation, deletePPreservation, deleteRecord } from '../api/pPreservation'
-import { updateDPreservation, deleteDPreservation } from '../api/dutyPreservation'
+import { getDetail, updatePPreservation, deletePPreservation, deletePRecord } from '../api/pPreservation'
+import { updateDPreservation, deleteDPreservation, deleteDRecord } from '../api/dutyPreservation'
 
 export default {
     name: 'PreservationForm',
@@ -88,6 +88,19 @@ export default {
                 })
             }
         },
+        deleteOnesRecord(gid, tid) {
+            if (this.isDuty) {
+                deleteDRecord(gid, tid).then(res => {
+                    console.log(res)
+                    this.refresh()
+                })
+            } else {
+                deletePRecord(gid, tid).then(res => {
+                    console.log(res)
+                    this.refresh()
+                })
+            }
+        },
         cancel() {
             this.$emit('close')
         },
@@ -98,10 +111,7 @@ export default {
             this.$emit('refresh')
         },
         handleClose(gid, tid) {
-            deleteRecord(gid, tid).then(res => {
-                console.log(res)
-                this.refresh()
-            })
+            this.deleteOnesRecord(gid, tid)
         },
 
     },

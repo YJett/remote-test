@@ -88,3 +88,13 @@ export function exportReport(start, end) {
         },
     })
 }
+export function deleteDRecord(guid, time) {
+    return request({
+        url: 'DutyPreservation/DeleteRecoder',
+        data: {
+            AccountId: guid,
+            timeid: time,
+        },
+        method: 'POST',
+    })
+}

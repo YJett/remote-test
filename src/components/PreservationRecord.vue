@@ -5,14 +5,14 @@
                 <strong>{{ row.name }}</strong>
             </template>
             <template slot-scope="{ row }" slot="action">
-                <Button type="primary" size="small" style="margin-right: 5px" @click="getDetail(row.detail)">查看详情</Button>
+                <Button type="primary" size="small" style="margin-right: 5px" @click="getDetail(row)">查看详情</Button>
             </template>
         </Table>
         <Modal
             v-model="detailShow"
             title="记录详情"
         >
-            <record-detail @close="handleClose"></record-detail>
+            <record-detail @close="handleClose" :dataObj="positionDetail"></record-detail>
             <div slot="footer"/>
         </Modal>
     </div>
@@ -97,6 +97,8 @@ export default {
             ],
             tableData1: [],
             formData: {
+            },
+            positionDetail: {
 
             },
         }
@@ -119,7 +121,15 @@ export default {
         cancel() {
             this.$emit('close')
         },
-        getDetail() {
+        getDetail(data) {
+            if (data.detail != null) {
+                this.positionDetail = data.detail
+            } else {
+                this.positionDetail = {
+                    location: '未知位置',
+                    pictureId: '1',
+                }
+            }
             this.detailShow = true
         },
     },

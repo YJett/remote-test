@@ -7,8 +7,8 @@
             <template slot-scope="{ row }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>
                 <Button type="error" size="small" @click="unfroze(row)">解冻</Button>
-                <Button type="success" size="small" @click="showRecord(row,true)">查看值班预约</Button>
-                <Button type="primary" size="small" @click="showRecord(row,false)">查看练琴预约</Button>
+                <Button type="success" size="small" @click="showRecord(row,true)">值班预约</Button>
+                <Button type="primary" size="small" @click="showRecord(row,false)">练琴预约</Button>
             </template>
         </Table>
         <Modal

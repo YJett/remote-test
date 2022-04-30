@@ -17,12 +17,6 @@ const commonRoutes = [
         component: () => import('../views/Other.vue'),
     },
     {
-        path: '/trade',
-        name: 'trade',
-        meta: { title: '交易看板' },
-        component: () => import('../views/Trade'),
-    },
-    {
         path: '/404',
         name: '404',
         meta: { title: '404' },

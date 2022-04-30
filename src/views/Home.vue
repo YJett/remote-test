@@ -3,25 +3,106 @@
         <div class="home-content">
             <label>请选择时间范围</label>
             <Date-picker type="datetimerange"
-                         format="yyyy-MM-dd HH:mm"
+                         format="yyyy-MM-dd HH:mm:ss"
                          placeholder="选择日期和时间（不含秒）"
                          style="width: 300px"
+                         split-panels
                          v-model="timerange">
             </Date-picker>
-            <Button type="primary" @click="exportData1">导出统计表</Button>
+            <Button type="primary" class="button" @click="exportData1">导出统计表</Button>
+            <Button type="success" class="button" @click="querySigned">查询已签到任务</Button>
+            <Button type="warning" class="button" @click="queryUnSigned">查询未签到任务</Button>
+            <i-switch
+                v-model="status" class="addbutton"
+                size="large"
+                @on-change="changeStatus"
+            >
+                <span slot="open">练琴</span>
+                <span slot="close">值班</span>
+            </i-switch>
+        </div>
+        <Table :data="tableData" :columns="tableColumns" stripe>
+            <template slot-scope="{ row }" slot="name">
+                <strong>{{ row.people.name }}</strong>
+            </template>
+            <template slot-scope="{ row }" slot="sno">
+                <strong>{{ row.people.sno }}</strong>
+            </template>
+            <template slot-scope="{ row }" slot="class">
+                <strong>{{ row.people.class }}</strong>
+            </template>
+            <template slot-scope="{ row }" slot="action">
+                <Button
+                type="primary"
+                size="small"
+                v-if="row.isSigned==0"
+                 @click="showRecord(row,false)"
+                 >补签</Button>
+                <Tag
+                color="success"
+                v-if="row.isSigned==1"
+                >已签到</Tag>
+            </template>
+        </Table>
+        <Modal
+            v-model="showDetail"
+            title="用户预约记录"
+            width="850"
+        >
+            <div slot="footer"/>
+        </Modal>
+        <div style="margin: 10px;overflow: hidden">
+            <div style="float: right;">
+                <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { exportReport } from '../api/dutyPreservation'
+import { exportReport, queryUnsignedDRecord, querySignedDRecord } from '../api/dutyPreservation'
 
 export default {
     name: 'home',
     data() {
         return {
-            timerange: '',
-
+            timerange: [],
+            tableData: [],
+            tableColumns: [
+                {
+                    title: 'Name',
+                    slot: 'name',
+                },
+                {
+                    title: '学号',
+                    slot: 'sno',
+                },
+                {
+                    title: '班级',
+                    slot: 'class',
+                },
+                {
+                    title: '开始时间',
+                    key: 'startTime',
+                },
+                {
+                    title: '结束时间',
+                    key: 'endTime',
+                },
+                {
+                    title: '签到地点',
+                    key: 'location',
+                },
+                {
+                    title: '操作',
+                    slot: 'action',
+                },
+            ],
+            showDetail: false,
+            pageSize: 10,
+            curPage: 1,
+            total: 11,
+            status: false,
         }
     },
     methods: {
@@ -52,6 +133,28 @@ export default {
             // eslint-disable-next-line max-len
             window.location = url
         },
+        querySigned() {
+            console.log(this.timerange)
+            querySignedDRecord(this.timerange[0].toISOString().split('.')[0],
+                this.timerange[1].toISOString().split('.')[0], this.curPage).then(res => {
+                this.tableData = res.data.content
+                this.total = res.data.allCount
+                console.log(res)
+            })
+        },
+        queryUnSigned() {
+            queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
+                this.tableData = res.data.content
+                this.total = res.data.allCount
+                console.log(res)
+            })
+        },
+        changePage(page) {
+            this.curPage = page
+        },
+        changeStatus(status) {
+            this.status = status
+        },
 
     },
 }
@@ -66,5 +169,8 @@ export default {
     padding: 10px;
     border-radius: 5px;
     background: #fff;
+}
+.button {
+    margin:0 5px;
 }
 </style>

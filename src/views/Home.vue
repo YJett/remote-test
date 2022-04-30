@@ -7,6 +7,7 @@
                          placeholder="选择日期和时间（不含秒）"
                          style="width: 300px"
                          split-panels
+                         :start-date="new Date(2021,11,11)"
                          v-model="timerange">
             </Date-picker>
             <Button type="primary" class="button" @click="exportData1">导出统计表</Button>

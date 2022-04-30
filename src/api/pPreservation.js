@@ -81,3 +81,32 @@ export function deletePRecord(guid, time) {
         method: 'POST',
     })
 }
+
+export function queryUnsignedPRecord(start, end, page) {
+    return request({
+        url: 'PracticePreservation/UnsignedTask',
+        params: {
+            limit: 10,
+            page,
+        },
+        data: {
+            starttime: start,
+            endtime: end,
+        },
+        method: 'POST',
+    })
+}
+export function querySignedPRecord(start, end, page) {
+    return request({
+        url: 'PracticePreservation/SignedTask',
+        params: {
+            limit: 10,
+            page,
+        },
+        data: {
+            starttime: start,
+            endtime: end,
+        },
+        method: 'POST',
+    })
+}

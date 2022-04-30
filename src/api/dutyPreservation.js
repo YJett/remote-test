@@ -116,12 +116,22 @@ export function querySignedDRecord(start, end, page) {
     return request({
         url: 'DutyPreservation/SignedTask',
         params: {
-            limit: 5,
+            limit: 10,
             page,
         },
         data: {
             starttime: start,
             endtime: end,
+        },
+        method: 'POST',
+    })
+}
+
+export function signByAdmin(id) {
+    return request({
+        url: 'DutyPreservation/SignByAdmin',
+        params: {
+            timeId: id,
         },
         method: 'POST',
     })

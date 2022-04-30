@@ -12,14 +12,6 @@
             <Button type="primary" class="button" @click="exportData1">导出统计表</Button>
             <Button type="success" class="button" @click="querySigned">查询已签到任务</Button>
             <Button type="warning" class="button" @click="queryUnSigned">查询未签到任务</Button>
-            <i-switch
-                v-model="status" class="addbutton"
-                size="large"
-                @on-change="changeStatus"
-            >
-                <span slot="open">练琴</span>
-                <span slot="close">值班</span>
-            </i-switch>
         </div>
         <Table :data="tableData" :columns="tableColumns" stripe>
             <template slot-scope="{ row }" slot="name">
@@ -36,7 +28,7 @@
                 type="primary"
                 size="small"
                 v-if="row.isSigned==0"
-                 @click="showRecord(row,false)"
+                 @click="sign(row.id)"
                  >补签</Button>
                 <Tag
                 color="success"
@@ -60,7 +52,8 @@
 </template>
 
 <script>
-import { exportReport, queryUnsignedDRecord, querySignedDRecord } from '../api/dutyPreservation'
+import { exportReport, queryUnsignedDRecord, querySignedDRecord, signByAdmin } from '../api/dutyPreservation'
+import { queryUnsignedPRecord, querySignedPRecord } from '../api/pPreservation'
 
 export default {
     name: 'home',
@@ -103,6 +96,7 @@ export default {
             curPage: 1,
             total: 11,
             status: false,
+            isSigned: false,
         }
     },
     methods: {
@@ -134,19 +128,41 @@ export default {
             window.location = url
         },
         querySigned() {
-            console.log(this.timerange)
-            querySignedDRecord(this.timerange[0].toISOString().split('.')[0],
-                this.timerange[1].toISOString().split('.')[0], this.curPage).then(res => {
-                this.tableData = res.data.content
-                this.total = res.data.allCount
-                console.log(res)
-            })
+            if (!this.status) {
+                querySignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
+                    this.tableData = res.data.content
+                    this.total = res.data.allCount
+                    console.log(res)
+                })
+            } else {
+                querySignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
+                    this.tableData = res.data.content
+                    this.total = res.data.allCount
+                    console.log(res)
+                })
+            }
+            this.isSigned = true
         },
         queryUnSigned() {
-            queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                this.tableData = res.data.content
-                this.total = res.data.allCount
+            if (!this.status) {
+                queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
+                    this.tableData = res.data.content
+                    this.total = res.data.allCount
+                    console.log(res)
+                })
+            } else {
+                queryUnsignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
+                    this.tableData = res.data.content
+                    this.total = res.data.allCount
+                    console.log(res)
+                })
+            }
+            this.isSigned = false
+        },
+        sign(id) {
+            signByAdmin(id).then(res => {
                 console.log(res)
+                this.fetchData()
             })
         },
         changePage(page) {
@@ -155,7 +171,18 @@ export default {
         changeStatus(status) {
             this.status = status
         },
-
+        fetchData() {
+            if (this.isSigned) {
+                this.querySigned()
+            } else {
+                this.queryUnSigned()
+            }
+        },
+    },
+    watch: {
+        curPage() {
+            this.fetchData()
+        },
     },
 }
 </script>

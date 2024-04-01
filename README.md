@@ -1,2 +1,2 @@
 # remote-test
-第一个远程仓库
+boat项目

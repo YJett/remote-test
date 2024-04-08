@@ -73,9 +73,9 @@ export default {
                 // 登陆成功 假设这里是后台返回的 token
                 getToken({ username: this.account, password: this.pwd }).then((data) => {
                     localStorage.setItem('token', data.data.token)
+                    this.$router.push({ path: this.redirect || '/' })
                     getInfo().then((data) => {
                         localStorage.setItem('userName', data.data.name)
-                        this.$router.push({ path: this.redirect || '/' })
                     })
                 })
             } else {

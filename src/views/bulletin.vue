@@ -1,0 +1,177 @@
+<template>
+    <Tabs v-model="curName">
+        <TabPane label="值班公告"  name="duty">
+            <div>
+                <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
+                <Button type="primary" class="left" @click="handleAdd">添加</Button>
+            </div>
+            <Table :data="tableData1" :columns="tableColumns1" stripe>
+                <template slot-scope="{ row }" slot="name">
+                    <strong>{{ row.name }}</strong>
+                </template>
+                <template slot-scope="{ row }" slot="action">
+                    <Button type="primary" size="small" style="margin-right: 5px" @click="handleUpdate(row)">修改</Button>
+                    <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
+                </template>
+            </Table>
+            <div style="margin: 10px;overflow: hidden">
+                <div style="float: right;">
+                    <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
+                </div>
+            </div>
+        </TabPane>
+        <TabPane label="练琴公告" name="piano">
+            <div>
+                <Button type="primary" icon="ios-search" @click="fetchData">刷新</Button>
+                <Button type="primary" class="left" @click="handleAdd">添加</Button>
+            </div>
+            <Table :data="tableData1" :columns="tableColumns1" stripe>
+                <template slot-scope="{ row }" slot="name">
+                    <strong>{{ row.name }}</strong>
+                </template>
+                <template slot-scope="{ row }" slot="action">
+                    <Button type="primary" size="small" style="margin-right: 5px" @click="handleUpdate(row)">修改</Button>
+                    <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
+                </template>
+            </Table>
+            <div style="margin: 10px;overflow: hidden">
+                <div style="float: right;">
+                    <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
+                </div>
+            </div>
+            <Modal
+                v-model="showForm"
+                title="公告详情"
+                width="900px"
+            >
+                <bulletin-form
+                    :data-obj="curBulletin"
+                    :is-duty="isDuty"
+                    :is-add="isAdd"
+                    @close="showForm=false"
+                    @refresh="fetchData">
+                </bulletin-form>
+                <div slot="footer"/>
+            </Modal>
+        </TabPane>
+    </Tabs>
+</template>
+<script>
+// eslint-disable-next-line import/no-unresolved
+import { getAssignmentBulletin, getIndexBulletin, delBulletin } from '../api/bulletin'
+import BulletinForm from '../components/BulletinForm'
+
+export default {
+    name: 'bulletin',
+    components: { BulletinForm },
+    data() {
+        return {
+            total: 11,
+            curPage: 1,
+            tableData1: [],
+            showForm: false,
+            tableColumns1: [
+                {
+                    title: '标题',
+                    key: 'title',
+                },
+                {
+                    title: '公告类型',
+                    key: 'isduty',
+                    render: (h, params) => {
+                        const row = params.row
+                        // eslint-disable-next-line no-nested-ternary
+                        const color = 'primary'
+                        // eslint-disable-next-line no-nested-ternary
+                        const text = row.isDuty === true ? '值班公告' : '练琴公告'
+
+                        return h('Tag', {
+                            props: {
+                                type: 'dot',
+                                color,
+                            },
+                        }, text)
+                    },
+                },
+                {
+                    title: '内容',
+                    key: 'content',
+                    render: (h, params) => {
+                        const row = params.row
+                        const text = row.content.length > 15 ? row.content.substring(0, 15) : row.content
+                        return h('div', text)
+                    },
+                },
+                {
+                    title: 'Action',
+                    slot: 'action',
+                    width: 150,
+                    align: 'center',
+                },
+            ],
+            curName: 'piano',
+            curBulletin: {
+            },
+            isDuty: false,
+            isAdd: true,
+        }
+    },
+    methods: {
+        changePage(page) {
+            this.curPage = page
+        },
+        handleUpdate(obj) {
+            this.isAdd = false
+            this.showForm = true
+            this.curBulletin = obj
+        },
+        handleDelete(param) {
+            delBulletin(param.id).then(res => {
+                this.fetchData()
+            })
+            console.log(param)
+        },
+        fetchData() {
+            if (this.curName === 'duty') {
+                getAssignmentBulletin(this.curPage).then(res => {
+                    console.log(res)
+                    this.total = res.data.length
+                    this.tableData1 = res.data
+                })
+            } else if (this.curName === 'piano') {
+                getIndexBulletin(this.curPage).then(res => {
+                    console.log(res.data.length)
+                    this.total = res.data.length
+                    this.tableData1 = res.data
+                })
+            }
+        },
+        handleAdd() {
+            this.isAdd = true
+            if (this.curName === 'duty') {
+                this.isDuty = true
+            } else {
+                this.isDuty = false
+            }
+            this.showForm = true
+        },
+    },
+    mounted() {
+        this.fetchData()
+    },
+    watch: {
+        curPage() {
+            this.fetchData()
+        },
+        curName() {
+            this.fetchData()
+        },
+    },
+}
+</script>
+<style>
+    .left{
+        float:right;
+        margin-right: 30px;
+    }
+</style>

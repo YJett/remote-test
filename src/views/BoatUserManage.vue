@@ -86,7 +86,7 @@
 
 <script>
 import axios from "axios";
-import { search } from '@/api/user'
+import { search } from '@/api/search'
 
 export default {
     data() {
@@ -113,11 +113,7 @@ export default {
         // 查询逻辑
         async search() {
             try {
-                const response = await searchUsers({
-                    user_name: this.searchName,
-                    email: this.searchEmail,
-                });
-                this.userList = response.data;
+                console.log("test")
             } catch (error) {
                 console.error('Error fetching user list:', error);
             }

@@ -58,120 +58,81 @@
 </template>
 <script>
 // eslint-disable-next-line import/no-unresolved
-import { getAssignmentBulletin, getIndexBulletin, delBulletin } from '../api/bulletin'
-import BulletinForm from '../components/BulletinForm'
-
 export default {
-    name: 'bulletin',
-    components: { BulletinForm },
+    name: 'Home',
     data() {
         return {
-            total: 11,
-            curPage: 1,
-            tableData1: [],
-            showForm: false,
-            tableColumns1: [
+            timerange: [],
+            tableData: [],
+            tableColumns: [
                 {
-                    title: '标题',
-                    key: 'title',
+                    title: '姓名',
+                    slot: 'name',
                 },
                 {
-                    title: '公告类型',
-                    key: 'isduty',
-                    render: (h, params) => {
-                        const row = params.row
-                        // eslint-disable-next-line no-nested-ternary
-                        const color = 'primary'
-                        // eslint-disable-next-line no-nested-ternary
-                        const text = row.isDuty === true ? '值班公告' : '练琴公告'
-
-                        return h('Tag', {
-                            props: {
-                                type: 'dot',
-                                color,
-                            },
-                        }, text)
-                    },
+                    title: '邮箱',
+                    slot: 'email',
                 },
                 {
-                    title: '内容',
-                    key: 'content',
-                    render: (h, params) => {
-                        const row = params.row
-                        const text = row.content.length > 15 ? row.content.substring(0, 15) : row.content
-                        return h('div', text)
-                    },
+                    title: '角色',
+                    slot: 'role',
                 },
                 {
-                    title: 'Action',
+                    title: '操作',
                     slot: 'action',
-                    width: 150,
-                    align: 'center',
                 },
             ],
-            curName: 'piano',
-            curBulletin: {
-            },
-            isDuty: false,
-            isAdd: true,
+            curPage: 1,
+            pageSize: 10,
+            total: 0,
         }
     },
     methods: {
-        changePage(page) {
-            this.curPage = page
-        },
-        handleUpdate(obj) {
-            this.isAdd = false
-            this.showForm = true
-            this.curBulletin = obj
-        },
-        handleDelete(param) {
-            delBulletin(param.id).then(res => {
-                this.fetchData()
-            })
-            console.log(param)
-        },
         fetchData() {
-            if (this.curName === 'duty') {
-                getAssignmentBulletin(this.curPage).then(res => {
-                    console.log(res)
-                    this.total = res.data.length
-                    this.tableData1 = res.data
-                })
-            } else if (this.curName === 'piano') {
-                getIndexBulletin(this.curPage).then(res => {
-                    console.log(res.data.length)
-                    this.total = res.data.length
-                    this.tableData1 = res.data
-                })
-            }
+            // 调用 API 获取数据
+            this.tableData = [
+                {
+                    name: '张三',
+                    email: 'zhangsan@example.com',
+                    role: '管理员',
+                },
+                {
+                    name: '李四',
+                    email: 'lisi@example.com',
+                    role: '普通用户',
+                },
+                {
+                    name: '王五',
+                    email: 'wangwu@example.com',
+                    role: '编辑',
+                },
+            ]
+            this.total = this.tableData.length
         },
-        handleAdd() {
-            this.isAdd = true
-            if (this.curName === 'duty') {
-                this.isDuty = true
-            } else {
-                this.isDuty = false
-            }
-            this.showForm = true
+        editUser(row) {
+            // 编辑用户
+            console.log('编辑用户', row)
         },
-    },
-    mounted() {
-        this.fetchData()
-    },
-    watch: {
-        curPage() {
-            this.fetchData()
+        deleteUser(row) {
+            // 删除用户
+            console.log('删除用户', row)
         },
-        curName() {
-            this.fetchData()
+        changePage(page) {
+            // 切换页码
+            this.curPage = page
         },
     },
 }
 </script>
 <style>
-    .left{
-        float:right;
-        margin-right: 30px;
-    }
+.home-container {
+    padding: 10px;
+    padding-top: 5px;
+}
+.home-content {
+    padding: 10px;
+    border-radius: 5px;
+    background: #fff;
+}
+
 </style>

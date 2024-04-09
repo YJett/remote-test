@@ -1,7 +1,7 @@
 <template>
-    <div class="home-container">
+<div class="home-container">
         <div class="home-content">
-            <label>请选择时间范围</label>
+            <label></label>
             <Date-picker type="datetimerange"
                          format="yyyy-MM-dd HH:mm:ss"
                          placeholder="选择日期和时间（不含秒）"

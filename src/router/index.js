@@ -51,17 +51,17 @@ export const asyncRoutes = {
         meta: { title: '用户管理' },
         component: () => import('../views/UserManage.vue'),
     },
-    msg: {
-        path: 'msg',
-        name: 'msg',
-        meta: { title: '琴房预约管理' },
-        component: () => import('../views/Msg.vue'),
+    companymanage: {
+        path: 'companymanage',
+        name: 'companymanage',
+        meta: { title: '企业信息管理' },
+        component: () => import('../views/CompanyManage.vue'),
     },
-    userinfo: {
-        path: 'userinfo',
-        name: 'userinfo',
-        meta: { title: '值班管理' },
-        component: () => import('../views/UserInfo.vue'),
+    schoolmanage: {
+        path: 'schoolmanage',
+        name: 'schoolmanage',
+        meta: { title: '学校信息管理' },
+        component: () => import('../views/SchoolManage.vue'),
     },
 }
 

@@ -47,31 +47,35 @@ export default {
             tableColumns1: [
                 {
                     title: 'No',
-                    key: 'user_id',
+                    key: 'comId',
                 },
                 {
-                    title: '用户名',
-                    key: 'user_name',
+                    title: '企业名',
+                    key: 'comName',
                 },
                 {
-                    title: '审核状态',
+                    title: '地址',
+                    key: 'address',
+                },
+                {
+                    title: '联系人',
+                    key: 'contact',
+                },
+                {
+                    title: '邮编',
+                    key: 'zipcode',
+                },
+                {
+                    title: '电话',
+                    key: 'tel',
+                },
+                {
+                    title: '邮箱',
+                    key: 'email',
+                },
+                {
+                    title: '状态',
                     key: 'status',
-                },
-                {
-                    title: '用户身份',
-                    key: 'flag',
-                },
-                {
-                    title: '最后login时间',
-                    key: 'last_login',
-                },
-                {
-                    title: '创建时间',
-                    key: 'create_time',
-                },
-                {
-                    title: '修改时间',
-                    key: 'update_time',
                 },
             ],
             curObj: {},

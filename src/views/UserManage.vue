@@ -3,15 +3,15 @@
         <div class="input-container">
             <!-- 查询按钮 -->
             <div class="search-container">
-                <input type="text" v-model="searchName" placeholder="输入用户名">
-                <input type="text" v-model="searchEmail" placeholder="输入邮箱" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
-                <button @click="querySigned" class="search-button">查询</button>
+                <Input v-model="value5" placeholder="请输入用户名" style="width: 200px"/>
+                <Input v-model="value6" placeholder="请输入邮箱" style="width: 200px" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"/>
+                <Button type="primary" class="button" @click="exportData1">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
-                <button class="action-button add-user-button" @click="exportData1">新增用户</button>
-                <button class="action-button delete-button" @click="queryUnSigned">删除选中</button>
-                <button class="action-button approve-button" @click="approveSelected">一键审核/此处无@click</button>
+                <Button type="primary" class="button" @click="exportData1">添加用户</Button>
+                <Button type="success" class="button" @click="querySigned2">删除所选/此处无@click</Button>
+                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
             </div>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
@@ -58,6 +58,8 @@ export default {
     components: {PreservationRecord},
     data() {
         return {
+            value5: '',
+            value6: '',
             showDetail: false,
             total: 11,
             curPage: 1,

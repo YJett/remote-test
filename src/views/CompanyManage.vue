@@ -47,7 +47,7 @@ import {queryUser, froze, unForze} from '../api/usermanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
-    name: 'usermanage',
+    name: 'companymanage',
     components: {PreservationRecord},
     data() {
         return {

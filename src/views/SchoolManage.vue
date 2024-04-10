@@ -9,8 +9,8 @@
             </div>
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
-                <Button type="primary" class="button" @click="exportData1">添加学校</Button>
-                <Button type="success" class="button" @click="querySigned2">删除所选/此处无@click</Button>
+                <Button type="primary" class="button" @click="openAddSchoolModal">添加学校</Button>
+                <Button type="success" class="button" @click="exportData1">删除所选</Button>
                 <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
             </div>
         </div>
@@ -93,9 +93,65 @@ export default {
             ],
             curObj: {},
             isDuty: false,
+            // 添加学校需要的字段
+            schName: '',
+            address: '',
+            zipcode: '',
+            contact: '',
+            tel: '',
+            email: '',
+            qualification: '',
+            status: '',
+            remark: ''
         }
     },
     methods: {
+        openAddSchoolModal() {
+            this.$Modal.confirm({
+                title: '添加学校',
+                content: "学校名"
+                    + '<Input v-model="schName" placeholder="请输入学校名"/><br/>'
+                    + "地址"
+                    + '<Input v-model="address" placeholder="请输入地址"/><br/>'
+                    + "邮编"
+                    + '<Input v-model="zipcode" placeholder="请输入邮编"/><br/>'
+                    + "联系人"
+                    + '<Input v-model="contact" placeholder="请输入联系人"/><br/>'
+                    + "电话"
+                    + '<Input v-model="tel" placeholder="请输入电话"/><br/>'
+                    + "邮箱"
+                    + '<Input v-model="email" placeholder="请输入邮箱"/><br/>'
+                    + "审核状态"
+                    + '<Select v-model="status" placeholder="请选择状态">'
+                    + '<Option value="0">未审核</Option>'
+                    + '<Option value="1">已审核</Option>'
+                    + '<Option value="9">已删除</Option>'
+                    + '</Select><br/>'
+                    + '<Input v-model="remark" placeholder="请输入备注"/>',
+                onOk: () => {
+                    // 在这里处理确认添加学校的逻辑
+                    // 可以在这里将输入的内容发送到后端进行保存
+                    // 清空输入框的内容以便下次使用
+                    this.clearInputs();
+                },
+                onCancel: () => {
+                    // 在这里处理取消添加学校的逻辑
+                    // 清空输入框的内容以便下次使用
+                    this.clearInputs();
+                }
+            });
+        },
+        clearInputs() {
+            this.schName = '';
+            this.address = '';
+            this.zipcode = '';
+            this.contact = '';
+            this.tel = '';
+            this.email = '';
+            this.qualification = '';
+            this.status = '';
+            this.remark = '';
+        },
         exportData1() {
             /*
             exportReport(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {

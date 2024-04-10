@@ -8,11 +8,11 @@
                 <Button type="primary" class="button" @click="exportData1">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
-            <div class="button-container">
-                <Button type="primary" class="button" @click="exportData1">添加用户</Button>
-                <Button type="success" class="button" @click="querySigned2">删除所选/此处无@click</Button>
-                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
-            </div>
+<!--            <div class="button-container">-->
+<!--                <Button type="primary" class="button" @click="openAddUserModal">添加用户</Button>-->
+<!--                <Button type="success" class="button" @click="exportData1">删除所选</Button>-->
+<!--                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>-->
+<!--            </div>-->
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row }" slot="name">
@@ -20,10 +20,10 @@
             </template>
 <!--            <template slot-scope="{ row }" slot="action">-->
 <!--                &lt;!&ndash; eslint-disable-next-line vue/no-unused-vars &ndash;&gt;-->
-<!--&lt;!&ndash;                <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>&ndash;&gt;-->
-<!--&lt;!&ndash;                <Button type="error" size="small" @click="unfroze(row)">解冻</Button>&ndash;&gt;-->
-<!--&lt;!&ndash;                <Button type="success" size="small" @click="showRecord(row,true)">值班预约</Button>&ndash;&gt;-->
-<!--&lt;!&ndash;                <Button type="primary" size="small" @click="showRecord(row,false)">练琴预约</Button>&ndash;&gt;-->
+<!--                <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>-->
+<!--                <Button type="error" size="small" @click="unfroze(row)">解冻</Button>-->
+<!--                <Button type="success" size="small" @click="showRecord(row,true)">值班预约</Button>-->
+<!--                <Button type="primary" size="small" @click="showRecord(row,false)">练琴预约</Button>-->
 <!--            </template>-->
         </Table>
         <Modal

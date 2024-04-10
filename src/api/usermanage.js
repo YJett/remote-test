@@ -1,16 +1,26 @@
 import request from '@/utils/request'
 
 
-export function queryUser(page) {
+export function queryUser(page, email, userName) {
     return request({
-        url: '/Account/QueryAllUsers',
+        url: 'users/page',
         method: 'GET',
         params: {
-            limit: 10,
-            page,
+            pageNum: page,
+            pageSize: 10,
+            email,
+            userName
         },
     })
 }
+
+export function deleteUser(id) {
+    return request({
+        url: 'users/' + id,
+        method: 'DELETE',
+    })
+}
+
 export function froze(guid) {
     return request({
         url: 'Account/' + guid + '/FreezeAccount',

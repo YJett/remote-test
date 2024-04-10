@@ -1,42 +1,29 @@
 <template>
     <div>
         <div class="input-container">
-            <!-- 查询按钮 -->
             <div class="search-container">
-                <Input v-model="value5" placeholder="请输入用户名" style="width: 200px"/>
-                <Input v-model="value6" placeholder="请输入邮箱" style="width: 200px" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"/>
-                <Button type="primary" class="button" @click="exportData1">查询</Button>
+                <Input v-model="userName" placeholder="请输入用户名" style="width: 200px" />
+                <Input v-model="email" placeholder="请输入邮箱" style="width: 200px"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
+                <Button type="primary" class="button" @click="fetchData">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
-<!--            <div class="button-container">-->
-<!--                <Button type="primary" class="button" @click="openAddUserModal">添加用户</Button>-->
-<!--                <Button type="success" class="button" @click="exportData1">删除所选</Button>-->
-<!--                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>-->
-<!--            </div>-->
+            <!--            <div class="button-container">-->
+            <!--                <Button type="primary" class="button" @click="openAddUserModal">添加用户</Button>-->
+            <!--                <Button type="success" class="button" @click="exportData1">删除所选</Button>-->
+            <!--                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>-->
+            <!--            </div>-->
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
-            <template slot-scope="{ row }" slot="name">
-                <strong>{{ row.name }}</strong>
-            </template>
-<!--            <template slot-scope="{ row }" slot="action">-->
-<!--                &lt;!&ndash; eslint-disable-next-line vue/no-unused-vars &ndash;&gt;-->
-<!--                <Button type="primary" size="small" style="margin-right: 5px" @click="froze(row)">冻结</Button>-->
-<!--                <Button type="error" size="small" @click="unfroze(row)">解冻</Button>-->
-<!--                <Button type="success" size="small" @click="showRecord(row,true)">值班预约</Button>-->
-<!--                <Button type="primary" size="small" @click="showRecord(row,false)">练琴预约</Button>-->
-<!--            </template>-->
+            <template slot-scope="{ row, index }" slot="action">
+            <Button type="primary" size="small" style="margin-right: 5px" @click="show(row,index)">查看</Button>
+            <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
+        </template>
         </Table>
-        <Modal
-            v-model="showDetail"
-            title="用户预约记录"
-            width="850"
-        >
-            <preservation-record
-                @close="this.showDetail=false"
-                :is-duty="isDuty"
-                :id="curObj.guid"
-            ></preservation-record>
-            <div slot="footer"/>
+        <Modal v-model="showDetail" title="用户预约记录" width="850">
+            <preservation-record @close="this.showDetail = false" :is-duty="isDuty"
+                :id="curObj.guid"></preservation-record>
+            <div slot="footer" />
         </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
@@ -48,18 +35,18 @@
 <script>
 
 // eslint-disable-next-line import/no-unresolved
-import {querySignedDRecord, queryUnsignedDRecord} from "@/api/dutyPreservation";
-import {querySignedPRecord, queryUnsignedPRecord} from "@/api/pPreservation";
-import {queryUser, froze, unForze} from '../api/usermanage';
+import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
+import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
+import { queryUser, froze, unForze, deleteUser } from '../api/usermanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
     name: 'usermanage',
-    components: {PreservationRecord},
+    components: { PreservationRecord },
     data() {
         return {
-            value5: '',
-            value6: '',
+            email: '',
+            userName: '',
             showDetail: false,
             total: 11,
             curPage: 1,
@@ -67,11 +54,11 @@ export default {
             tableColumns1: [
                 {
                     title: 'No',
-                    key: 'user_id',
+                    key: 'userId',
                 },
                 {
                     title: '用户名',
-                    key: 'user_name',
+                    key: 'userName',
                 },
                 {
                     title: '审核状态',
@@ -79,20 +66,26 @@ export default {
                 },
                 {
                     title: '用户身份',
-                    key: 'flag',
+                    flg: 'flag',
                 },
                 {
                     title: '最后login时间',
-                    key: 'last_login',
+                    key: 'lastLogin',
                 },
                 {
                     title: '创建时间',
-                    key: 'create_time',
+                    key: 'createTime',
                 },
                 {
                     title: '修改时间',
-                    key: 'update_time',
+                    key: 'updateTime',
                 },
+                {
+                        title: 'Action',
+                        slot: 'action',
+                        width: 150,
+                        align: 'center'
+                }
             ],
             curObj: {},
             isDuty: false,
@@ -126,42 +119,37 @@ export default {
             // eslint-disable-next-line max-len
             window.location = url
         },
-        querySigned() {
-            if (!this.status) {
-                querySignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            } else {
-                querySignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            }
-            this.isSigned = true
+        show(row, index) {
+            console.log(row)
+            console.log(index)
         },
-        queryUnSigned() {
-            if (!this.status) {
-                queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            } else {
-                queryUnsignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            }
-            this.isSigned = false
+        handleDelete(obj) {
+            console.log(obj)
+            // 提示用户是否确认删除
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认删除该用户？',
+                onOk: () => {
+                    deleteUser(obj.userId)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
+                        })
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
+            })
         },
         fetchData() {
-            queryUser(this.curPage)
+            queryUser(this.curPage, this.email, this.userName)
                 .then(res => {
-                    this.tableData1 = res.data.users
+                    console.log(res);
+                    console.log(res.data.list);
+                    this.tableData1 = res.data.list
+                    this.total = res.data.total
                 })
         },
         changePage(page) {
@@ -196,19 +184,11 @@ export default {
         },
     },
     mounted() {
-        queryUser(this.curPage)
-            .then(res => {
-                console.log(res)
-                this.total = res.data.allCount
-                this.tableData1 = res.data.users
-            })
+        this.fetchData();
     },
     watch: {
         curPage() {
-            queryUser(this.curPage)
-                .then(res => {
-                    this.tableData1 = res.data.users
-                })
+            this.fetchData();
         },
     },
 }
@@ -257,7 +237,7 @@ export default {
 }
 
 /* 如果需要调整按钮之间的间距，可以在按钮之间增加 margin */
-.action-button + .action-button {
+.action-button+.action-button {
     margin-left: 10px;
 }
 </style>

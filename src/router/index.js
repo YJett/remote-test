@@ -26,7 +26,7 @@ const commonRoutes = [
 ]
 
 // 本地所有的页面 需要配合后台返回的数据生成页面
-// export const asyncRoutes = {
+export const asyncRoutes = {
 //     boatUserManage: {
 //         path: 'user',
 //         name: 'user',

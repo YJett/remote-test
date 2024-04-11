@@ -4,8 +4,10 @@ import router from '@/router'
 import { showLoading, closeLoading } from '@/utils/loading'
 import { resetTokenAndClearUser } from '@/utils'
 
+let BASE_URL = process.env.NODE_ENV === 'production' ? 'http://202.120.84.249:8081/api/' : '/api/'
+
 const service = axios.create({
-    baseURL: '/api/',
+    baseURL: BASE_URL,
     timeout: 3000,
     //    baseURL: 'https://bucuo-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/',
 

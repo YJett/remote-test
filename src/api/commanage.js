@@ -21,16 +21,11 @@ export function deleteCom(id) {
     })
 }
 
-export function froze(guid) {
+export function createCom(data) {
     return request({
-        url: 'Account/' + guid + '/FreezeAccount',
+        url: 'com/create',
         method: 'POST',
-    })
+        data,
+    });
 }
 
-export function unForze(guid) {
-    return request({
-        url: 'Account/' + guid + '/UnFreezeAccount',
-        method: 'POST',
-    })
-}

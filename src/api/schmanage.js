@@ -20,3 +20,11 @@ export function deleteSch(id) {
         method: 'DELETE',
     })
 }
+export function createSch(data) {
+    return request({
+      url: 'sch/create',
+      method: 'POST',
+      data,
+    });
+  }
+

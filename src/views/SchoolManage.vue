@@ -68,7 +68,7 @@
 <script>
 import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
 import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
-import { querySch, froze, unForze, deleteSch } from '../api/schmanage';
+import { querySch, froze, unForze, deleteSch, createSch } from '../api/schmanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
@@ -217,11 +217,21 @@ export default {
         handleSubmit(name) {
             this.$refs[name].validate((valid) => {
                 if (valid) {
+                                // 调用添加学校的方法
+                    createSch(this.formValidate).then(res => {
+                        console.log(res);
+                        this.$Message.success({
+                            content: res.msg,
+                        })
+                        this.fetchData()
+                    })
                     this.$Message.success('Success!');
                 } else {
                     this.$Message.error('Fail!');
                 }
             })
+
+
         },
         handleReset(name) {
             this.$refs[name].resetFields();

@@ -3,8 +3,9 @@
         <div class="input-container">
             <!-- 查询按钮 -->
             <div class="search-container">
-                <Input v-model="schName" placeholder="请输入学校名" style="width: 200px"/>
-                <Input v-model="email" placeholder="请输入邮箱" style="width: 200px" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"/>
+                <Input v-model="schName" placeholder="请输入学校名" style="width: 200px" />
+                <Input v-model="email" placeholder="请输入邮箱" style="width: 200px"
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
                 <Button type="primary" class="button" @click="fetchData">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
@@ -16,39 +17,39 @@
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row, index }" slot="action">
-                <Button type="primary" size="small" style="margin-right: 5px" @click="show(row,index)">查看</Button>
+                <Button type="primary" size="small" style="margin-right: 5px" @click="show(row, index)">查看</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
         <Modal v-model="addSchoolModalVisible" title="添加学校">
             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="学校名" prop="schName">
-                    <Input v-model="formValidate.schName" placeholder="请输入学校名"/><br/>
+                    <Input v-model="formValidate.schName" placeholder="请输入学校名" /><br />
                 </FormItem>
                 <FormItem label="地址" prop="address">
-                    <Input v-model="formValidate.address" placeholder="请输入地址"/><br/>
+                    <Input v-model="formValidate.address" placeholder="请输入地址" /><br />
                 </FormItem>
                 <FormItem label="邮编" prop="zipcode">
-                    <Input v-model="formValidate.zipcode" placeholder="请输入邮编"/><br/>
+                    <Input v-model="formValidate.zipcode" placeholder="请输入邮编" /><br />
                 </FormItem>
                 <FormItem label="联系人" prop="contact">
-                    <Input v-model="formValidate.contact" placeholder="请输入联系人"/><br/>
+                    <Input v-model="formValidate.contact" placeholder="请输入联系人" /><br />
                 </FormItem>
                 <FormItem label="电话" prop="tel">
-                    <Input v-model="formValidate.tel" placeholder="请输入电话"/><br/>
+                    <Input v-model="formValidate.tel" placeholder="请输入电话" /><br />
                 </FormItem>
                 <FormItem label="邮编" prop="email">
-                    <Input v-model="formValidate.email" placeholder="请输入邮箱"/><br/>
+                    <Input v-model="formValidate.email" placeholder="请输入邮箱" /><br />
                 </FormItem>
                 <FormItem label="审核状态" prop="status">
                     <Select v-model="formValidate.status" placeholder="请选择状态">
                         <Option value="0">未审核</Option>
                         <Option value="1">已审核</Option>
                         <Option value="9">已删除</Option>
-                    </Select><br/>
+                    </Select><br />
                 </FormItem>
                 <FormItem label="备注" prop="comment">
-                    <Input v-model="formValidate.comment" placeholder="请输入备注"/>
+                    <Input v-model="formValidate.comment" placeholder="请输入备注" />
                 </FormItem>
                 <FormItem>
                     <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
@@ -73,7 +74,7 @@ import PreservationRecord from '../components/PreservationRecord';
 export default {
     name: 'schmanage',
     // eslint-disable-next-line vue/no-unused-components
-    components: {PreservationRecord},
+    components: { PreservationRecord },
     data() {
         return {
             formValidate: {
@@ -224,58 +225,59 @@ export default {
         },
         handleReset(name) {
             this.$refs[name].resetFields();
-        }
-    },
-    cancelAddSchool() {
-        this.addSchoolModalVisible = false;
-        this.clearInputs();
-    },
-    clearInputs() {
-        this.schName = '';
-        this.address = '';
-        this.zipcode = '';
-        this.contact = '';
-        this.tel = '';
-        this.email = '';
-        this.status = '';
-        this.remark = '';
-    },
-    show(row, index) {
-        console.log(row)
-        console.log(index)
-    },
-    handleDelete(obj) {
-        console.log(obj)
-        // 提示用户是否确认删除
-        this.$Modal.confirm({
-            title: '删除',
-            content: '是否确认删除该企业？',
-            onOk: () => {
-                deleteSch(obj.schId)
-                    .then(res => {
-                        this.$Message.success({
-                            content: res.msg,
+        },
+        cancelAddSchool() {
+            this.addSchoolModalVisible = false;
+            this.clearInputs();
+        },
+        clearInputs() {
+            this.schName = '';
+            this.address = '';
+            this.zipcode = '';
+            this.contact = '';
+            this.tel = '';
+            this.email = '';
+            this.status = '';
+            this.remark = '';
+        },
+        show(row, index) {
+            console.log(row)
+            console.log(index)
+        },
+        handleDelete(obj) {
+            console.log(obj)
+            // 提示用户是否确认删除
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认删除该企业？',
+                onOk: () => {
+                    deleteSch(obj.schId)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
                         })
-                        this.fetchData()
-                    })
-            },
-            onCancel: () => {
-                console.log('cancel')
-            },
-        })
-    },
-    fetchData() {
-        querySch(this.curPage, this.email, this.schName)
-            .then(res => {
-                console.log(res);
-                console.log(res.data.list);
-                this.tableData1 = res.data.list
-                this.total = res.data.total
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
             })
+        },
+        fetchData() {
+            querySch(this.curPage, this.email, this.schName)
+                .then(res => {
+                    console.log(res);
+                    console.log(res.data.list);
+                    this.tableData1 = res.data.list
+                    this.total = res.data.total
+                })
+        },
+        changePage(page) {
+            this.curPage = page
+        },
     },
-    changePage(page) {
-        this.curPage = page
-    },
+
     mounted() {
         this.fetchData();
     },

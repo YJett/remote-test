@@ -20,17 +20,3 @@ export function deleteSch(id) {
         method: 'DELETE',
     })
 }
-
-export function froze(guid) {
-    return request({
-        url: 'Account/' + guid + '/FreezeAccount',
-        method: 'POST',
-    })
-}
-
-export function unForze(guid) {
-    return request({
-        url: 'Account/' + guid + '/UnFreezeAccount',
-        method: 'POST',
-    })
-}

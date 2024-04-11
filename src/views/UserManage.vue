@@ -53,6 +53,11 @@ export default {
             tableData1: [],
             tableColumns1: [
                 {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                },
+                {
                     title: 'No',
                     key: 'userId',
                 },

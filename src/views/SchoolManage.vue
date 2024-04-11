@@ -3,9 +3,9 @@
         <div class="input-container">
             <!-- 查询按钮 -->
             <div class="search-container">
-                <Input v-model="value1" placeholder="请输入用户名" style="width: 200px"/>
-                <Input v-model="value2" placeholder="请输入邮箱" style="width: 200px" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"/>
-                <Button type="primary" class="button" @click="exportData1">查询</Button>
+                <Input v-model="schName" placeholder="请输入学校名" style="width: 200px"/>
+                <Input v-model="email" placeholder="请输入邮箱" style="width: 200px" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"/>
+                <Button type="primary" class="button" @click="fetchData">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
@@ -15,21 +15,46 @@
             </div>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
-            <template slot-scope="{ row }" slot="name">
-                <strong>{{ row.name }}</strong>
+            <template slot-scope="{ row, index }" slot="action">
+                <Button type="primary" size="small" style="margin-right: 5px" @click="show(row,index)">查看</Button>
+                <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
-        <Modal
-            v-model="showDetail"
-            title="用户预约记录"
-            width="850"
-        >
-            <preservation-record
-                @close="this.showDetail=false"
-                :is-duty="isDuty"
-                :id="curObj.guid"
-            ></preservation-record>
-            <div slot="footer"/>
+        <Modal v-model="addSchoolModalVisible" title="添加学校">
+            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+                <FormItem label="学校名" prop="schName">
+                    <Input v-model="formValidate.schName" placeholder="请输入学校名"/><br/>
+                </FormItem>
+                <FormItem label="地址" prop="address">
+                    <Input v-model="formValidate.address" placeholder="请输入地址"/><br/>
+                </FormItem>
+                <FormItem label="邮编" prop="zipcode">
+                    <Input v-model="formValidate.zipcode" placeholder="请输入邮编"/><br/>
+                </FormItem>
+                <FormItem label="联系人" prop="contact">
+                    <Input v-model="formValidate.contact" placeholder="请输入联系人"/><br/>
+                </FormItem>
+                <FormItem label="电话" prop="tel">
+                    <Input v-model="formValidate.tel" placeholder="请输入电话"/><br/>
+                </FormItem>
+                <FormItem label="邮编" prop="email">
+                    <Input v-model="formValidate.email" placeholder="请输入邮箱"/><br/>
+                </FormItem>
+                <FormItem label="审核状态" prop="status">
+                    <Select v-model="formValidate.status" placeholder="请选择状态">
+                        <Option value="0">未审核</Option>
+                        <Option value="1">已审核</Option>
+                        <Option value="9">已删除</Option>
+                    </Select><br/>
+                </FormItem>
+                <FormItem label="备注" prop="comment">
+                    <Input v-model="formValidate.comment" placeholder="请输入备注"/>
+                </FormItem>
+                <FormItem>
+                    <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
+                    <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
+                </FormItem>
+            </Form>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
@@ -38,33 +63,110 @@
         </div>
     </div>
 </template>
-<script>
 
-// eslint-disable-next-line import/no-unresolved
-import {querySignedDRecord, queryUnsignedDRecord} from "@/api/dutyPreservation";
-import {querySignedPRecord, queryUnsignedPRecord} from "@/api/pPreservation";
-import {queryUser, froze, unForze} from '../api/usermanage';
+<script>
+import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
+import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
+import { querySch, froze, unForze, deleteSch } from '../api/schmanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
-    name: 'schoolmanage',
+    name: 'schmanage',
+    // eslint-disable-next-line vue/no-unused-components
     components: {PreservationRecord},
     data() {
         return {
-            value1: '',
-            value2: '',
+            formValidate: {
+                schName: '',
+                address: '',
+                zipcode: '',
+                contact: '',
+                tel: '',
+                email: '',
+                status: '',
+                comment: ''
+            },
+            ruleValidate: {
+                schName: [
+                    {
+                        required: true,
+                        message: 'The name cannot be empty',
+                        trigger: 'blur'
+                    }
+                ],
+                address: [
+                    {
+                        required: true,
+                        message: 'address cannot be empty',
+                        trigger: 'blur'
+                    },
+                ],
+                zipcode: [
+                    {
+                        required: true,
+                        message: 'zipcode select the city',
+                        trigger: 'blur'
+                    }
+                ],
+                contact: [
+                    {
+                        required: true,
+                        message: 'contact select the city',
+                        trigger: 'blur'
+                    }
+                ],
+                tel: [
+                    {
+                        required: true,
+                        message: 'tel select the city',
+                        trigger: 'blur'
+                    }
+                ],
+                email: [
+                    {
+                        required: true,
+                        message: 'Mailbox cannot be empty',
+                        trigger: 'blur'
+                    },
+                    {
+                        type: 'email',
+                        message: 'Incorrect email format',
+                        trigger: 'blur'
+                    }
+                ],
+                status: [
+                    {
+                        required: true,
+                        message: 'Please select status',
+                        trigger: 'change'
+                    }
+                ],
+                comment: [
+                    {
+                        required: true,
+                        message: 'comment select the city',
+                        trigger: 'blur'
+                    }
+                ]
+            },
+            addSchoolModalVisible: false,
             showDetail: false,
             total: 11,
             curPage: 1,
             tableData1: [],
             tableColumns1: [
                 {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                },
+                {
                     title: 'No',
                     key: 'schId',
                 },
                 {
                     title: '学校名',
-                    key: 'sno',
+                    key: 'schName',
                 },
                 {
                     title: '地址',
@@ -87,9 +189,11 @@ export default {
                     key: 'email',
                 },
                 {
-                    title: '状态',
-                    key: 'status',
-                },
+                    title: 'Action',
+                    slot: 'action',
+                    width: 150,
+                    align: 'center'
+                }
             ],
             curObj: {},
             isDuty: false,
@@ -107,165 +211,80 @@ export default {
     },
     methods: {
         openAddSchoolModal() {
-            this.$Modal.confirm({
-                title: '添加学校',
-                content: "学校名"
-                    + '<Input v-model="schName" placeholder="请输入学校名"/><br/>'
-                    + "地址"
-                    + '<Input v-model="address" placeholder="请输入地址"/><br/>'
-                    + "邮编"
-                    + '<Input v-model="zipcode" placeholder="请输入邮编"/><br/>'
-                    + "联系人"
-                    + '<Input v-model="contact" placeholder="请输入联系人"/><br/>'
-                    + "电话"
-                    + '<Input v-model="tel" placeholder="请输入电话"/><br/>'
-                    + "邮箱"
-                    + '<Input v-model="email" placeholder="请输入邮箱"/><br/>'
-                    + "审核状态"
-                    + '<Select v-model="status" placeholder="请选择状态">'
-                    + '<Option value="0">未审核</Option>'
-                    + '<Option value="1">已审核</Option>'
-                    + '<Option value="9">已删除</Option>'
-                    + '</Select><br/>'
-                    + '<Input v-model="remark" placeholder="请输入备注"/>',
-                onOk: () => {
-                    // 在这里处理确认添加学校的逻辑
-                    // 可以在这里将输入的内容发送到后端进行保存
-                    // 清空输入框的内容以便下次使用
-                    this.clearInputs();
-                },
-                onCancel: () => {
-                    // 在这里处理取消添加学校的逻辑
-                    // 清空输入框的内容以便下次使用
-                    this.clearInputs();
-                }
-            });
+            this.addSchoolModalVisible = true;
         },
-        clearInputs() {
-            this.schName = '';
-            this.address = '';
-            this.zipcode = '';
-            this.contact = '';
-            this.tel = '';
-            this.email = '';
-            this.qualification = '';
-            this.status = '';
-            this.remark = '';
-        },
-        exportData1() {
-            /*
-            exportReport(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
-                const blob = new Blob([res])
-                const reader = new FileReader()
-                reader.readAsDataURL(blob)
-                reader.onload = function (e) {
-                    const a = document.createElement('a')
-                    a.download = '文件名.xls'
-                    a.href = e.target.result
-                    document.documentElement.appendChild(a)
-                    a.click()
-                    a.remove()
+        handleSubmit(name) {
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    this.$Message.success('Success!');
+                } else {
+                    this.$Message.error('Fail!');
                 }
             })
-
-             */
-            // eslint-disable-next-line max-len
-            const baseUrl = 'https://xiaochengxu-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/'
-            let url = baseUrl + 'DutyPreservation/export?starttime='
-                + this.timerange[0].toISOString().split('.')[0]
-                + '&endtime=' + this.timerange[1].toISOString().split('.')[0]
-                + '&token=' + localStorage.getItem('token')
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line max-len
-            window.location = url
         },
-        querySigned() {
-            if (!this.status) {
-                querySignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            } else {
-                querySignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            }
-            this.isSigned = true
-        },
-        queryUnSigned() {
-            if (!this.status) {
-                queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            } else {
-                queryUnsignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            }
-            this.isSigned = false
-        },
-        fetchData() {
-            queryUser(this.curPage)
-                .then(res => {
-                    this.tableData1 = res.data.users
-                })
-        },
-        changePage(page) {
-            this.curPage = page
-        },
-        froze(obj) {
-            froze(obj.guid)
-                .then(res => {
-                    this.$Message.success({
-                        content: res.msg,
+        handleReset(name) {
+            this.$refs[name].resetFields();
+        }
+    },
+    cancelAddSchool() {
+        this.addSchoolModalVisible = false;
+        this.clearInputs();
+    },
+    clearInputs() {
+        this.schName = '';
+        this.address = '';
+        this.zipcode = '';
+        this.contact = '';
+        this.tel = '';
+        this.email = '';
+        this.status = '';
+        this.remark = '';
+    },
+    show(row, index) {
+        console.log(row)
+        console.log(index)
+    },
+    handleDelete(obj) {
+        console.log(obj)
+        // 提示用户是否确认删除
+        this.$Modal.confirm({
+            title: '删除',
+            content: '是否确认删除该企业？',
+            onOk: () => {
+                deleteSch(obj.schId)
+                    .then(res => {
+                        this.$Message.success({
+                            content: res.msg,
+                        })
+                        this.fetchData()
                     })
-                    this.fetchData()
-                })
-        },
-        unfroze(param) {
-            unForze(param.guid)
-                .then(res => {
-                    this.$Message.success({
-                        content: res.msg,
-                    })
-                    this.fetchData()
-                })
-        },
-        showRecord(row, isDuty) {
-            if (isDuty) {
-                this.isDuty = true
-            } else {
-                this.isDuty = false
-            }
-            this.curObj = row
-            this.showDetail = true
-        },
+            },
+            onCancel: () => {
+                console.log('cancel')
+            },
+        })
+    },
+    fetchData() {
+        querySch(this.curPage, this.email, this.schName)
+            .then(res => {
+                console.log(res);
+                console.log(res.data.list);
+                this.tableData1 = res.data.list
+                this.total = res.data.total
+            })
+    },
+    changePage(page) {
+        this.curPage = page
     },
     mounted() {
-        queryUser(this.curPage)
-            .then(res => {
-                console.log(res)
-                this.total = res.data.allCount
-                this.tableData1 = res.data.users
-            })
+        this.fetchData();
     },
     watch: {
         curPage() {
-            queryUser(this.curPage)
-                .then(res => {
-                    this.tableData1 = res.data.users
-                })
+            this.fetchData();
         },
     },
 }
-
 </script>
 
 <style>
@@ -280,5 +299,4 @@ export default {
     display: flex;
     align-items: center;
 }
-
 </style>

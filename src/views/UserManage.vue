@@ -16,14 +16,32 @@
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row, index }" slot="action">
-            <Button type="primary" size="small" style="margin-right: 5px" @click="show(row,index)">查看</Button>
+            <Button type="primary" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
             <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
         </template>
         </Table>
-        <Modal v-model="showDetail" title="用户预约记录" width="850">
-            <preservation-record @close="this.showDetail = false" :is-duty="isDuty"
-                :id="curObj.guid"></preservation-record>
-            <div slot="footer" />
+        <Modal v-model="detailModalVisible" title="企业详情">
+            <!-- 显示企业详情的表单 -->
+            <Form :model="currentDetailData" label-width="80" ref="detailForm">
+                <FormItem label="用户名">
+                    <Input v-model="currentDetailData.userName" disabled/>
+                </FormItem>
+                <FormItem label="审核状态">
+                    <Input v-model="currentDetailData.status" disabled/>
+                </FormItem>
+                <FormItem label="用户身份">
+                    <Input v-model="currentDetailData.flag" disabled/>
+                </FormItem>
+                <FormItem label="最后login时间">
+                    <Input v-model="currentDetailData.lastLogin" disabled/>
+                </FormItem>
+                <FormItem label="创建时间">
+                    <Input v-model="currentDetailData.createTime" disabled/>
+                </FormItem>
+                <FormItem label="更新时间">
+                    <Input v-model="currentDetailData.updateTime" disabled/>
+                </FormItem>
+            </Form>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
@@ -92,6 +110,8 @@ export default {
                         align: 'center'
                 }
             ],
+            detailModalVisible: false, // 控制详情弹窗的显示
+            currentDetailData: {},
             curObj: {},
             isDuty: false,
         }
@@ -169,23 +189,9 @@ export default {
                     this.fetchData()
                 })
         },
-        unfroze(param) {
-            unForze(param.guid)
-                .then(res => {
-                    this.$Message.success({
-                        content: res.msg,
-                    })
-                    this.fetchData()
-                })
-        },
-        showRecord(row, isDuty) {
-            if (isDuty) {
-                this.isDuty = true
-            } else {
-                this.isDuty = false
-            }
-            this.curObj = row
-            this.showDetail = true
+        showDetailModal(row) {
+            this.currentDetailData = { ...row }; // 将当前行数据赋值给详情数据
+            this.detailModalVisible = true; // 显示详情弹窗
         },
     },
     mounted() {

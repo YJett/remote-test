@@ -11,7 +11,7 @@
             <div class="button-container">
                 <Button type="primary" class="button" @click="openAddCompanyModal">添加公司</Button>
                 <Button type="success" class="button">删除所选</Button>
-                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
+                <Button type="warning" class="button" @click="handleSuccess">审核所选</Button>
             </div>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
@@ -21,7 +21,7 @@
             </template>
         </Table>
         <Modal v-model="addComModalVisible" title="添加企业">
-            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width=80>
                 <FormItem label="企业名" prop="comName">
                     <Input v-model="formValidate.comName" placeholder="请输入学校名"/><br/>
                 </FormItem>
@@ -40,11 +40,13 @@
                 <FormItem label="邮编" prop="email">
                     <Input v-model="formValidate.email" placeholder="请输入邮箱"/><br/>
                 </FormItem>
-<!--                <FormItem label="企业资质文件" prop="filepath">-->
-<!--                    <Upload multiple action="//jsonplaceholder.typicode.com/posts/">-->
-<!--                        <Button icon="ios-cloud-upload-outline">Upload files</Button>-->
-<!--                    </Upload>-->
-<!--                </FormItem>-->
+               <FormItem label="企业资质文件" prop="filepath">
+                    <Upload multiple action="/api/com/upload"
+                    :on-success="handleSuccess"
+                    >
+                        <Button icon="ios-cloud-upload-outline">Upload files</Button>
+                    </Upload>
+               </FormItem>
                 <FormItem label="审核状态" prop="status">
                     <Select v-model="formValidate.status" placeholder="请选择状态">
                         <Option value="0">未审核</Option>
@@ -99,9 +101,7 @@
 </template>
 <script>
 
-// eslint-disable-next-line import/no-unresolved
-import {querySignedDRecord, queryUnsignedDRecord} from "@/api/dutyPreservation";
-import {querySignedPRecord, queryUnsignedPRecord} from "@/api/pPreservation";
+
 import {queryCom, deleteCom} from '../api/commanage';
 import PreservationRecord from '../components/PreservationRecord';
 import {createCom} from "@/api/commanage";
@@ -120,7 +120,8 @@ export default {
                 tel: '',
                 email: '',
                 status: '',
-                comment: ''
+                comment: '',
+                filepath: '',
             },
             ruleValidate: {
                 comName: [
@@ -248,6 +249,13 @@ export default {
         }
     },
     methods: {
+        handleSuccess (res, file) {
+                file.url = 'https://file.iviewui.com/images/image-demo-3.jpg';
+                file.name = res.data;
+                console.log(res)
+                console.log(file)
+                this.formValidate.filepath = res.data;
+            },
         openAddCompanyModal() {
             this.addComModalVisible = true;
         },

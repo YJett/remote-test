@@ -28,3 +28,12 @@ export function createSch(data) {
     });
   }
 
+  export function deleteBatchSch(ids) {
+    return request({
+        url: 'sch/batchdelete',
+        method: 'PUT', // 使用 POST/PUT 方法来发送数据
+        data: ids
+    });
+}
+
+

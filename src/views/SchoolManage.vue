@@ -11,11 +11,11 @@
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
                 <Button type="primary" class="button" @click="openAddSchoolModal">添加学校</Button>
-                <Button type="success" class="button" @click="exportData1">删除所选</Button>
+                <Button type="success" class="button" @click="handleBatchDelete">删除所选</Button>
                 <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
             </div>
         </div>
-        <Table :data="tableData1" :columns="tableColumns1" stripe>
+        <Table :data="tableData1" :columns="tableColumns1" stripe @on-selection-change="handleSelectionChange">
             <template slot-scope="{ row, index }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
@@ -61,28 +61,28 @@
             <!-- 显示企业详情的表单 -->
             <Form :model="currentDetailData" label-width="80" ref="detailForm">
                 <FormItem label="学校名">
-                    <Input v-model="currentDetailData.schName" disabled/>
+                    <Input v-model="currentDetailData.schName" disabled />
                 </FormItem>
                 <FormItem label="地址">
-                    <Input v-model="currentDetailData.address" disabled/>
+                    <Input v-model="currentDetailData.address" disabled />
                 </FormItem>
                 <FormItem label="邮编">
-                    <Input v-model="currentDetailData.zipcode" disabled/>
+                    <Input v-model="currentDetailData.zipcode" disabled />
                 </FormItem>
                 <FormItem label="联系人">
-                    <Input v-model="currentDetailData.contact" disabled/>
+                    <Input v-model="currentDetailData.contact" disabled />
                 </FormItem>
                 <FormItem label="电话">
-                    <Input v-model="currentDetailData.tel" disabled/>
+                    <Input v-model="currentDetailData.tel" disabled />
                 </FormItem>
                 <FormItem label="邮箱">
-                    <Input v-model="currentDetailData.email" disabled/>
+                    <Input v-model="currentDetailData.email" disabled />
                 </FormItem>
                 <FormItem label="审核状态">
-                    <Input v-model="currentDetailData.status" disabled/>
+                    <Input v-model="currentDetailData.status" disabled />
                 </FormItem>
                 <FormItem label="备注">
-                    <Input v-model="currentDetailData.comment" disabled/>
+                    <Input v-model="currentDetailData.comment" disabled />
                 </FormItem>
             </Form>
         </Modal>
@@ -97,7 +97,7 @@
 <script>
 import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
 import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
-import { querySch, deleteSch, createSch } from '../api/schmanage';
+import { querySch, deleteSch, createSch, deleteBatchSch } from '../api/schmanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
@@ -238,17 +238,41 @@ export default {
             email: '',
             qualification: '',
             status: '',
-            remark: ''
+            remark: '',
+            selectedIds: []
         }
     },
     methods: {
         openAddSchoolModal() {
             this.addSchoolModalVisible = true;
         },
+        handleSelectionChange(selection) {
+            console.log(selection);
+            this.selectedIds = selection.map(item => item.schId);
+        },
+        handleBatchDelete() {
+            // 提示用户是否确认删除
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认删除该学校？',
+                onOk: () => {
+                    deleteBatchSch(this.selectedIds)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
+                        })
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
+            })
+        },
         handleSubmit(name) {
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                                // 调用添加学校的方法
+                    // 调用添加学校的方法
                     createSch(this.formValidate).then(res => {
                         console.log(res);
                         this.$Message.success({

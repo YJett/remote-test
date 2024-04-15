@@ -1,204 +1,138 @@
 <template>
-<div class="home-container">
-        <div class="home-content">
-            <label></label>
-            <Date-picker type="datetimerange"
-                         format="yyyy-MM-dd HH:mm:ss"
-                         placeholder="选择日期和时间（不含秒）"
-                         style="width: 300px"
-                         split-panels
-                         :start-date="new Date(2021,11,11)"
-                         v-model="timerange">
-            </Date-picker>
-            <Button type="primary" class="button" @click="exportData1">导出统计表</Button>
-            <Button type="success" class="button" @click="querySigned">查询已签到任务</Button>
-            <Button type="warning" class="button" @click="queryUnSigned">查询未签到任务</Button>
+    <div class="container">
+        <!-- 选择身份 -->
+        <div class="identity-selection">
+            <RadioGroup v-model="selectedIdentity">
+                <Radio label="sch">学校身份</Radio>
+                <Radio label="com">企业身份</Radio>
+            </RadioGroup>
+            <span class="selection-tip">请选择身份</span>
         </div>
-        <Table :data="tableData" :columns="tableColumns" stripe>
-            <template slot-scope="{ row }" slot="name">
-                <strong>{{ row.people.name }}</strong>
-            </template>
-            <template slot-scope="{ row }" slot="sno">
-                <strong>{{ row.people.sno }}</strong>
-            </template>
-            <template slot-scope="{ row }" slot="class">
-                <strong>{{ row.people.class }}</strong>
-            </template>
-            <template slot-scope="{ row }" slot="action">
-                <Button
-                type="primary"
-                size="small"
-                v-if="row.isSigned==0"
-                 @click="sign(row.id)"
-                 >补签</Button>
-                <Tag
-                color="success"
-                v-if="row.isSigned==1"
-                >已签到</Tag>
-            </template>
-        </Table>
-        <Modal
-            v-model="showDetail"
-            title="用户预约记录"
-            width="850"
-        >
-            <div slot="footer"/>
-        </Modal>
-        <div style="margin: 10px;overflow: hidden">
-            <div style="float: right;">
-                <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
+
+        <!-- 文件导入功能 -->
+        <div class="file-import">
+            <Upload
+                :action="uploadUrl"
+                :before-upload="handleBeforeUpload"
+                :on-success="handleUploadSuccess"
+                show-upload-list="false"
+            >
+                <i-button type="primary" size="large">选择文件</i-button>
+            </Upload>
+            <div class="file-info">{{ selectedFileName }}</div>
+            <div class="button-group">
+                <i-button type="primary" size="large" @click="uploadFile" :disabled="!selectedFile">上传</i-button>
+                <i-button size="large" @click="clearFile">清除</i-button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { exportReport, queryUnsignedDRecord, querySignedDRecord, signByAdmin } from '../api/dutyPreservation'
-import { queryUnsignedPRecord, querySignedPRecord } from '../api/pPreservation'
+import { RadioGroup, Radio, Upload, Button, Message } from 'view-design';
+import { importSchData, importComData } from '../api/upload'
 
 export default {
-    name: 'home',
     data() {
         return {
-            timerange: [],
-            tableData: [],
-            tableColumns: [
-                {
-                    title: 'Name',
-                    slot: 'name',
-                },
-                {
-                    title: '学号',
-                    slot: 'sno',
-                },
-                {
-                    title: '班级',
-                    slot: 'class',
-                },
-                {
-                    title: '开始时间',
-                    key: 'startTime',
-                },
-                {
-                    title: '结束时间',
-                    key: 'endTime',
-                },
-                {
-                    title: '签到地点',
-                    key: 'location',
-                },
-                {
-                    title: '操作',
-                    slot: 'action',
-                },
-            ],
-            showDetail: false,
-            pageSize: 10,
-            curPage: 1,
-            total: 11,
-            status: false,
-            isSigned: false,
-        }
+            selectedIdentity: 'sch', // 默认选择学校身份
+            uploadUrl: '/api/upload', // 上传文件接口地址
+            selectedFileName: '', // 选中的文件名
+            selectedFile: null, // 选中的文件对象
+        };
     },
     methods: {
-        exportData1() {
-            /*
-            exportReport(this.timerange[0].toISOString().split('.')[0], this.timerange[1].toISOString().split('.')[0]).then(res => {
-                const blob = new Blob([res])
-                const reader = new FileReader()
-                reader.readAsDataURL(blob)
-                reader.onload = function (e) {
-                    const a = document.createElement('a')
-                    a.download = '文件名.xls'
-                    a.href = e.target.result
-                    document.documentElement.appendChild(a)
-                    a.click()
-                    a.remove()
-                }
-            })
+        handleBeforeUpload(file) {
+            // 检查文件类型是否为 XLSX
+            if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                Message.error('请选择XLSX文件');
+                return false;
+            }
 
-             */
-            // eslint-disable-next-line max-len
-            const baseUrl = 'https://xiaochengxu-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/'
-            let url = baseUrl + 'DutyPreservation/export?starttime='
-                + this.timerange[0].toISOString().split('.')[0]
-                + '&endtime=' + this.timerange[1].toISOString().split('.')[0]
-                + '&token=' + localStorage.getItem('token')
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line max-len
-            window.location = url
+            // 更新选中的文件名和文件对象
+            this.selectedFileName = file.name;
+            this.selectedFile = file;
+            return true;
         },
-        querySigned() {
-            if (!this.status) {
-                querySignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
+        handleUploadSuccess(response) {
+            if (response.code === 0) {
+                Message.success('上传成功');
+                // 根据文件内容和用户选择的身份进行数据处理和导入
+                this.processData(response.data);
             } else {
-                querySignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
+                Message.error('上传失败');
             }
-            this.isSigned = true
         },
-        queryUnSigned() {
-            if (!this.status) {
-                queryUnsignedDRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
-            } else {
-                queryUnsignedPRecord(this.timerange[0], this.timerange[1], this.curPage).then(res => {
-                    this.tableData = res.data.content
-                    this.total = res.data.allCount
-                    console.log(res)
-                })
+        processData(data) {
+            // 根据文件内容和用户选择的身份进行数据处理和导入
+            if (this.selectedIdentity === 'sch') {
+                // 处理学校数据
+                this.importSchData(data);
+            } else if (this.selectedIdentity === 'com') {
+                // 处理企业数据
+                this.importComData(data);
             }
-            this.isSigned = false
         },
-        sign(id) {
-            signByAdmin(id).then(res => {
-                console.log(res)
-                this.fetchData()
-            })
+        importSchData(data) {
+            // 具体处理学校数据逻辑
+            console.log('导入学校数据:', data);
         },
-        changePage(page) {
-            this.curPage = page
+        importComData(data) {
+            // 具体处理企业数据逻辑
+            console.log('导入企业数据:', data);
         },
-        changeStatus(status) {
-            this.status = status
+        clearFile() {
+            // 清除选中的文件信息
+            this.selectedFileName = '';
+            this.selectedFile = null;
         },
-        fetchData() {
-            if (this.isSigned) {
-                this.querySigned()
+        uploadFile() {
+            // 执行文件上传
+            if (this.selectedFile) {
+                this.$refs.upload.submit();
             } else {
-                this.queryUnSigned()
+                Message.warning('请选择要上传的文件');
             }
         },
     },
-    watch: {
-        curPage() {
-            this.fetchData()
-        },
-    },
-}
+};
 </script>
 
 <style scoped>
-.home-container {
-    padding: 10px;
-    padding-top: 5px;
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* 让容器高度占满整个屏幕 */
 }
-.home-content {
-    padding: 10px;
-    border-radius: 5px;
-    background: #fff;
+
+.identity-selection {
+    margin-bottom: 30px;
 }
-.button {
-    margin:0 5px;
+
+.file-import {
+    display: flex;
+    align-items: center;
+}
+
+.file-info {
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 18px;
+}
+
+.selection-tip {
+    margin-left: 20px;
+    color: #999;
+    font-size: 18px;
+}
+
+.button-group {
+    margin-left: 20px;
+}
+
+.button-group i-button {
+    margin-left: 10px;
 }
 </style>

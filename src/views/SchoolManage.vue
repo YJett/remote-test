@@ -12,7 +12,7 @@
             <div class="button-container">
                 <Button type="primary" class="button" @click="openAddSchoolModal">添加学校</Button>
                 <Button type="success" class="button" @click="handleBatchDelete">删除所选</Button>
-                <Button type="warning" class="button" @click="queryUnSigned">审核所选</Button>
+                <Button type="warning" class="button" @click="handleSuccess">审核所选</Button>
             </div>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe @on-selection-change="handleSelectionChange">
@@ -243,6 +243,13 @@ export default {
         }
     },
     methods: {
+        handleSuccess (res, file) {
+            file.url = 'https://file.iviewui.com/images/image-demo-3.jpg';
+            file.name = res.data;
+            console.log(res)
+            console.log(file)
+            this.formValidate.filepath = res.data;
+        },
         openAddSchoolModal() {
             this.addSchoolModalVisible = true;
         },

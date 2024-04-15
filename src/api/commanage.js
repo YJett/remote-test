@@ -29,3 +29,11 @@ export function createCom(data) {
     });
 }
 
+export function deleteBatchCom(ids) {
+    return request({
+        url: 'com/batchdelete',
+        method: 'PUT', // 使用 POST/PUT 方法来发送数据
+        data: ids
+    });
+}
+

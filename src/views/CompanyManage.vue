@@ -10,11 +10,11 @@
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
                 <Button type="primary" class="button" @click="openAddCompanyModal">添加公司</Button>
-                <Button type="success" class="button">删除所选</Button>
+                <Button type="success" class="button" @click="handleBatchDelete">删除所选</Button>
                 <Button type="warning" class="button" @click="handleSuccess">审核所选</Button>
             </div>
         </div>
-        <Table :data="tableData1" :columns="tableColumns1" stripe>
+        <Table :data="tableData1" :columns="tableColumns1" stripe @on-selection-change="handleSelectionChange">
             <template slot-scope="{ row, index }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
@@ -23,7 +23,7 @@
         <Modal v-model="addComModalVisible" title="添加企业">
             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width=80>
                 <FormItem label="企业名" prop="comName">
-                    <Input v-model="formValidate.comName" placeholder="请输入学校名"/><br/>
+                    <Input v-model="formValidate.comName" placeholder="请输入企业名"/><br/>
                 </FormItem>
                 <FormItem label="地址" prop="address">
                     <Input v-model="formValidate.address" placeholder="请输入地址"/><br/>
@@ -105,6 +105,7 @@
 import {queryCom, deleteCom} from '../api/commanage';
 import PreservationRecord from '../components/PreservationRecord';
 import {createCom} from "@/api/commanage";
+import {deleteBatchCom} from "@/api/commanage";
 
 export default {
     name: 'commanage',
@@ -258,6 +259,29 @@ export default {
             },
         openAddCompanyModal() {
             this.addComModalVisible = true;
+        },
+        handleSelectionChange(selection) {
+            console.log(selection);
+            this.selectedIds = selection.map(item => item.comId);
+        },
+        handleBatchDelete() {
+            // 提示用户是否确认删除
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认删除该公司？',
+                onOk: () => {
+                    deleteBatchCom(this.selectedIds)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
+                        })
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
+            })
         },
         handleSubmit(name) {
             this.$refs[name].validate((valid) => {

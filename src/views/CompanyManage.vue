@@ -106,6 +106,7 @@ import {queryCom, deleteCom} from '../api/commanage';
 import PreservationRecord from '../components/PreservationRecord';
 import {createCom} from "@/api/commanage";
 import {deleteBatchCom,successBatchCom} from "@/api/commanage";
+import {successBatchSch} from "@/api/schmanage";
 
 export default {
     name: 'commanage',
@@ -250,13 +251,24 @@ export default {
         }
     },
     methods: {
-        handleSuccess (res, file) {
-                file.url = 'https://file.iviewui.com/images/image-demo-3.jpg';
-                file.name = res.data;
-                console.log(res)
-                console.log(file)
-                this.formValidate.filepath = res.data;
-            },
+        handleSuccess(res, file) {
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认审核企业？',
+                onOk: () => {
+                    successBatchCom(this.selectedIds)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
+                        })
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
+            })
+        },
         openAddCompanyModal() {
             this.addComModalVisible = true;
         },

@@ -97,7 +97,7 @@
 <script>
 import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
 import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
-import { querySch, deleteSch, createSch, deleteBatchSch } from '../api/schmanage';
+import { querySch, deleteSch, createSch, deleteBatchSch ,successBatchSch} from '../api/schmanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
@@ -244,11 +244,22 @@ export default {
     },
     methods: {
         handleSuccess (res, file) {
-            file.url = 'https://file.iviewui.com/images/image-demo-3.jpg';
-            file.name = res.data;
-            console.log(res)
-            console.log(file)
-            this.formValidate.filepath = res.data;
+            this.$Modal.confirm({
+                title: '删除',
+                content: '是否确认审核学校？',
+                onOk: () => {
+                    successBatchSch(this.selectedIds)
+                        .then(res => {
+                            this.$Message.success({
+                                content: res.msg,
+                            })
+                            this.fetchData()
+                        })
+                },
+                onCancel: () => {
+                    console.log('cancel')
+                },
+            })
         },
         openAddSchoolModal() {
             this.addSchoolModalVisible = true;

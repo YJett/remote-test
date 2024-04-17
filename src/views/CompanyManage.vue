@@ -105,7 +105,7 @@
 import {queryCom, deleteCom} from '../api/commanage';
 import PreservationRecord from '../components/PreservationRecord';
 import {createCom} from "@/api/commanage";
-import {deleteBatchCom} from "@/api/commanage";
+import {deleteBatchCom,successBatchCom} from "@/api/commanage";
 
 export default {
     name: 'commanage',

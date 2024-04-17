@@ -67,19 +67,11 @@ export default {
             // 根据文件内容和用户选择的身份进行数据处理和导入
             if (this.selectedIdentity === 'sch') {
                 // 处理学校数据
-                this.importSchData(data);
+                this.uploadUrl = "api/sch/importSchInfoData";
             } else if (this.selectedIdentity === 'com') {
                 // 处理企业数据
-                this.importComData(data);
+                this.uploadUrl="api/com/importComData";
             }
-        },
-        importSchData(data) {
-            // 具体处理学校数据逻辑
-            console.log('导入学校数据:', data);
-        },
-        importComData(data) {
-            // 具体处理企业数据逻辑
-            console.log('导入企业数据:', data);
         },
         clearFile() {
             // 清除选中的文件信息

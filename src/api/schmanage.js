@@ -36,4 +36,10 @@ export function createSch(data) {
     });
 }
 
-
+export function successBatchSch(ids) {
+    return request({
+        url: 'sch/batchsuccess',
+        method: 'PUT', // 使用 POST/PUT 方法来发送数据
+        data: ids
+    });
+}

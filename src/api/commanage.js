@@ -37,3 +37,13 @@ export function deleteBatchCom(ids) {
     });
 }
 
+
+export function successBatchCom(ids) {
+    return request({
+        url: 'com/batchsuccess',
+        method: 'PUT', // 使用 POST/PUT 方法来发送数据
+        data: ids
+    });
+}
+
+

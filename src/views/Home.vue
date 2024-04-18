@@ -72,7 +72,8 @@ export default {
             return true;
         },
         handleUploadSuccess(response) {
-            if (response.code === 200) {
+            console.log(response);
+            if (response.code === '00000') {
                 Message.success('上传成功');
                 // 根据文件内容和用户选择的身份进行数据处理和导入
                 this.processData(response.data);

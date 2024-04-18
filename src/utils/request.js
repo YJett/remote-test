@@ -4,8 +4,8 @@ import router from '@/router'
 import { showLoading, closeLoading } from '@/utils/loading'
 import { resetTokenAndClearUser } from '@/utils'
 
-let BASE_URL = process.env.NODE_ENV === 'production' ? 'http://202.120.84.249:8081/api/' : '/api/'
-
+// let BASE_URL = process.env.NODE_ENV === 'production' ? 'http://202.120.84.249:8081/api/' : '/api/'
+let BASE_URL = '/api/'
 const service = axios.create({
     baseURL: BASE_URL,
     timeout: 3000,

@@ -254,7 +254,7 @@ export default {
         handleSuccess(res, file) {
             this.$Modal.confirm({
                 title: '删除',
-                content: '是否确认审核企业？',
+                content: '是否确认提交',
                 onOk: () => {
                     successBatchCom(this.selectedIds)
                         .then(res => {

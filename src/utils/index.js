@@ -9,7 +9,7 @@ export function resetTokenAndClearUser() {
     resetRouter()
 }
 
-export const defaultDocumentTitle = '琴房预约管理系统'
+export const defaultDocumentTitle = '船舶技能人才数字化评价平台——管理后台'
 export function getDocumentTitle(pageTitle) {
     if (pageTitle) return `${defaultDocumentTitle} - ${pageTitle}`
     return `${defaultDocumentTitle}`

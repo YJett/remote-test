@@ -12,13 +12,25 @@
         <!-- 文件导入功能 -->
         <div class="file-import">
             <Upload
-                :action="uploadUrl"
+                v-if="selectedIdentity === 'sch'"
+                :action="'api/sch/importSchInfoData'"
                 :before-upload="handleBeforeUpload"
                 :on-success="handleUploadSuccess"
                 show-upload-list="false"
             >
                 <i-button type="primary" size="large">选择文件</i-button>
             </Upload>
+
+            <Upload
+                v-if="selectedIdentity === 'com'"
+                :action="'api/com/importComData'"
+                :before-upload="handleBeforeUpload"
+                :on-success="handleUploadSuccess"
+                show-upload-list="false"
+            >
+                <i-button type="primary" size="large">选择文件</i-button>
+            </Upload>
+
             <div class="file-info">{{ selectedFileName }}</div>
             <div class="button-group">
                 <i-button type="primary" size="large" @click="uploadFile" :disabled="!selectedFile">上传</i-button>
@@ -27,6 +39,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 import { RadioGroup, Radio, Upload, Button, Message } from 'view-design';
@@ -39,15 +52,19 @@ export default {
             uploadUrl: '/api/upload', // 上传文件接口地址
             selectedFileName: '', // 选中的文件名
             selectedFile: null, // 选中的文件对象
+            uploadKey: 0, // 用于强制更新组件的 key
+
         };
     },
     methods: {
         handleBeforeUpload(file) {
+            this.processData();
             // 检查文件类型是否为 XLSX
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
                 Message.error('请选择XLSX文件');
                 return false;
             }
+            console.log(this.uploadUrl);
 
             // 更新选中的文件名和文件对象
             this.selectedFileName = file.name;
@@ -63,7 +80,7 @@ export default {
                 Message.error('上传失败');
             }
         },
-        processData(data) {
+        processData() {
             // 根据文件内容和用户选择的身份进行数据处理和导入
             if (this.selectedIdentity === 'sch') {
                 // 处理学校数据
@@ -72,6 +89,7 @@ export default {
                 // 处理企业数据
                 this.uploadUrl="api/com/importComData";
             }
+            this.uploadKey++;
         },
         clearFile() {
             // 清除选中的文件信息
@@ -79,6 +97,7 @@ export default {
             this.selectedFile = null;
         },
         uploadFile() {
+            this.processData();
             // 执行文件上传
             if (this.selectedFile) {
                 this.$refs.upload.submit();

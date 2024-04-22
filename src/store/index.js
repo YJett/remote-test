@@ -38,6 +38,12 @@ const store = new Vuex.Store({
                 type: 'ios-grid', // icon类型
                 text: '企业信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
+            {
+                name: 'majorgraph', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: '企业信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
             // {
             //     name: 'bulletin', // 要跳转的路由名称 不是路径
             //     size: 18, // icon大小

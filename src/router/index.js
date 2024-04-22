@@ -63,6 +63,12 @@ export const asyncRoutes = {
         meta: { title: '学校信息管理' },
         component: () => import('../views/SchoolManage.vue'),
     },
+    majorgraph: {
+        path: 'majorgraph',
+        name: 'majorgraph',
+        meta: { title: 'majorgraph' },
+        component: () => import('../views/MajorKnowGraph.vue'),
+    },
 }
 
 const createRouter = () => new Router({

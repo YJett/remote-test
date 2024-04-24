@@ -69,6 +69,30 @@ export const asyncRoutes = {
         meta: { title: 'majorgraph' },
         component: () => import('../views/MajorKnowGraph.vue'),
     },
+    knowdaoru: {
+        path: 'knowdaoru',
+        name: 'knowdaoru',
+        meta: { title: 'knowdaoru' },
+        component: () => import('../views/KnowDaoru.vue'),
+    },
+    knowmanage: {
+        path: 'knowmanage',
+        name: 'knowmanage',
+        meta: { title: 'knowmanage' },
+        component: () => import('../views/KnowManage.vue'),
+    },
+    labilitydaoru: {
+        path: 'labilitydaoru',
+        name: 'labilitydaoru',
+        meta: { title: 'labilitydaoru' },
+        component: () => import('../views/LabilityDaoru.vue'),
+    },
+    labilitymanage: {
+        path: 'labilitymanage',
+        name: 'labilitymanage',
+        meta: { title: 'labilitymanage' },
+        component: () => import('../views/LabilityManage.vue'),
+    },
 }
 
 const createRouter = () => new Router({

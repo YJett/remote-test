@@ -93,6 +93,24 @@ export const asyncRoutes = {
         meta: { title: 'labilitymanage' },
         component: () => import('../views/LabilityManage.vue'),
     },
+    test1: {
+        path: 'test1',
+        name: 'test1',
+        meta: { title: 'test1' },
+        component: () => import('../views/erbuilder/index.vue'),
+    },
+    test2: {
+        path: 'test2',
+        name: 'test2',
+        meta: { title: 'test2' },
+        component: () => import('../views/kgbuilder/index.vue'),
+    },
+    test3: {
+        path: 'test3',
+        name: 'test3',
+        meta: { title: 'test3' },
+        component: () => import('../views/kgbuilder/index_v1.vue'),
+    },
 }
 
 const createRouter = () => new Router({

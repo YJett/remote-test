@@ -90,6 +90,24 @@ const store = new Vuex.Store({
                         // hidden: true,
                     }],
             },
+            {
+                name: 'test1', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: 'test1', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
+            {
+                name: 'test2', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: 'test2', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
+            {
+                name: 'test3', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: 'test3', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
             /*
             {
                 text: '二级菜单',

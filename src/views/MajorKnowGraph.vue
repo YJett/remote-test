@@ -111,7 +111,7 @@
                         </el-form-item>
                     </el-form>
                     <div slot="footer" class="dialog-footer">
-                        <!--<el-button type="primary" @click="testDataSource">测试连接</el-button>-->
+                        <el-button type="primary" @click="testDataSource">测试连接</el-button>
                         <el-button type="primary" @click="addDataSource">确定</el-button>
                         <el-button @click="addWStatus = false">取 消</el-button>
                     </div>

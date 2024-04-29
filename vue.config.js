@@ -1,3 +1,8 @@
+const name = "test"; // 标题
+const path = require("path");
+function resolve(dir) {
+    return path.join(__dirname, dir);
+  }
 module.exports = {
     devServer: {
         open: true,
@@ -14,5 +19,13 @@ module.exports = {
             },
         },
     },
+    configureWebpack: {
+        name: name,
+        resolve: {
+          alias: {
+            "@": resolve("src")
+          }
+        }
+      },
     publicPath: './',
 }

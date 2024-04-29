@@ -4,6 +4,9 @@
         <div class="identity-selection">
             <RadioGroup v-model="selectedIdentity">
                 <Radio label="sch">学校身份</Radio>
+                <i-select v-if="selectedIdentity === 'sch'" v-model="selectedSchool" placeholder="选择学校" style="width: 200px;">
+                    <i-option v-for="school in schools" :key="school.id" :value="school.id">{{ school.name }}</i-option>
+                </i-select>
                 <!--                <Radio label="com">企业身份</Radio>-->
             </RadioGroup>
             <!--            <span class="selection-tip">请选择身份</span>-->
@@ -42,17 +45,19 @@
 
 
 <script>
-import { RadioGroup, Radio, Upload, Button, Message } from 'view-design';
-import { importSchData, importComData } from '../api/upload'
+import { RadioGroup, Radio, Upload, Button, Message, Select, Option } from 'view-design';
+import { importSchData, importComData, getSchools } from '../api/upload'; // Assuming you have an API function to fetch schools
 
 export default {
     data() {
         return {
             selectedIdentity: 'sch', // 默认选择学校身份
+            selectedSchool: '', // 学校选择
             uploadUrl: '/api/upload', // 上传文件接口地址
             selectedFileName: '', // 选中的文件名
             selectedFile: null, // 选中的文件对象
             uploadKey: 0, // 用于强制更新组件的 key
+            schools: [], // 学校列表
 
         };
     },
@@ -105,6 +110,20 @@ export default {
             } else {
                 Message.warning('请选择要上传的文件');
             }
+        },
+    },
+    mounted() {
+        // Fetch schools when the component is mounted
+        this.fetchSchools();
+    },
+    created() {
+        // Fetch schools when the selected identity changes
+        this.$watch('selectedIdentity', this.fetchSchools);
+    },
+    watch: {
+        // Watch for changes in selectedIdentity and fetch schools accordingly
+        selectedIdentity(newValue) {
+            this.fetchSchools();
         },
     },
 };

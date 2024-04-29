@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request1'
 import qs from 'qs'
 
 export default class BaseAPI {

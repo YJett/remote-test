@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from "@/utils/request1";
 import BaseAPI from '@/utils/BaseAPI'
 
 class datasourceApi extends BaseAPI{

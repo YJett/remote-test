@@ -17,6 +17,13 @@ module.exports = {
                     '^/api': '',
                 },
             },
+            '/kg-api': {
+                target: `http://localhost:8082`,
+                changeOrigin: true,
+                pathRewrite: {
+                  ["^" + '/kg-api']: ""
+                }
+              }
         },
     },
     configureWebpack: {

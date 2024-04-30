@@ -4,9 +4,9 @@
             <!-- Header content -->
             <el-switch v-model="switchValue"></el-switch>
             <el-input v-model="inputValue"></el-input>
-            <el-button>Button 1</el-button>
-            <el-button>Button 2</el-button>
-            <el-button>Button 3</el-button>
+            <el-button @click="showRelationDialog">关联实体</el-button>
+            <el-button @click="showAddEntityDialog">添加实体</el-button>
+            <el-button @click="showEditEntityDialog">修改实体</el-button>
         </el-header>
 
         <div class="graph-container">
@@ -30,6 +30,38 @@
                 </div>
             </el-card>
         </div>
+
+        <!-- Relation Dialog -->
+        <el-dialog
+            title="关联实体"
+            :visible.sync="relationDialogVisible"
+            width="30%"
+            top="10vh"
+            :before-close="handleDialogClose"
+        >
+            <el-form ref="relationForm" :model="relationForm" label-width="120px">
+                <el-form-item label="实体1：知识图谱">
+                    <el-input v-model="relationForm.entity1" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="实体2：技能图谱">
+                    <el-input v-model="relationForm.entity2" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="关系名称">
+                    <el-input v-model="relationForm.relationName"></el-input>
+                </el-form-item>
+                <el-form-item label="关系方向">
+                    <el-radio-group v-model="relationForm.direction">
+                        <el-radio label="正向关系">正向关系</el-radio>
+                        <el-radio label="逆向关系">逆向关系</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="relationDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="addRelation">确定</el-button>
+            </div>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -44,7 +76,14 @@ export default {
             currentClickNodeKnowledge: null,
             currentClickNodeSkill: null,
             knowledgeGraphData: null,
-            skillGraphData: null
+            skillGraphData: null,
+            relationDialogVisible: false,
+            relationForm: {
+                entity1: '',
+                entity2: '',
+                relationName: '',
+                direction: '正向关系'
+            }
         };
     },
     async mounted() {
@@ -165,18 +204,45 @@ export default {
                 };
             });
         },
-    },
-    beforeDestroy() {
-        // Destroy the knowledge graph and skill graph instances
-        if (this.knowledgeGraph) {
-            this.knowledgeGraph.destroy();
-        }
-        if (this.skillGraph) {
-            this.skillGraph.destroy();
+        // Method to show relation dialog
+        showRelationDialog() {
+            if (this.currentClickNodeKnowledge && this.currentClickNodeSkill) {
+                this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
+                this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
+                this.relationDialogVisible = true;
+            } else {
+                this.$message.error('请先选择知识图谱和技能图谱中的节点！');
+            }
+        },
+        // Method to add relation
+        addRelation() {
+            // Logic to add relation
+            this.relationDialogVisible = false;
+            this.$message.success('成功添加关联关系！');
+        },
+        // Method to show add entity dialog
+        showAddEntityDialog() {
+            // Logic to show add entity dialog
+            this.$message.info('添加实体功能暂未实现！');
+        },
+        // Method to show edit entity dialog
+        showEditEntityDialog() {
+            // Logic to show edit entity dialog
+            this.$message.info('修改实体功能暂未实现！');
+        },
+        beforeDestroy() {
+            // Destroy the knowledge graph and skill graph instances
+            if (this.knowledgeGraph) {
+                this.knowledgeGraph.destroy();
+            }
+            if (this.skillGraph) {
+                this.skillGraph.destroy();
+            }
         }
     }
 };
 </script>
+
 
 
 <style>

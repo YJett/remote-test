@@ -8,6 +8,7 @@
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@antv/g6": "^4.8.24",
     "@antv/x6": "^1.28.1",
     "axios": "^0.24.0",
     "cookie": "^0.4.1",

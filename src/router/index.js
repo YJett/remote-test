@@ -117,6 +117,12 @@ export const asyncRoutes = {
         meta: { title: 'graphmatch' },
         component: () => import('../views/kgbuilder/graphmatch.vue'),
     },
+    knowledgeskill: {
+        path: 'knowledgeskill',
+        name: 'knowledgeskill',
+        meta: { title: 'graphmatch' },
+        component: () => import('../views/knowledgegraph/KnowledgeSkill.vue'),
+    },
 }
 
 const createRouter = () => new Router({

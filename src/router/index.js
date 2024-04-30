@@ -111,6 +111,12 @@ export const asyncRoutes = {
         meta: { title: 'test3' },
         component: () => import('../views/kgbuilder/index_v1.vue'),
     },
+    graphmatch: {
+        path: 'graphmatch',
+        name: 'graphmatch',
+        meta: { title: 'graphmatch' },
+        component: () => import('../views/kgbuilder/graphmatch.vue'),
+    },
 }
 
 const createRouter = () => new Router({

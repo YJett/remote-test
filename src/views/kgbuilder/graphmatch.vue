@@ -7,51 +7,101 @@
 -->
 <template>
   <div class="mind-box">
-    <!-- 左侧 -->
-    <el-scrollbar class="mind-l">
-      <div class="ml-m">
-        <div class="guanzhu" style="padding: 20px;">
-          <h2 class="hometitle ml-ht">图谱列表</h2>
-          <div class="ml-a-box" style="min-height:280px">
-            <el-tag
-              class="tag-ml-5"
-              @click="createDomain"
-              >新建图谱</el-tag
-            >
-            <el-tag
-              @click="matchDomainGraph(m)"
-              v-for="(m, index) in pageModel.nodeList"
-              :key="index"
-              :type="m.type"
-              effect="dark"
-              :title="m.name"
-              class="tag-ml-5"
-            >
-              {{ m.name }}
-            </el-tag>
-          </div>
-          <div class="fr">
-            <a
-              href="javascript:void(0)"
-              class="svg-a-sm"
-              v-show="pageModel.pageIndex > 1"
-              @click="prev"
-              >上一页</a
-            >
-            <a
-              href="javascript:void(0)"
-              class="svg-a-sm"
-              v-show="pageModel.pageIndex < pageModel.totalPage"
-              @click="next"
-              >下一页</a
-            >
-          </div>
-        </div>
-        <!-- 关注及交流 -->
-      </div>
-    </el-scrollbar>
     <!-- 左侧over -->
     <!-- 右侧 -->
+    <div class="mind-con">
+      <!-- 头部工具栏 -->
+      <div class="mind-top clearfix">
+        <span>
+          <span class="dibmr">
+            <span>当前领域:</span>
+            <span style="color:red">{{ domainAlia }}</span>
+          </span>
+        </span>
+        <div v-show="domain != ''" class="fl" style="display: flex">
+          <div class="search">
+            <el-button @click="getDomainGraph(0)">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-search"></use>
+              </svg>
+            </el-button>
+            <el-input
+              placeholder="请输入关键词"
+              v-model="nodeName"
+              @keyup.enter.native="getDomainGraph"
+            ></el-input>
+          </div>
+          <span>
+            <span class="dibmr">
+              <span>显示节点个数:</span>
+              <el-tag
+                v-for="(m, index) in pageSizeList"
+                size="mini"
+                :key="index"  :type="m.isActive?'success':''"
+                class="tag-ml-5"
+                @click="setMatchSize(m)"
+                >{{ m.size }}</el-tag
+              >
+            </span>
+          </span>
+        </div>
+        <div class="fr">
+          <a href="javascript:void(0)" @click="showJsonData" class="svg-a-sm">
+            <i class="el-icon-tickets">查看数据</i>
+          </a>
+
+          <a href="javascript:void(0)" @click="saveImage" class="svg-a-sm">
+            <i class="el-icon-camera-solid">截图</i>
+          </a>
+          <a href="javascript:void(0)" @click="importGraph" class="svg-a-sm">
+            <i class="el-icon-upload">导入</i>
+          </a>
+          <a href="javascript:void(0)" @click="exportGraph" class="svg-a-sm">
+            <i class="el-icon-download">导出</i>
+          </a>
+          <a
+            href="javascript:void(0)"
+            @click="requestFullScreen"
+            class="svg-a-sm"
+          >
+            <i class="el-icon-monitor">全屏</i>
+          </a>
+          <a href="javascript:void(0)" @click="help" class="svg-a-sm">
+            <i class="el-icon-info">帮助</i>
+          </a>
+          <a href="javascript:void(0)" @click="wanted" class="svg-a-sm">
+            <i class="el-icon-question">反馈</i>
+          </a>
+        </div>
+      </div>
+      <!-- 头部over -->
+      <!-- 中部 -->
+      <el-scrollbar class="mind-cen" id="graphcontainerdiv">
+        <div id="nodeDetail" class="node_detail">
+          <h5>详细数据</h5>
+          <span class="node_pd" v-for="(m, k) in nodeDetail" :key="k"
+            >{{ k }}:{{ m }}</span
+          >
+        </div>
+        <!-- 中部图谱画布 -->
+        <div id="graphContainer" class="graphContainer">
+          <kgbuilder
+            ref="kg_builder"
+            :styles="style"
+            :initData="graphData"
+            :domain="domain"
+            :domainId="domainId"
+            :ring-function="RingFunction"
+            @editForm="editForm"
+          />
+        </div>
+      </el-scrollbar>
+      <!-- 中部over -->
+      <div class="svg-set-box"></div>
+      <!-- 底部 -->
+
+      <!-- 底部over -->
+    </div>
     <div class="mind-con">
       <!-- 头部工具栏 -->
       <div class="mind-top clearfix">
@@ -189,7 +239,7 @@ import html2canvas from "html2canvas";
 import kgbuilder from "@/components/KGBuilder_v1";
 import { EventBus } from "@/utils/event-bus.js";
 export default {
-  name: "kgBuilderv1",
+  name: "graphmatch",
   components: {
     KgForm,
     NodeRicher,
@@ -509,7 +559,9 @@ export default {
       return domain;
     }
   },
-  mounted() {},
+  mounted() {
+    this.getDomainGraph();
+  },
   created() {
     this.getDomain();
     this.$nextTick(() => {
@@ -1122,6 +1174,8 @@ export default {
 .mind-box {
   height: calc(100vh - 85px);
   overflow: hidden;
+  display: flex;
+
 }
 .mind-l {
   width: 300px;

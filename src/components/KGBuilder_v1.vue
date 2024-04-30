@@ -145,12 +145,13 @@ export default {
   methods: {
     //画布右击
     initContainerRightClick(event) {
+        console.log(event)
       let _this = this;
       _this.svg.on("mousemove", null);
       d3.select("#drawLineTemp").remove();
       let menuBar = {
-        left: event.clientX - 300,
-        top: event.clientY - 140,
+        left: event.clientX - 430,
+        top: event.clientY - 180,
         show: true
       };
       _this.$refs.menu_blank.init(menuBar);

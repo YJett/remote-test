@@ -48,9 +48,6 @@
           </div>
         </div>
         <!-- 关注及交流 -->
-        <div>
-          <kg-focus ref="kg_focus"></kg-focus>
-        </div>
       </div>
     </el-scrollbar>
     <!-- 左侧over -->
@@ -185,7 +182,6 @@ import _ from "lodash";
 import { kgBuilderApi } from "@/api";
 import KgForm from "@/views/kgbuilder/components/kg_form";
 import NodeRicher from "@/views/kgbuilder/components/node_richer";
-import KgFocus from "@/components/KGFocus";
 import KgWanted from "@/components/KGWanted";
 import KgJson from "@/views/kgbuilder/components/kg_json";
 import KgHelp from "@/views/kgbuilder/components/kg_help";
@@ -197,7 +193,6 @@ export default {
   components: {
     KgForm,
     NodeRicher,
-    KgFocus,
     KgJson,
     KgHelp,
     KgWanted,
@@ -273,8 +268,8 @@ export default {
         {
           title: "编辑",
           icon: {
-            type: "icon",
-            content: "#icon-editor"
+            type: "text",
+            content: "编辑"
           },
           defaultEvent: (d, _this, d3) => {
             _this.$nextTick(() => {
@@ -298,8 +293,8 @@ export default {
         {
           title: "展开",
           icon: {
-            type: "icon",
-            content: "#icon-salescenter-fill"
+            type: "text",
+            content: "展开"
           },
           defaultEvent: (d, _this, d3) => {
             let data = { domain: _this.domain, nodeId: d.uuid };
@@ -322,8 +317,8 @@ export default {
         {
           title: "删除",
           icon: {
-            type: "icon",
-            content: "#icon-ashbin-fill"
+            type: "text",
+            content: "删除"
           },
           defaultEvent: (d, _this, d3) => {
             let data = { domain: _this.domain, nodeId: d.uuid };
@@ -358,8 +353,8 @@ export default {
         {
           title: "连线",
           icon: {
-            type: "icon",
-            content: "#icon-link"
+            type: "text",
+            content: "连线"
           },
           defaultEvent: (data, _this, d3) => {
             this.createLink(data);

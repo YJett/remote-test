@@ -242,6 +242,7 @@ export default {
         },
         // 需要缓存的路由
         keepAliveData() {
+            this.tagsArry.map(item=>{console.log(item.name)})
             return this.tagsArry.map(item => item.name)
         },
         // 由于iView的导航菜单比较坑 只能设定一个name参数

@@ -44,7 +44,12 @@ class kgBuilderApi extends BaseAPI{
     // });
   }
   getCypherResult(data) {
-    return this.get("/getCypherResult",data);
+    console.log(data);
+    return this.post("/getCypherResult1",{ cypher: data },{
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      });
   }
   getNodeContent(data) {
     return this.post("/getNodeContent",data);

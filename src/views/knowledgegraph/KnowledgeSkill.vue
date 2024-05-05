@@ -32,13 +32,7 @@
         </div>
 
         <!-- Relation Dialog -->
-        <el-dialog
-            title="关联实体"
-            :visible.sync="relationDialogVisible"
-            width="30%"
-            top="10vh"
-            :before-close="handleDialogClose"
-        >
+        <el-dialog title="关联实体" :visible.sync="relationDialogVisible" width="30%" top="10vh">
             <el-form ref="relationForm" :model="relationForm" label-width="120px">
                 <el-form-item label="实体1：知识图谱">
                     <el-input v-model="relationForm.entity1" disabled></el-input>
@@ -67,6 +61,12 @@
 
 <script>
 import G6 from '@antv/g6';
+import { kgBuilderApi } from "@/api";
+
+const KNOWLEDGEANDSHIP = `MATCH (n {type: 'knowledge'})-[r]->(m {type: 'knowledge'}) RETURN n, r, m`
+const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'})
+RETURN n, r, m
+`
 
 export default {
     data() {
@@ -75,28 +75,7 @@ export default {
             inputValue: '',
             currentClickNodeKnowledge: null,
             currentClickNodeSkill: null,
-            knowledgeGraphData: null,
-            skillGraphData: null,
-            relationDialogVisible: false,
-            relationForm: {
-                entity1: '',
-                entity2: '',
-                relationName: '',
-                direction: '正向关系'
-            }
-        };
-    },
-    async mounted() {
-        await this.fetchKnowledgeGraphData();
-        this.initKnowledgeGraph();
-        await this.fetchSkillGraphData();
-        this.initSkillGraph();
-    },
-    methods: {
-        async fetchKnowledgeGraphData() {
-            // Fetch data from backend here for the knowledge graph
-            // For now, we'll just use some dummy data
-            this.knowledgeGraphData = {
+            knowledgeGraphData: {
                 nodes: [
                     { id: 'node1', label: 'Node 1' },
                     { id: 'node2', label: 'Node 2' },
@@ -106,12 +85,8 @@ export default {
                     { source: 'node1', target: 'node2' },
                     { source: 'node2', target: 'node3' },
                 ]
-            };
-        },
-        async fetchSkillGraphData() {
-            // Fetch data from backend here for the skill graph
-            // For now, we'll just use some dummy data
-            this.skillGraphData = {
+            },
+            skillGraphData: {
                 nodes: [
                     { id: 'nodeA', label: 'Node A' },
                     { id: 'nodeB', label: 'Node B' },
@@ -121,7 +96,53 @@ export default {
                     { source: 'nodeA', target: 'nodeB' },
                     { source: 'nodeB', target: 'nodeC' },
                 ]
-            };
+            },
+            relationDialogVisible: false,
+            relationForm: {
+                entity1: '',
+                entity2: '',
+                relationName: '',
+                direction: '正向关系'
+            },
+            knowledgeGraph: null,
+            skillGraph: null,
+        };
+    },
+    async mounted() {
+        this.initKnowledgeGraph();
+        this.initSkillGraph();
+    },
+    methods: {
+        fetchKnowledgeGraphData() {
+            // Fetch data from backend here for the knowledge graph
+            // For now, we'll just use some dummy data
+            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then((res) => {
+                console.log(res);
+                let nodes = res.data.node.map(node => ({
+                    id: node.uuid,
+                    label: node.name,
+                    ...node
+                }));
+                let edges = res.data.relationship.map(rel => ({
+                    source: rel.sourceId,
+                    target: rel.targetId,
+                    uuid: rel.uuid,
+                }));
+                this.knowledgeGraphData = {
+                    nodes,
+                    edges,
+                };
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
+            });
+        },
+        async fetchSkillGraphData() {
+            // Fetch data from backend here for the skill graph
+            // For now, we'll just use some dummy data
+            let cypher = `MATCH (n) RETURN n LIMIT 25`;
+            kgBuilderApi.getCypherResult(cypher).then((res) => {
+                console.log(res);
+            });
+
         },
         initKnowledgeGraph() {
             const knowledgeGraph = new G6.Graph({
@@ -162,6 +183,7 @@ export default {
                     id: nodeItem.getModel().id,
                 };
             });
+            this.knowledgeGraph = knowledgeGraph;
         },
         initSkillGraph() {
             const skillGraph = new G6.Graph({
@@ -223,6 +245,7 @@ export default {
         // Method to show add entity dialog
         showAddEntityDialog() {
             // Logic to show add entity dialog
+            this.fetchKnowledgeGraphData();
             this.$message.info('添加实体功能暂未实现！');
         },
         // Method to show edit entity dialog
@@ -251,14 +274,18 @@ export default {
     align-items: center;
     justify-content: space-between;
 }
+
 .el-card__body {
-    height: 100%;  /* Set the height of the card body */
+    height: 100%;
+    /* Set the height of the card body */
 }
+
 .graph-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    height: 80vh;  /* Set the height of the container to 80% of the viewport height */
+    height: 80vh;
+    /* Set the height of the container to 80% of the viewport height */
 }
 
 .box-card {

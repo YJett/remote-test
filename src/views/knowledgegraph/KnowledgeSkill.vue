@@ -64,9 +64,7 @@ import G6 from '@antv/g6';
 import { kgBuilderApi } from "@/api";
 
 const KNOWLEDGEANDSHIP = `MATCH (n {type: 'knowledge'})-[r]->(m {type: 'knowledge'}) RETURN n, r, m`
-const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'})
-RETURN n, r, m
-`
+const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`
 
 export default {
     data() {
@@ -138,9 +136,27 @@ export default {
         async fetchSkillGraphData() {
             // Fetch data from backend here for the skill graph
             // For now, we'll just use some dummy data
-            let cypher = `MATCH (n) RETURN n LIMIT 25`;
-            kgBuilderApi.getCypherResult(cypher).then((res) => {
+            // let cypher = `MATCH (n) RETURN n LIMIT 25`;
+            // kgBuilderApi.getCypherResult(cypher).then((res) => {
+            //     console.log(res);
+            // });
+            kgBuilderApi.getCypherResult(SKILLANDSHIP).then((res) => {
                 console.log(res);
+                let nodes = res.data.node.map(node => ({
+                    id: node.uuid,
+                    label: node.name,
+                    ...node
+                }));
+                let edges = res.data.relationship.map(rel => ({
+                    source: rel.sourceId,
+                    target: rel.targetId,
+                    uuid: rel.uuid,
+                }));
+                this.skillGraphData = {
+                    nodes,
+                    edges,
+                };
+                this.skillGraph.changeData(this.skillGraphData);
             });
 
         },
@@ -246,6 +262,7 @@ export default {
         showAddEntityDialog() {
             // Logic to show add entity dialog
             this.fetchKnowledgeGraphData();
+            this.fetchSkillGraphData();
             this.$message.info('添加实体功能暂未实现！');
         },
         // Method to show edit entity dialog

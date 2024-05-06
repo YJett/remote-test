@@ -4,29 +4,19 @@
         <div class="identity-selection">
             <RadioGroup v-model="selectedIdentity">
                 <Radio label="sch">学校身份</Radio>
-                <i-select v-if="selectedIdentity === 'sch'" v-model="selectedSchool" placeholder="选择学校" style="width: 200px;">
-                    <i-option v-for="school in schools" :key="school.id" :value="school.id">{{ school.name }}</i-option>
-                </i-select>
-<!--                <Radio label="com">企业身份</Radio>-->
+                <!--<Radio label="com">企业身份</Radio>-->
             </RadioGroup>
-<!--            <span class="selection-tip">请选择身份</span>-->
+        </div>
+
+        <!-- 学校输入框 -->
+        <div v-if="selectedIdentity === 'sch'" class="school-input">
+            <Input v-model="selectedSchool" placeholder="输入学校名称" style="width: 200px;" />
         </div>
 
         <!-- 文件导入功能 -->
         <div class="file-import">
             <Upload
-                v-if="selectedIdentity === 'sch'"
-                :action="'api/sch/importSchInfoData'"
-                :before-upload="handleBeforeUpload"
-                :on-success="handleUploadSuccess"
-                show-upload-list="false"
-            >
-                <i-button type="primary" size="large">选择文件</i-button>
-            </Upload>
-
-            <Upload
-                v-if="selectedIdentity === 'com'"
-                :action="'api/com/importComData'"
+                :action="uploadUrl"
                 :before-upload="handleBeforeUpload"
                 :on-success="handleUploadSuccess"
                 show-upload-list="false"
@@ -43,9 +33,8 @@
     </div>
 </template>
 
-
 <script>
-import { RadioGroup, Radio, Upload, Button, Message, Select, Option } from 'view-design';
+import { RadioGroup, Radio, Upload, Button, Message, Input } from 'view-design';
 import { importSchData, importComData, getSchools } from '../api/upload'; // Assuming you have an API function to fetch schools
 
 export default {
@@ -53,7 +42,7 @@ export default {
         return {
             selectedIdentity: 'sch', // 默认选择学校身份
             selectedSchool: '', // 学校选择
-            uploadUrl: '/api/upload', // 上传文件接口地址
+            uploadUrl: '', // 上传文件接口地址
             selectedFileName: '', // 选中的文件名
             selectedFile: null, // 选中的文件对象
             uploadKey: 0, // 用于强制更新组件的 key
@@ -62,13 +51,11 @@ export default {
     },
     methods: {
         handleBeforeUpload(file) {
-            this.DaoRu();
             // 检查文件类型是否为 XLSX
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
                 Message.error('请选择XLSX文件');
                 return false;
             }
-            console.log(this.uploadUrl);
 
             // 更新选中的文件名和文件对象
             this.selectedFileName = file.name;
@@ -85,14 +72,18 @@ export default {
                 Message.error('上传失败');
             }
         },
-        DaoRu() {
+        DaoRu(data) {
             // 根据文件内容和用户选择的身份进行数据处理和导入
+            const payload = {
+                schoolName: this.selectedSchool,
+                fileData: data
+            };
             if (this.selectedIdentity === 'sch') {
                 // 处理学校数据
-                this.uploadUrl = "api/sch/importSchInfoData";
+                this.uploadUrl = "api/konwledge/importKpKonwledgeData";
             } else if (this.selectedIdentity === 'com') {
                 // 处理企业数据
-                this.uploadUrl="api/com/importComData";
+                this.uploadUrl = "api/com/importComData";
             }
             this.uploadKey++;
         },
@@ -102,12 +93,61 @@ export default {
             this.selectedFile = null;
         },
         uploadFile() {
-            this.DaoRu();
             // 执行文件上传
             if (this.selectedFile) {
-                this.$refs.upload.submit();
+                // 创建 payload 对象
+                const payload = {
+                    schoolName: this.selectedSchool,
+                    fileData: this.selectedFile
+                };
+
+                // 根据用户选择的身份确定上传文件的接口地址
+                let uploadEndpoint = '';
+                if (this.selectedIdentity === 'sch') {
+                    uploadEndpoint = "api/konwledge/importKpKonwledgeData";
+                } else if (this.selectedIdentity === 'com') {
+                    uploadEndpoint = "api/com/importComData";
+                }
+
+                // 使用 fetch 或者 axios 发送 POST 请求给后端
+                fetch(uploadEndpoint, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('上传失败');
+                        }
+                    })
+                    .then(data => {
+                        // 处理后端返回的数据
+                        console.log(data);
+                        Message.success('上传成功');
+                    })
+                    .catch(error => {
+                        console.error('上传失败:', error);
+                        Message.error('上传失败');
+                    });
+
             } else {
                 Message.warning('请选择要上传的文件');
+            }
+        },
+        fetchSchools() {
+            // Fetch schools based on selected identity
+            if (this.selectedIdentity === 'sch') {
+                // Fetch schools only if the selected identity is 'sch'
+                // Assuming getSchools is a function that fetches schools from the backend
+                getSchools().then(response => {
+                    this.schools = response.data;
+                }).catch(error => {
+                    console.error('Error fetching schools:', error);
+                });
             }
         },
     },
@@ -115,21 +155,14 @@ export default {
         // Fetch schools when the component is mounted
         this.fetchSchools();
     },
-    created() {
-        // Fetch schools when the selected identity changes
-        this.$watch('selectedIdentity', this.fetchSchools);
-    },
     watch: {
         // Watch for changes in selectedIdentity and fetch schools accordingly
         selectedIdentity(newValue) {
             this.fetchSchools();
         },
     },
-
 };
 </script>
-
-
 
 <style scoped>
 .container {
@@ -152,12 +185,6 @@ export default {
 .file-info {
     margin-left: 20px;
     margin-right: 20px;
-    font-size: 18px;
-}
-
-.selection-tip {
-    margin-left: 20px;
-    color: #999;
     font-size: 18px;
 }
 

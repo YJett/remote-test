@@ -64,7 +64,9 @@ import G6 from '@antv/g6';
 import { kgBuilderApi } from "@/api";
 
 const KNOWLEDGEANDSHIP = `MATCH (n {type: 'knowledge'})-[r]->(m {type: 'knowledge'}) RETURN n, r, m`
-const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`
+const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'})
+RETURN n, r, m
+`
 
 export default {
     data() {
@@ -107,8 +109,10 @@ export default {
         };
     },
     async mounted() {
-        this.initKnowledgeGraph();
-        this.initSkillGraph();
+        this.initKnowledgeGraph();            // 初始化知识图谱
+        this.initSkillGraph();                // 初始化技能图谱
+        this.fetchKnowledgeGraphData();       // 获取知识图谱数据
+        this.fetchSkillGraphData();           // 获取技能图谱数据
     },
     methods: {
         fetchKnowledgeGraphData() {
@@ -135,30 +139,37 @@ export default {
         },
         async fetchSkillGraphData() {
             // Fetch data from backend here for the skill graph
-            // For now, we'll just use some dummy data
-            // let cypher = `MATCH (n) RETURN n LIMIT 25`;
-            // kgBuilderApi.getCypherResult(cypher).then((res) => {
-            //     console.log(res);
-            // });
-            kgBuilderApi.getCypherResult(SKILLANDSHIP).then((res) => {
-                console.log(res);
-                let nodes = res.data.node.map(node => ({
+            const skillCypherQuery = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'})
+    RETURN n, r, m`;
+            try {
+                const response = await kgBuilderApi.getCypherResult(skillCypherQuery);
+                console.log(response);
+
+                let nodes = response.data.node.map(node => ({
                     id: node.uuid,
                     label: node.name,
                     ...node
                 }));
-                let edges = res.data.relationship.map(rel => ({
+                let edges = response.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid,
                 }));
+
                 this.skillGraphData = {
                     nodes,
                     edges,
                 };
-                this.skillGraph.changeData(this.skillGraphData);
-            });
 
+                if (this.skillGraph) {
+                    this.skillGraph.changeData(this.skillGraphData);
+                } else {
+                    this.initSkillGraph();
+                }
+            } catch (error) {
+                console.error('Error fetching skill graph data:', error);
+                this.$message.error('获取技能图谱数据失败！');
+            }
         },
         initKnowledgeGraph() {
             const knowledgeGraph = new G6.Graph({

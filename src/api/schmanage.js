@@ -14,6 +14,13 @@ export function querySch(page, email, schName) {
     })
 }
 
+export function fetchSchoolNames() {
+    return request({
+        url: 'sch/schNames', // Endpoint to fetch school names
+        method: 'GET',
+    });
+}
+
 export function deleteSch(id) {
     return request({
         url: 'sch/' + id,

@@ -11,7 +11,7 @@
         <!-- 学校选择下拉框 -->
         <div v-if="selectedIdentity === 'sch'" class="school-input">
             <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px;">
-                <Option v-for="school in schools" :key="school.id" :value="school.schName">{{ school.schName }}</Option>
+                <Option v-for="school in schools" :key="school" :value="school">{{ school }}</Option>
             </Select>
         </div>
 
@@ -143,16 +143,20 @@ export default {
         },
         // 获取学校列表
         fetchSchools() {
-            // 只有选择学校身份才获取学校列表
-            fetchSchoolNames().then(response => {
-                this.schools = response.data;
-                // If you want to pre-select the first school in the dropdown,
-                // you can uncomment the following line:
-                // this.selectedSchool = this.schools.length > 0 ? this.schools[0].schName : '';
-            }).catch(error => {
-                console.error('获取学校列表失败:', error);
-                Message.error('获取学校列表失败');
-            });
+            fetchSchoolNames()
+                .then(response => {
+                    console.log('Schools data from backend:', response.data); // Log received data
+                    if (Array.isArray(response.data)) {
+                        this.schools = response.data; // Populate schools array with fetched data
+                    } else {
+                        console.error('Invalid data format:', response.data);
+                        Message.error('Failed to fetch schools: Invalid data format');
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to fetch schools:', error);
+                    Message.error('Failed to fetch schools');
+                });
         },
     },
     mounted() {

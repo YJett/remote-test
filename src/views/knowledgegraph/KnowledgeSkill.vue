@@ -55,55 +55,63 @@
                 <el-button type="primary" @click="addRelation">确定</el-button>
             </div>
         </el-dialog>
-
     </div>
 </template>
 
 <script>
-import G6 from '@antv/g6';
+import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 
-const KNOWLEDGEANDSHIP = `MATCH (n {type: 'knowledge'})-[r]->(m {type: 'knowledge'}) RETURN n, r, m`
-const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`
+const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
+`;
+const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`;
 
 export default {
     data() {
         return {
             switchValue: false,
-            inputValue: '',
+            inputValue: "",
             currentClickNodeKnowledge: null,
             currentClickNodeSkill: null,
             knowledgeGraphData: {
                 nodes: [
-                    { id: 'node1', label: 'Node 1' },
-                    { id: 'node2', label: 'Node 2' },
-                    { id: 'node3', label: 'Node 3' },
+                    { id: "node1", label: "Node 1" },
+                    { id: "node2", label: "Node 2" },
+                    { id: "node3", label: "Node 3" }
                 ],
                 edges: [
-                    { source: 'node1', target: 'node2' },
-                    { source: 'node2', target: 'node3' },
+                    {
+                        source: "node1",
+                        target: "node2",
+                        label: "This is edge1" // Set the edge name here
+                    },
+                    {
+                        source: "node2",
+                        target: "node3",
+                        label: "This is edge1" // Set the edge name here
+                    }
                 ]
             },
             skillGraphData: {
                 nodes: [
-                    { id: 'nodeA', label: 'Node A' },
-                    { id: 'nodeB', label: 'Node B' },
-                    { id: 'nodeC', label: 'Node C' },
+                    { id: "nodeA", label: "Node A" },
+                    { id: "nodeB", label: "Node B" },
+                    { id: "nodeC", label: "Node C" }
                 ],
                 edges: [
-                    { source: 'nodeA', target: 'nodeB' },
-                    { source: 'nodeB', target: 'nodeC' },
+                    { source: "nodeA", target: "nodeB" },
+                    { source: "nodeB", target: "nodeC" }
                 ]
             },
             relationDialogVisible: false,
             relationForm: {
-                entity1: '',
-                entity2: '',
-                relationName: '',
-                direction: '正向关系'
+                entity1: "",
+                entity2: "",
+                relationName: "",
+                direction: "正向关系"
             },
             knowledgeGraph: null,
-            skillGraph: null,
+            skillGraph: null
         };
     },
     async mounted() {
@@ -111,24 +119,62 @@ export default {
         this.initSkillGraph();
     },
     methods: {
+        clearStates(graph) {
+
+      graph.getNodes() &&
+        graph.getNodes().forEach((item) => {
+          if (
+            item.getStates().findIndex((node) => {
+              return node === "highlight";
+            }) !== -1
+          ) {
+            graph.setItemState(item, "highlight", false);
+          }
+          if (
+            item.getStates().findIndex((node) => {
+              return node === "dark";
+            }) !== -1
+          ) {
+            graph.setItemState(item, "dark", false);
+          }
+        });
+      graph.getEdges() &&
+        graph.getEdges().forEach((item) => {
+          if (
+            item.getStates().findIndex((edge) => {
+              return edge === "highlight";
+            }) !== -1
+          ) {
+            graph.setItemState(item, "highlight", false);
+          }
+          if (
+            item.getStates().findIndex((edge) => {
+              return edge === "dark";
+            }) !== -1
+          ) {
+            graph.setItemState(item, "dark", false);
+          }
+        });
+    },
         fetchKnowledgeGraphData() {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
-            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then((res) => {
+            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
-                    label: node.name,
+                    label: node.knowledgeNm,
                     ...node
                 }));
                 let edges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
-                    uuid: rel.uuid,
+                    label: rel.type,
+                    uuid: rel.uuid
                 }));
                 this.knowledgeGraphData = {
                     nodes,
-                    edges,
+                    edges
                 };
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
             });
@@ -140,7 +186,7 @@ export default {
             // kgBuilderApi.getCypherResult(cypher).then((res) => {
             //     console.log(res);
             // });
-            kgBuilderApi.getCypherResult(SKILLANDSHIP).then((res) => {
+            kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
@@ -150,95 +196,128 @@ export default {
                 let edges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
-                    uuid: rel.uuid,
+                    uuid: rel.uuid
                 }));
                 this.skillGraphData = {
                     nodes,
-                    edges,
+                    edges
                 };
                 this.skillGraph.changeData(this.skillGraphData);
             });
-
         },
         initKnowledgeGraph() {
             const knowledgeGraph = new G6.Graph({
-                container: 'knowledge-graph',
+                container: "knowledge-graph",
                 layout: {
-                    type: 'force',
+                    type: "force",
                     preventOverlap: true,
+                    linkDistance: 100, // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
-                    size: [50, 50],
+                    size: [60, 60], // 改变节点大小
                     style: {
-                        fill: '#9EC9FF',
-                        stroke: '#5B8FF9',
+                        fill: "#87CEEB", // 天空蓝填充
+                        stroke: "#0F52BA" // 宝石蓝描边
                     },
                     labelCfg: {
                         style: {
-                            fill: '#000',
-                            fontSize: 10,
-                        },
+                            fill: "#000",
+                            fontSize: 12 // 改变标签字体大小
+                        }
+                    }
+                },
+                defaultEdge: {
+                    style: {
+                        stroke: "#F6BD16", // 改变边的颜色
+                        lineWidth: 2 // 改变边的宽度
                     },
+                    labelCfg: {
+                        autoRotate: true // Label follows the edge direction
+                    }
                 },
                 nodeStateStyles: {
                     selected: {
-                        fill: 'lightblue',
-                    },
+                        fill: "lightblue"
+                    }
                 },
                 modes: {
-                    default: ['drag-canvas', 'zoom-canvas', 'click-select', 'drag-node'],
-                },
+                    default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
+                }
             });
             knowledgeGraph.data(this.knowledgeGraphData);
             knowledgeGraph.render();
 
-            knowledgeGraph.on('node:click', (e) => {
+            knowledgeGraph.on("node:click", e => {
                 const nodeItem = e.item;
                 this.currentClickNodeKnowledge = {
-                    graph: 'knowledge',
-                    id: nodeItem.getModel().id,
+                    graph: "knowledge",
+                    id: nodeItem.getModel().id
                 };
             });
+            knowledgeGraph.on("node:mouseenter", ev => {
+                const nodeItem = ev.item;
+
+                // Highlight the node itself
+                knowledgeGraph.setItemState(nodeItem, "highlight", true);
+
+                // Get the edges connected to the node
+                const connectedEdges = nodeItem.getEdges();
+
+                // Highlight the nodes at the other end of these edges
+                connectedEdges.forEach(edge => {
+                    const sourceNode = edge.getSource();
+                    const targetNode = edge.getTarget();
+                    const neighborNode = sourceNode === nodeItem ? targetNode : sourceNode;
+                    knowledgeGraph.setItemState(neighborNode, "highlight", true);
+                });
+            });
+
+            knowledgeGraph.on("node:mouseleave", ev => {
+                // Clear all highlights
+                this.clearStates(this.knowledgeGraph);
+            });
+
             this.knowledgeGraph = knowledgeGraph;
         },
         initSkillGraph() {
             const skillGraph = new G6.Graph({
-                container: 'skill-graph',
+                container: "skill-graph",
                 layout: {
-                    type: 'force',
-                    preventOverlap: true,
+                    type: "force",
+                    preventOverlap: true
                 },
                 defaultNode: {
                     size: [50, 50],
                     style: {
-                        fill: '#9EC9FF',
-                        stroke: '#5B8FF9',
+                        fill: "#9EC9FF",
+                        stroke: "#5B8FF9"
                     },
                     labelCfg: {
                         style: {
-                            fill: '#000',
-                            fontSize: 10,
-                        },
-                    },
+                            fill: "#000",
+                            fontSize: 10
+                        }
+                    }
                 },
                 nodeStateStyles: {
                     selected: {
-                        fill: 'lightblue',
-                    },
+                        fill: "lightblue"
+                    }
                 },
                 modes: {
-                    default: ['drag-canvas', 'zoom-canvas', 'click-select', 'drag-node'],
-                },
+                    default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
+                }
             });
 
             skillGraph.data(this.skillGraphData);
             skillGraph.render();
 
-            skillGraph.on('node:click', (e) => {
+            skillGraph.on("node:click", e => {
                 const nodeItem = e.item;
                 this.currentClickNodeSkill = {
-                    graph: 'skill',
-                    id: nodeItem.getModel().id,
+                    graph: "skill",
+                    id: nodeItem.getModel().id
                 };
             });
         },
@@ -249,26 +328,26 @@ export default {
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
             } else {
-                this.$message.error('请先选择知识图谱和技能图谱中的节点！');
+                this.$message.error("请先选择知识图谱和技能图谱中的节点！");
             }
         },
         // Method to add relation
         addRelation() {
             // Logic to add relation
             this.relationDialogVisible = false;
-            this.$message.success('成功添加关联关系！');
+            this.$message.success("成功添加关联关系！");
         },
         // Method to show add entity dialog
         showAddEntityDialog() {
             // Logic to show add entity dialog
             this.fetchKnowledgeGraphData();
             this.fetchSkillGraphData();
-            this.$message.info('添加实体功能暂未实现！');
+            this.$message.info("添加实体功能暂未实现！");
         },
         // Method to show edit entity dialog
         showEditEntityDialog() {
             // Logic to show edit entity dialog
-            this.$message.info('修改实体功能暂未实现！');
+            this.$message.info("修改实体功能暂未实现！");
         },
         beforeDestroy() {
             // Destroy the knowledge graph and skill graph instances
@@ -282,8 +361,6 @@ export default {
     }
 };
 </script>
-
-
 
 <style>
 .el-header {

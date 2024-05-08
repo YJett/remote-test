@@ -115,8 +115,10 @@ export default {
         };
     },
     async mounted() {
-        this.initKnowledgeGraph();
-        this.initSkillGraph();
+        this.initKnowledgeGraph();            // 初始化知识图谱
+        this.initSkillGraph();                // 初始化技能图谱
+        this.fetchKnowledgeGraphData();       // 获取知识图谱数据
+        this.fetchSkillGraphData();           // 获取技能图谱数据
     },
     methods: {
         clearStates(graph) {
@@ -193,11 +195,12 @@ export default {
                     label: node.name,
                     ...node
                 }));
-                let edges = res.data.relationship.map(rel => ({
+                let edges = response.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid
                 }));
+
                 this.skillGraphData = {
                     nodes,
                     edges

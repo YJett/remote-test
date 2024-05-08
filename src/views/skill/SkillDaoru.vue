@@ -46,7 +46,7 @@
 
 <script>
 import { RadioGroup, Radio, Upload, Button, Message, Select, Option } from 'view-design';
-import { importSchData, importComData, getSchools } from '../api/upload'; // Assuming you have an API function to fetch schools
+import { importSchData, importComData, getSchools } from '../../api/upload'; // Assuming you have an API function to fetch schools
 
 export default {
     data() {

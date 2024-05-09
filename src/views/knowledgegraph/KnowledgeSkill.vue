@@ -115,49 +115,48 @@ export default {
         };
     },
     async mounted() {
-        this.initKnowledgeGraph();            // 初始化知识图谱
-        this.initSkillGraph();                // 初始化技能图谱
-        this.fetchKnowledgeGraphData();       // 获取知识图谱数据
-        this.fetchSkillGraphData();           // 获取技能图谱数据
+        this.initKnowledgeGraph(); // 初始化知识图谱
+        this.initSkillGraph(); // 初始化技能图谱
+        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+        this.fetchSkillGraphData(); // 获取技能图谱数据
     },
     methods: {
         clearStates(graph) {
-
-      graph.getNodes() &&
-        graph.getNodes().forEach((item) => {
-          if (
-            item.getStates().findIndex((node) => {
-              return node === "highlight";
-            }) !== -1
-          ) {
-            graph.setItemState(item, "highlight", false);
-          }
-          if (
-            item.getStates().findIndex((node) => {
-              return node === "dark";
-            }) !== -1
-          ) {
-            graph.setItemState(item, "dark", false);
-          }
-        });
-      graph.getEdges() &&
-        graph.getEdges().forEach((item) => {
-          if (
-            item.getStates().findIndex((edge) => {
-              return edge === "highlight";
-            }) !== -1
-          ) {
-            graph.setItemState(item, "highlight", false);
-          }
-          if (
-            item.getStates().findIndex((edge) => {
-              return edge === "dark";
-            }) !== -1
-          ) {
-            graph.setItemState(item, "dark", false);
-          }
-        });
-    },
+            graph.getNodes() &&
+                graph.getNodes().forEach(item => {
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
+            graph.getEdges() &&
+                graph.getEdges().forEach(item => {
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
+        },
         fetchKnowledgeGraphData() {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
@@ -209,6 +208,22 @@ export default {
             });
         },
         initKnowledgeGraph() {
+            const menu = new G6.Menu({
+                getContent(evt) {
+                                    return `<ul>
+                    <li title='addChild'>Add Child Node</li>
+                    </ul>`;
+                                },
+                handleMenuClick(target, item) {
+                    if (target.title === 'addChild') {
+                        console.log(`Add child node for ${item.getID()}`);
+                        console.log(item.getModel());
+                        // Here you can add your logic to add a child node
+                    }
+                },
+            });
+
+
             const knowledgeGraph = new G6.Graph({
                 container: "knowledge-graph",
                 layout: {
@@ -246,7 +261,8 @@ export default {
                 },
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
-                }
+                },
+                plugins: [menu]
             });
             knowledgeGraph.data(this.knowledgeGraphData);
             knowledgeGraph.render();
@@ -280,6 +296,7 @@ export default {
                 // Clear all highlights
                 this.clearStates(this.knowledgeGraph);
             });
+
 
             this.knowledgeGraph = knowledgeGraph;
         },

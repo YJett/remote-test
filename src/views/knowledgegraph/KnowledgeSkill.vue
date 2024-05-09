@@ -118,7 +118,7 @@ export default {
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
         this.fetchKnowledgeGraphData(); // 获取知识图谱数据
-        this.fetchSkillGraphData(); // 获取技能图谱数据
+        this.fetchSkillGraphData(); // 获取技能图谱数据？
     },
     methods: {
         clearStates(graph) {

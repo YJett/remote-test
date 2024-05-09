@@ -10,7 +10,7 @@
         </el-header>
 
         <div class="graph-container">
-            <!-- Knowledge Graph -->
+<!--            &lt;!&ndash; Knowledge Graph &ndash;&gt;-->
 <!--            <el-card class="box-card">-->
 <!--                <div slot="header" class="clearfix">-->
 <!--                    <span>知识图谱</span>-->
@@ -75,9 +75,9 @@ export default {
             currentClickNodeSkill: null,
             // knowledgeGraphData: {
             //     nodes: [
-            //         { id: "node1", label: "Node 1" },
-            //         { id: "node2", label: "Node 2" },
-            //         { id: "node3", label: "Node 3" }
+            //         {id: "node1", label: "Node 1"},
+            //         {id: "node2", label: "Node 2"},
+            //         {id: "node3", label: "Node 3"}
             //     ],
             //     edges: [
             //         {
@@ -94,13 +94,13 @@ export default {
             // },
             skillGraphData: {
                 nodes: [
-                    { id: "nodeA", label: "Node A" },
-                    { id: "nodeB", label: "Node B" },
-                    { id: "nodeC", label: "Node C" }
+                    {id: "nodeA", label: "Node A"},
+                    {id: "nodeB", label: "Node B"},
+                    {id: "nodeC", label: "Node C"}
                 ],
                 edges: [
-                    { source: "nodeA", target: "nodeB" },
-                    { source: "nodeB", target: "nodeC" }
+                    {source: "nodeA", target: "nodeB"},
+                    {source: "nodeB", target: "nodeC"}
                 ]
             },
             relationDialogVisible: false,
@@ -115,7 +115,7 @@ export default {
         };
     },
     async mounted() {
-        this.initKnowledgeGraph(); // 初始化知识图谱
+        // this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
         // this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         this.fetchSkillGraphData(); // 获取技能图谱数据
@@ -222,8 +222,8 @@ export default {
         //             }
         //         },
         //     });
-        //
-        //
+
+
         //     const knowledgeGraph = new G6.Graph({
         //         container: "knowledge-graph",
         //         layout: {
@@ -394,8 +394,8 @@ export default {
         },
         // Method to show relation dialog
         showRelationDialog() {
-            if (this.currentClickNodeKnowledge && this.currentClickNodeSkill) {
-                this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
+            if (this.currentClickNodeSkill) {
+                // this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
             } else {
@@ -411,7 +411,7 @@ export default {
         // Method to show add entity dialog
         showAddEntityDialog() {
             // Logic to show add entity dialog
-            this.fetchKnowledgeGraphData();
+            // this.fetchKnowledgeGraphData();
             this.fetchSkillGraphData();
             this.$message.info("添加实体功能暂未实现！");
         },

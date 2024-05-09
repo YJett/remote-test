@@ -72,7 +72,7 @@ export default {
             switchValue: false,
             inputValue: "",
             currentClickNodeKnowledge: null,
-            currentClickNodeSkill: null,
+            // currentClickNodeSkill: null,
             knowledgeGraphData: {
                 nodes: [
                     { id: "node1", label: "Node 1" },
@@ -116,7 +116,7 @@ export default {
     },
     async mounted() {
         this.initKnowledgeGraph(); // 初始化知识图谱
-        this.initSkillGraph(); // 初始化技能图谱
+        // this.initSkillGraph(); // 初始化技能图谱
         this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         // this.fetchSkillGraphData(); // 获取技能图谱数据
     },
@@ -343,9 +343,9 @@ export default {
         // },
         // Method to show relation dialog
         showRelationDialog() {
-            if (this.currentClickNodeKnowledge && this.currentClickNodeSkill) {
+            if (this.currentClickNodeKnowledge) {
                 this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
-                this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
+                // this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
             } else {
                 this.$message.error("请先选择知识图谱和技能图谱中的节点！");
@@ -361,7 +361,7 @@ export default {
         showAddEntityDialog() {
             // Logic to show add entity dialog
             this.fetchKnowledgeGraphData();
-            this.fetchSkillGraphData();
+            // this.fetchSkillGraphData();
             this.$message.info("添加实体功能暂未实现！");
         },
         // Method to show edit entity dialog

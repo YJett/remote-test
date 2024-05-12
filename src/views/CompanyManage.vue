@@ -21,7 +21,7 @@
             </template>
         </Table>
         <Modal v-model="addComModalVisible" title="添加企业">
-            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width=80>
+            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :labelWidth="parseInt('80')">
                 <FormItem label="企业名" prop="comName">
                     <Input v-model="formValidate.comName" placeholder="请输入企业名"/><br/>
                 </FormItem>
@@ -65,7 +65,7 @@
         </Modal>
         <Modal v-model="detailModalVisible" title="企业详情">
             <!-- 显示企业详情的表单 -->
-            <Form :model="currentDetailData" label-width="80" ref="detailForm">
+            <Form :model="currentDetailData" :labelWidth="parseInt('80')" ref="detailForm">
                 <FormItem label="企业名">
                     <Input v-model="currentDetailData.comName" disabled/>
                 </FormItem>

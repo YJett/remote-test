@@ -16,7 +16,7 @@
                 :action="'api/sch/importSchInfoData'"
                 :before-upload="handleBeforeUpload"
                 :on-success="handleUploadSuccess"
-                show-upload-list="false"
+                :show-upload-list="false"
             >
                 <i-button type="primary" size="large">选择文件</i-button>
             </Upload>
@@ -26,7 +26,7 @@
                 :action="'api/com/importComData'"
                 :before-upload="handleBeforeUpload"
                 :on-success="handleUploadSuccess"
-                show-upload-list="false"
+                :show-upload-list="false"
             >
                 <i-button type="primary" size="large">选择文件</i-button>
             </Upload>

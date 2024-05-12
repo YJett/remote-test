@@ -2,86 +2,86 @@
     <div class="container">
         <!-- 文件导入功能 -->
         <div class="file-import">
-            <el-upload
-                :action="uploadUrl"
-                :before-upload="handleBeforeUpload"
-                :on-success="handleUploadSuccess"
-                :on-error="handleUploadError"
-                :file-list="fileList"
-                :headers="headers"
-                :with-credentials="true"
-                ref="upload"
-            >
-                <el-button slot="trigger" size="large" type="primary">选择文件</el-button>
-                <el-button style="margin-left: 10px;" size="large" type="success" @click="uploadFile" :disabled="!selectedFile">上传</el-button>
-            </el-upload>
-            <div class="file-info">{{ selectedFileName }}</div>
+            <div class="file-select">
+                <Upload
+                    :action="uploadUrl"
+                    :before-upload="handleBeforeUpload"
+                    :data="uploadData"
+                    :show-upload-list="false"
+                    auto-upload="false"
+                    ref="upload"
+                >
+                    <i-button type="primary" size="large">选择文件</i-button>
+                </Upload>
+<!--                <div class="selected-file">{{ selectedFileName }}</div>-->
+            </div>
+            <div class="button-group">
+                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile">上传</i-button>
+                <i-button size="large" @click="clearFile">清除</i-button>
+            </div>
         </div>
     </div>
 </template>
 
-
 <script>
-import { Upload, Button } from 'element-ui';
+import {RadioGroup, Radio, Select, Option, Message, Upload, Button as IButton} from 'view-design';
+import {fetchAllSchools} from '@/api/schmanage';
 
 export default {
-    components: {
-        'el-upload': Upload,
-        'el-button': Button
-    },
     data() {
         return {
-            uploadUrl: 'api/importAbilityData', // 上传文件接口地址
-            selectedFileName: '', // 选中的文件名
-            selectedFile: null, // 选中的文件对象
-            fileList: [], // 文件列表
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
+            selectedSchool: '',
+            uploadUrl: 'api/importAbilityData',
+            selectedFile: null,
+            uploadData: {},
         };
     },
     methods: {
         handleBeforeUpload(file) {
-            // 检查文件类型是否为 XLSX
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-                this.$message.error('请选择XLSX文件');
+                Message.error('请选择XLSX文件');
                 return false;
             }
-            // 更新选中的文件名和文件对象
             this.selectedFileName = file.name;
             this.selectedFile = file;
             return true;
         },
-        handleUploadSuccess(response, file, fileList) {
-            if (response === 'Data imported successfully!') {
-                this.$message.success('上传成功');
-                this.clearFile();
-            } else {
-                this.$message.error('上传失败：' + response);
+
+        uploadFile() {
+            if (!this.selectedFile) {
+                Message.warning('请选择要上传的文件');
+                return;
             }
+
+            const formData = new FormData();
+            formData.append('file', this.selectedFile);
+
+            fetch(this.uploadUrl, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === '00000') {
+                        Message.success('上传成功');
+                    } else {
+                        Message.error(data.message || '上传失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('上传失败:', error);
+                    Message.error('上传失败');
+                });
         },
-        handleUploadError(error, file, fileList) {
-            this.$message.error('上传失败：' + error);
-        },
+
         clearFile() {
-            // 清除选中的文件信息
             this.selectedFileName = '';
             this.selectedFile = null;
-            this.fileList = [];
-        },
-        uploadFile() {
-            // 执行文件上传
-            if (this.selectedFile) {
-                this.$refs.upload.submit();
-            } else {
-                this.$message.warning('请选择要上传的文件');
-            }
+            this.$refs.upload.clearFiles();
         },
     },
 };
 </script>
-
-
 
 <style scoped>
 .container {
@@ -89,7 +89,11 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; /* 让容器高度占满整个屏幕 */
+    height: 100vh;
+}
+
+.identity-selection {
+    margin-bottom: 30px;
 }
 
 .file-import {
@@ -97,9 +101,21 @@ export default {
     align-items: center;
 }
 
-.file-info {
+.file-select {
+    display: flex;
+    align-items: center;
+}
+
+.selected-file {
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.button-group {
     margin-left: 20px;
-    margin-right: 20px;
-    font-size: 18px;
+}
+
+.button-group i-button {
+    margin-left: 10px;
 }
 </style>

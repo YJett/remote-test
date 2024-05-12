@@ -20,11 +20,9 @@
                 <Upload
                     :action="uploadUrl"
                     :before-upload="handleBeforeUpload"
-                    :on-format-error="handleFormatError"
-                    :on-exceeded-size="handleMaxSize"
                     :data="uploadData"
-                    show-upload-list="false"
-                    auto-upload="false"
+                    :show-upload-list="false"
+                    :auto-upload="false"
                     ref="upload"
                 >
                     <i-button type="primary" size="large">选择文件</i-button>
@@ -78,6 +76,8 @@ export default {
                 Message.warning('请选择学校');
                 return;
             }
+
+            // this.uploadData.schoolName = this.selectedSchool;
 
             const formData = new FormData();
             formData.append('file', this.selectedFile);

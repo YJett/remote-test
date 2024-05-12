@@ -22,7 +22,7 @@
         </Table>
         <Modal v-model="detailModalVisible" title="企业详情">
             <!-- 显示企业详情的表单 -->
-            <Form :model="currentDetailData" label-width="80" ref="detailForm">
+            <Form :model="currentDetailData" :labelWidth="parseInt('80')" ref="detailForm">
                 <FormItem label="用户名">
                     <Input v-model="currentDetailData.userName" disabled/>
                 </FormItem>

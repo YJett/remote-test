@@ -9,11 +9,23 @@
             <el-button @click="showEditEntityDialog">修改实体</el-button>
         </el-header>
 
+
         <div class="graph-container">
             <!-- Knowledge Graph -->
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>知识图谱</span>
+                    <!-- Add tags to show node counts -->
+                    <el-tag
+                        v-for="(count, type) in nodeTypeCounts"
+                        :key="type"
+                        @click="filterNodeType(type)"
+                        style="cursor: pointer; margin-left: 10px;">
+                        {{ `${type}(${count})` }}
+                    </el-tag>
+                    <el-tag :key="'all'" @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                        {{ `所有类型(${allNodeTypesCount})` }}
+                    </el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="knowledge-graph" class="graph"></div>
@@ -72,6 +84,17 @@ export default {
             inputValue: "",
             currentClickNodeKnowledge: null,
             // currentClickNodeSkill: null,
+            allNodeTypesCount: 0,
+            knowledgeUnitCount: 0,
+            knowledgeGraphCount: 0,
+            knowledgeObjectCount: 0,
+            topicKnowledgePointCount: 0,
+            nodeTypeCounts: {
+                knowledgeUnit: 0,
+                knowledgeGraph: 0,
+                knowledgeObject: 0,
+                topicKnowledgePoint: 0
+            },
             knowledgeGraphData: {
                 nodes: [
                     { id: "node1", label: "Node 1" },
@@ -160,6 +183,16 @@ export default {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
             kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
+                // Calculate node type counts
+                let counts = this.nodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
+                });
+                this.allNodeTypesCount = total;
+                this.nodeTypeCounts = counts;
+                // Update the graph data
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
@@ -298,6 +331,44 @@ export default {
 
 
             this.knowledgeGraph = knowledgeGraph;
+        },
+        updateGraph() {
+            if (this.knowledgeGraph) {
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
+            }
+        },
+        filterNodeType(type) {
+            // Clear the graph data
+            this.knowledgeGraphData = {
+                nodes: [],
+                edges: []
+            };
+
+            // If 'all' is selected, fetch all data
+            if (type === 'all') {
+                this.fetchKnowledgeGraphData();
+            } else {
+                // Otherwise, fetch data for the specific node type
+                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
+                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
+                    let nodes = res.data.node.map(node => ({
+                        id: node.uuid,
+                        label: node.knowledgeNm,
+                        ...node
+                    }));
+                    let edges = res.data.relationship.map(rel => ({
+                        source: rel.sourceId,
+                        target: rel.targetId,
+                        label: rel.type,
+                        uuid: rel.uuid
+                    }));
+                    this.knowledgeGraphData = {
+                        nodes,
+                        edges
+                    };
+                    this.knowledgeGraph.changeData(this.knowledgeGraphData);
+                });
+            }
         },
         // initSkillGraph() {
         //     const skillGraph = new G6.Graph({

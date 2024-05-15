@@ -24,6 +24,16 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
+                    <el-tag
+                        v-for="(count, type) in nodeTypeCounts"
+                        :key="type"
+                        @click="filterNodeType(type)"
+                        style="cursor: pointer; margin-left: 10px;">
+                        {{ `${type}(${count})` }}
+                    </el-tag>
+                    <el-tag :key="'all'" @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                        {{ `所有类型(${allNodeTypesCount})` }}
+                    </el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="skill-graph" class="graph"></div>
@@ -72,7 +82,6 @@ export default {
             switchValue: false,
             inputValue: "",
             // currentClickNodeKnowledge: null,
-            currentClickNodeSkill: null,
             // knowledgeGraphData: {
             //     nodes: [
             //         {id: "node1", label: "Node 1"},
@@ -92,6 +101,19 @@ export default {
             //         }
             //     ]
             // },
+            currentClickNodeSkill: null,
+            // currentClickNodeSkill: null,
+            allNodeTypesCount: 0,
+            skillUnitCount: 0,
+            skillGraphCount: 0,
+            skillObjectCount: 0,
+            topicSkillPointCount: 0,
+            nodeTypeCounts: {
+                skillUnit: 0,
+                skillGraph: 0,
+                skillObject: 0,
+                topicSkillPoint: 0
+            },
             skillGraphData: {
                 nodes: [
                     {id: "nodeA", label: "Node A"},
@@ -188,6 +210,16 @@ export default {
             //     console.log(res);
             // });
             kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
+                // Calculate node type counts
+                let counts = this.nodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
+                });
+                this.allNodeTypesCount = total;
+                this.nodeTypeCounts = counts;
+                // Update the graph data
+                this.skillGraph.changeData(this.skillGraphData);
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
@@ -300,6 +332,45 @@ export default {
         //
         //     this.knowledgeGraph = knowledgeGraph;
         // },
+        updateGraph() {
+            if (this.skillGraph) {
+                this.skillGraph.changeData(this.skillGraphData);
+            }
+        },
+        filterNodeType(type) {
+            // Clear the graph data
+            this.skillGraphData = {
+                nodes: [],
+                edges: []
+            };
+
+            // If 'all' is selected, fetch all data
+            if (type === 'all') {
+                this.fetchSkillGraphData();
+            } else {
+                // Otherwise, fetch data for the specific node type
+                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
+                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
+                    let nodes = res.data.node.map(node => ({
+                        id: node.uuid,
+                        label: node.skillNm,
+                        ...node
+                    }));
+                    let edges = res.data.relationship.map(rel => ({
+                        source: rel.sourceId,
+                        target: rel.targetId,
+                        label: rel.type,
+                        uuid: rel.uuid
+                    }));
+                    this.skillGraphData = {
+                        nodes,
+                        edges
+                    };
+                    this.skillGraph.changeData(this.skillGraphData);
+                });
+            }
+        },
+
         initSkillGraph() {
             const menu = new G6.Menu({
                 getContent(evt) {

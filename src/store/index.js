@@ -91,6 +91,33 @@ const store = new Vuex.Store({
                     }],
             },
             {
+                text: '学生数据',
+                type: 'ios-paper',
+                children: [
+                    {
+                        type: 'ios-grid',
+                        name: 'studentdaoru',
+                        text: '数据导入',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    },
+                    {
+                        size: 18, // icon大小
+                        type: 'ios-grid', // icon类型
+                        name: 'studentmatch',
+                        text: '数据匹配',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    },
+                    {
+                        type: 'ios-grid',
+                        name: 'studentquery',
+                        text: '数据查询',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    }],
+            },
+            {
                 name: 'test1', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型

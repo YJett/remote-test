@@ -93,6 +93,24 @@ export const asyncRoutes = {
         meta: { title: 'labilitymanage' },
         component: () => import('../views/skill/SkillManage.vue'),
     },
+    studentdaoru: {
+        path: 'studentdaoru',
+        name: 'studentdaoru',
+        meta: { title: '数据导入' },
+        component: () => import('../views/student/StudentDaoru.vue'),
+    },
+    studentmatch: {
+        path: 'studentmatch',
+        name: 'studentmatch',
+        meta: { title: '数据匹配' },
+        component: () => import('../views/student/StudentMatch.vue'),
+    },
+    studentquery: {
+        path: 'studentquery',
+        name: 'studentquery',
+        meta: { title: '数据查询' },
+        component: () => import('../views/student/StudentQuery.vue'),
+    },
     test1: {
         path: 'test1',
         name: 'test1',

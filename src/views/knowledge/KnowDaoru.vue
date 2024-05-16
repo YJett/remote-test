@@ -9,13 +9,13 @@
 
         <!-- 学校选择下拉框 -->
         <div v-if="selectedIdentity === 'sch'" class="school-input">
-            <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px;">
+            <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px; font-size: 18px;">
                 <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
             </Select>
         </div>
 
         <!-- 文件导入功能 -->
-        <div class="file-import">
+        <div class="file-import" style="margin-top: 40px;">
             <div class="file-select">
                 <Upload
                     :action="uploadUrl"
@@ -25,17 +25,20 @@
                     :auto-upload="false"
                     ref="upload"
                 >
-                    <i-button type="primary" size="large">选择文件</i-button>
+                    <i-button type="primary" size="large" style="font-size: 18px;">选择文件</i-button>
                 </Upload>
-                <div class="selected-file">{{ selectedFileName }}</div>
+                <div class="selected-file" style="font-size: 16px;">{{ selectedFileName }}</div>
             </div>
-            <div class="button-group">
-                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile">上传</i-button>
-                <i-button size="large" @click="clearFile">清除</i-button>
+            <div class="button-group" style="margin-top: 40px;"> <!-- Increased margin-top -->
+                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
+                <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button> <!-- Increased left margin -->
             </div>
         </div>
     </div>
 </template>
+
+<!-- Your script and style sections remain unchanged -->
+
 
 <script>
 import {RadioGroup, Radio, Select, Option, Message, Upload, Button as IButton} from 'view-design';
@@ -136,24 +139,27 @@ export default {
     height: 100vh;
 }
 .identity-selection {
-    margin-bottom: 30px;
+    margin-bottom: 40px; /* Increase margin */
 }
 .file-import {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Change to column layout */
+    align-items: center; /* Center align */
 }
 .file-select {
     display: flex;
     align-items: center;
+    margin-bottom: 30px; /* Increase margin */
 }
 .selected-file {
     margin-left: 10px;
-    font-size: 14px;
+    font-size: 16px;
 }
 .button-group {
-    margin-left: 20px;
+    display: flex;
+    justify-content: center; /* Center align */
 }
 .button-group i-button {
-    margin-left: 10px;
+    margin: 0 10px; /* Adjust margin */
 }
 </style>

@@ -11,13 +11,13 @@
                     auto-upload="false"
                     ref="upload"
                 >
-                    <i-button type="primary" size="large">选择文件</i-button>
+                    <i-button type="primary" size="large" style="font-size: 18px;">选择文件</i-button>
                 </Upload>
-<!--                <div class="selected-file">{{ selectedFileName }}</div>-->
+                <!--                <div class="selected-file">{{ selectedFileName }}</div>-->
             </div>
-            <div class="button-group">
-                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile">上传</i-button>
-                <i-button size="large" @click="clearFile">清除</i-button>
+            <div class="button-group" style="margin-top: 20px;">
+                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
+                <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
             </div>
         </div>
     </div>
@@ -92,30 +92,26 @@ export default {
     height: 100vh;
 }
 
-.identity-selection {
-    margin-bottom: 30px;
-}
-
 .file-import {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    margin-top: 50px; /* Increased margin */
 }
 
 .file-select {
     display: flex;
     align-items: center;
-}
-
-.selected-file {
-    margin-left: 10px;
-    font-size: 14px;
+    margin-bottom: 30px; /* Increased margin */
 }
 
 .button-group {
-    margin-left: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .button-group i-button {
-    margin-left: 10px;
+    margin: 0 10px;
+    font-size: 18px; /* Increased font size */
 }
 </style>

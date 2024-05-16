@@ -84,7 +84,7 @@ import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
-const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m`;
+const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 70`;
 
 export default {
     data() {
@@ -159,8 +159,8 @@ export default {
     async mounted() {
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
-        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
-        this.fetchSkillGraphData(); // 获取技能图谱数据？
+        this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
+        this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据？
     },
     methods: {
         clearStates(graph) {
@@ -199,10 +199,10 @@ export default {
                     }
                 });
         },
-        fetchKnowledgeGraphData() {
+        fetchKnowledgeGraphDataAndRenderChart(cypher) {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
-            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
+            kgBuilderApi.getCypherResult(cypher).then(res => {
                 // Calculate node type counts
                 let counts = this.KnowNodeTypeCounts;
                 let total = res.data.node.length;
@@ -232,14 +232,14 @@ export default {
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
             });
         },
-        async fetchSkillGraphData() {
+        async fetchSkillGraphDataAndRenderChart(cypher) {
             // Fetch data from backend here for the skill graph
             // For now, we'll just use some dummy data
             // let cypher = `MATCH (n) RETURN n LIMIT 25`;
             // kgBuilderApi.getCypherResult(cypher).then((res) => {
             //     console.log(res);
             // });
-            kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
+            kgBuilderApi.getCypherResult(cypher).then(res => {
                 let counts = this.SkillNodeTypeCounts;
                 let total = res.data.node.length;
                 res.data.node.forEach(node => {
@@ -381,7 +381,22 @@ export default {
                 this.clearStates(this.knowledgeGraph);
             });
 
+            // 监听双击事件
+            knowledgeGraph.on("node:dblclick", e => {
+                const nodeItem = e.item;
+                const currentTime = new Date().toLocaleString(); // 获取当前时间
+                console.log("当前节点:", nodeItem.getModel());
+                console.log("当前时间:", currentTime);
+                    // 获取当前节点的 id
+                const nodeId = nodeItem.getModel().id;
+                const knowledgeId = nodeItem.getModel().knowledgeId;
+                const schId = nodeItem.getModel().schId;
+                // 构造 Cypher 查询语句
+                let cypherQuery = `MATCH (n {id: ${nodeId}})-[]-(relatedNode) RETURN relatedNode`;
+                const cypherQuery2 = `MATCH (kp:KnowledgePoint {knowledgeId: ${knowledgeId}, schId: ${schId}})-[]-(relatedNode) RETURN relatedNode`;
 
+                this.fetchSkillGraphDataAndRenderChart(cypherQuery2);
+                });
             this.knowledgeGraph = knowledgeGraph;
         },
         initSkillGraph() {

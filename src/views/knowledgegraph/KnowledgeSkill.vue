@@ -14,6 +14,17 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>知识图谱</span>
+                    <!-- Add tags to show node counts -->
+                    <el-tag
+                        v-for="(count, type) in KnowNodeTypeCounts"
+                        :key="type"
+                        @click="filterKnowNodeType(type)"
+                        style="cursor: pointer; margin-left: 10px;">
+                        {{ `${type}(${count})` }}
+                    </el-tag>
+                    <el-tag :key="'all'" @click="filterKnowNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                        {{ `所有类型(${allKnowNodeTypesCount})` }}
+                    </el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="knowledge-graph" class="graph"></div>
@@ -24,6 +35,16 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
+                    <el-tag
+                        v-for="(count, type) in SkillNodeTypeCounts"
+                        :key="type"
+                        @click="filterSkillNodeType(type)"
+                        style="cursor: pointer; margin-left: 10px;">
+                        {{ `${type}(${count})` }}
+                    </el-tag>
+                    <el-tag :key="'all'" @click="filterSkillNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                        {{ `所有类型(${allSkillNodeTypesCount})` }}
+                    </el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="skill-graph" class="graph"></div>
@@ -64,7 +85,7 @@ import { kgBuilderApi } from "@/api";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
 `;
-const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`;
+const SKILLANDSHIP = `MATCH (n:skill)-[r]->(m:skill) RETURN n, r, m`;
 
 export default {
     data() {
@@ -73,6 +94,28 @@ export default {
             inputValue: "",
             currentClickNodeKnowledge: null,
             currentClickNodeSkill: null,
+            allKnowNodeTypesCount: 0,
+            knowledgeUnitCount: 0,
+            knowledgeGraphCount: 0,
+            knowledgeObjectCount: 0,
+            topicKnowledgePointCount: 0,
+            KnowNodeTypeCounts: {
+                knowledgeUnit: 0,
+                knowledgeGraph: 0,
+                knowledgeObject: 0,
+                topicKnowledgePoint: 0
+            },
+            allSkillNodeTypesCount: 0,
+            skillUnitCount: 0,
+            skillGraphCount: 0,
+            skillObjectCount: 0,
+            topicSkillPointCount: 0,
+            SkillNodeTypeCounts: {
+                skillUnit: 0,
+                skillGraph: 0,
+                skillObject: 0,
+                topicSkillPoint: 0
+            },
             knowledgeGraphData: {
                 nodes: [
                     { id: "node1", label: "Node 1" },
@@ -161,6 +204,19 @@ export default {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
             kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
+                this.updateGraphData(res, 'knowledge');
+            });
+            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
+                // Calculate node type counts
+                let counts = this.KnowNodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
+                });
+                this.allKnowNodeTypesCount = total;
+                this.KnowNodeTypeCounts = counts;
+                // Update the graph data
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
@@ -188,6 +244,18 @@ export default {
             //     console.log(res);
             // });
             kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
+                this.updateGraphData(res, 'skill');
+            });
+            kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
+                let counts = this.SkillNodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
+                });
+                this.allSkillNodeTypesCount = total;
+                this.SkillNodeTypeCounts = counts;
+                // Update the graph data
+                this.skillGraph.changeData(this.skillGraphData);
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
@@ -227,10 +295,12 @@ export default {
             const knowledgeGraph = new G6.Graph({
                 container: "knowledge-graph",
                 layout: {
-                    type: "force",
-                    preventOverlap: true,
-                    linkDistance: 100, // 增加这个值可以使节点间距离更大
-                    preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
+                    type: 'force2', // 使用 force2 力导向布局
+                    preventOverlap: true, // 防止节点重叠
+                    linkDistance: 100, // 边的引力距离
+                    nodeStrength: -30, // 节点的斥力强度
+                    edgeStrength: 0.1, // 边的引力强度
+                    iterations: 300 // 迭代次数，影响布局的稳定性和最终效果
                 },
                 defaultNode: {
                     size: [60, 60], // 改变节点大小
@@ -301,11 +371,38 @@ export default {
             this.knowledgeGraph = knowledgeGraph;
         },
         initSkillGraph() {
+            const menu = new G6.Menu({
+                getContent(evt) {
+                    return `<ul>
+                    <li title='addChild'>Add Child Node</li>
+                    </ul>`;
+                },
+                handleMenuClick(target, item) {
+                    if (target.title === 'addChild') {
+                        console.log(`Add child node for ${item.getID()}`);
+                        console.log(item.getModel());
+                        // Here you can add your logic to add a child node
+                    }
+                },
+            });
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: "force",
-                    preventOverlap: true
+                    type: 'force2', // 使用 force2 力导向布局
+                    preventOverlap: true, // 防止节点重叠
+                    linkDistance: 100, // 边的引力距离
+                    nodeStrength: -30, // 节点的斥力强度
+                    edgeStrength: 0.1, // 边的引力强度
+                    iterations: 300 // 迭代次数
+                },
+                defaultEdge: {
+                    style: {
+                        stroke: "#F6BD16", // 改变边的颜色
+                        lineWidth: 2 // 改变边的宽度
+                    },
+                    labelCfg: {
+                        autoRotate: true // Label follows the edge direction
+                    }
                 },
                 defaultNode: {
                     size: [50, 50],
@@ -327,7 +424,8 @@ export default {
                 },
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
-                }
+                },
+                plugins: [menu]
             });
 
             skillGraph.data(this.skillGraphData);
@@ -340,6 +438,102 @@ export default {
                     id: nodeItem.getModel().id
                 };
             });
+        },
+        updateGraphData(res, graphType) {
+            const nodes = res.data.node.map(node => ({
+                id: node.uuid,
+                label: graphType === 'knowledge' ? node.knowledgeNm : node.name,
+                ...node
+            }));
+            const edges = res.data.relationship.map(rel => ({
+                source: rel.sourceId,
+                target: rel.targetId,
+                label: rel.type,
+                uuid: rel.uuid
+            }));
+            const graphData = {
+                nodes,
+                edges
+            };
+            this[`${graphType}GraphData`] = graphData;
+            this[`update${graphType.capitalize()}Graph`]();
+        },
+        updateKnowledgeGraph() {
+            if (this.knowledgeGraph) {
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
+            }
+        },
+
+        updateSkillGraph() {
+            if (this.skillGraph) {
+                this.skillGraph.changeData(this.skillGraphData);
+            }
+        },
+        filterSkillNodeType(type) {
+            // Clear the graph data
+            this.skillGraphData = {
+                nodes: [],
+                edges: []
+            };
+
+            // If 'all' is selected, fetch all data
+            if (type === 'all') {
+                this.fetchSkillGraphData();
+            } else {
+                // Otherwise, fetch data for the specific node type
+                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
+                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
+                    let nodes = res.data.node.map(node => ({
+                        id: node.uuid,
+                        label: node.skillNm,
+                        ...node
+                    }));
+                    let edges = res.data.relationship.map(rel => ({
+                        source: rel.sourceId,
+                        target: rel.targetId,
+                        label: rel.type,
+                        uuid: rel.uuid
+                    }));
+                    this.skillGraphData = {
+                        nodes,
+                        edges
+                    };
+                    this.skillGraph.changeData(this.skillGraphData);
+                });
+            }
+        },
+        filterKnowNodeType(type) {
+            // Clear the graph data
+            this.knowledgeGraphData = {
+                nodes: [],
+                edges: []
+            };
+
+            // If 'all' is selected, fetch all data
+            if (type === 'all') {
+                this.fetchKnowledgeGraphData();
+            } else {
+                // Otherwise, fetch data for the specific node type
+                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
+                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
+                    let nodes = res.data.node.map(node => ({
+                        id: node.uuid,
+                        label: node.knowledgeNm,
+                        ...node
+                    }));
+                    let edges = res.data.relationship.map(rel => ({
+                        source: rel.sourceId,
+                        target: rel.targetId,
+                        label: rel.type,
+                        uuid: rel.uuid
+                    }));
+                    this.knowledgeGraphData = {
+                        nodes,
+                        edges
+                    };
+                    this.knowledgeGraph.changeData(this.knowledgeGraphData);
+                });
+            }
         },
         // Method to show relation dialog
         showRelationDialog() {
@@ -378,7 +572,7 @@ export default {
                 this.skillGraph.destroy();
             }
         }
-    }
+    },
 };
 </script>
 

@@ -74,7 +74,7 @@ import { kgBuilderApi } from "@/api";
 
 // const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
 // `;
-const SKILLANDSHIP = `MATCH (n {type: 'skill'})-[r]->(m {type: 'skill'}) RETURN n, r, m`;
+const SKILLANDSHIP = `MATCH (n:skill)-[r]->(m:skill) RETURN n, r, m`;
 
 export default {
     data() {

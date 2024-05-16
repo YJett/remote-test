@@ -541,7 +541,7 @@ export default {
 
             // If 'all' is selected, fetch all data
             if (type === 'all') {
-                this.fetchKnowledgeGraphData();
+                this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP);
             } else {
                 // Otherwise, fetch data for the specific node type
                 let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;

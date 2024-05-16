@@ -259,9 +259,9 @@ export default {
             const knowledgeGraph = new G6.Graph({
                 container: "knowledge-graph",
                 layout: {
-                    type: "radial",
+                    type: 'random',
                     preventOverlap: true,
-                    linkDistance: 100, // 增加这个值可以使节点间距离更大
+                    linkDistance: 50, // 增加这个值可以使节点间距离更大
                     preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {

@@ -74,7 +74,7 @@ import { kgBuilderApi } from "@/api";
 
 // const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
 // `;
-const SKILLANDSHIP = `MATCH (n:skill)-[r]->(m:skill) RETURN n, r, m`;
+const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m`;
 
 export default {
     data() {
@@ -223,13 +223,14 @@ export default {
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
-                    label: node.name,
+                    label: node.abilityNm,
                     ...node
                 }));
-                let edges = response.data.relationship.map(rel => ({
+                let edges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
-                    uuid: rel.uuid
+                    uuid: rel.uuid,
+                    label: rel.type,
                 }));
 
                 this.skillGraphData = {
@@ -392,7 +393,7 @@ export default {
                     type: "force",
                     preventOverlap: true,
                     linkDistance: 100, // 增加这个值可以使节点间距离更大
-                    preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [50, 50],

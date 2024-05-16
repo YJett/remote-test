@@ -83,9 +83,8 @@
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 
-const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
-`;
-const SKILLANDSHIP = `MATCH (n:skill)-[r]->(m:skill) RETURN n, r, m`;
+const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
+const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m`;
 
 export default {
     data() {
@@ -204,9 +203,6 @@ export default {
             // Fetch data from backend here for the knowledge graph
             // For now, we'll just use some dummy data
             kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
-                this.updateGraphData(res, 'knowledge');
-            });
-            kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
                 // Calculate node type counts
                 let counts = this.KnowNodeTypeCounts;
                 let total = res.data.node.length;
@@ -244,9 +240,6 @@ export default {
             //     console.log(res);
             // });
             kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
-                this.updateGraphData(res, 'skill');
-            });
-            kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
                 let counts = this.SkillNodeTypeCounts;
                 let total = res.data.node.length;
                 res.data.node.forEach(node => {
@@ -259,13 +252,14 @@ export default {
                 console.log(res);
                 let nodes = res.data.node.map(node => ({
                     id: node.uuid,
-                    label: node.name,
+                    label: node.abilityNm,
                     ...node
                 }));
-                let edges = response.data.relationship.map(rel => ({
+                let edges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
-                    uuid: rel.uuid
+                    uuid: rel.uuid,
+                    label: rel.type,
                 }));
 
                 this.skillGraphData = {
@@ -330,7 +324,27 @@ export default {
                     }
                 },
                 modes: {
-                    default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
+                    default: [{
+      type: 'drag-canvas',
+      enableOptimize: true,
+      // ... 其他配置
+    }, {
+      type: 'zoom-canvas',
+      enableOptimize: true,
+      // ... 其他配置
+    },
+    {
+      type: 'click-select',
+      enableOptimize: true,
+      // ... 其他配置
+    },
+    {
+      type: 'drag-node',
+      enableOptimize: true,
+      // ... 其他配置
+    },
+
+]
                 },
                 plugins: [menu]
             });
@@ -390,10 +404,10 @@ export default {
                 layout: {
                     type: 'force2', // 使用 force2 力导向布局
                     preventOverlap: true, // 防止节点重叠
-                    linkDistance: 100, // 边的引力距离
-                    nodeStrength: -30, // 节点的斥力强度
-                    edgeStrength: 0.1, // 边的引力强度
-                    iterations: 300 // 迭代次数
+                  //  linkDistance: 100, // 边的引力距离
+                  //  nodeStrength: -30, // 节点的斥力强度
+                  //  edgeStrength: 0.1, // 边的引力强度
+                  //  iterations: 100 // 迭代次数
                 },
                 defaultEdge: {
                     style: {
@@ -438,6 +452,7 @@ export default {
                     id: nodeItem.getModel().id
                 };
             });
+            this.skillGraph = skillGraph;
         },
         updateGraphData(res, graphType) {
             const nodes = res.data.node.map(node => ({

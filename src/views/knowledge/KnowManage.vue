@@ -261,6 +261,9 @@ export default {
                 layout: {
                     type: 'random',
                     preventOverlap: true,
+                    gpuEnabled: true, 
+                    workerEnabled: true, // 启用 Web Worker
+
                     linkDistance: 50, // 增加这个值可以使节点间距离更大
                     preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
                 },

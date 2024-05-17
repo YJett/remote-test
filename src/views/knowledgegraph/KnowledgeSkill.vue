@@ -84,7 +84,7 @@ import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
-const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 70`;
+const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 
 export default {
     data() {
@@ -289,12 +289,14 @@ export default {
             const knowledgeGraph = new G6.Graph({
                 container: "knowledge-graph",
                 layout: {
-                    type: 'force2', // 使用 force2 力导向布局
+                    type: 'random', // 使用 force2 力导向布局
                     preventOverlap: true, // 防止节点重叠
-                    linkDistance: 100, // 边的引力距离
-                    nodeStrength: -30, // 节点的斥力强度
-                    edgeStrength: 0.1, // 边的引力强度
-                    iterations: 300 // 迭代次数，影响布局的稳定性和最终效果
+                    workerEnabled: true, // 启用 Web Worker
+                    gpuEnabled: true, 
+                //    linkDistance: 100, // 边的引力距离
+                //    nodeStrength: -30, // 节点的斥力强度
+                //    edgeStrength: 0.1, // 边的引力强度
+                //    iterations: 300 // 迭代次数，影响布局的稳定性和最终效果
                 },
                 defaultNode: {
                     size: [60, 60], // 改变节点大小
@@ -419,6 +421,9 @@ export default {
                 layout: {
                     type: 'force2', // 使用 force2 力导向布局
                     preventOverlap: true, // 防止节点重叠
+                    workerEnabled: true, // 启用 Web Worker
+                    gpuEnabled: true, 
+
                   //  linkDistance: 100, // 边的引力距离
                   //  nodeStrength: -30, // 节点的斥力强度
                   //  edgeStrength: 0.1, // 边的引力强度

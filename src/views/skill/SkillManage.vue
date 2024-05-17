@@ -74,7 +74,7 @@ import { kgBuilderApi } from "@/api";
 
 // const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
 // `;
-const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 70`;
+const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 
 export default {
     data() {
@@ -392,6 +392,8 @@ export default {
                 layout: {
                     type: "force",
                     preventOverlap: true,
+                    workerEnabled: true, // 启用 Web Worker
+                    gpuEnabled: true, 
                     linkDistance: 100, // 增加这个值可以使节点间距离更大
                     preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },

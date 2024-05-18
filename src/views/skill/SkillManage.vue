@@ -13,10 +13,7 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
-                    <el-tag
-                        v-for="(count, type) in nodeTypeCounts"
-                        :key="type"
-                        @click="filterNodeType(type)"
+                    <el-tag v-for="(count, type) in nodeTypeCounts" :key="type" @click="filterNodeType(type)"
                         style="cursor: pointer; margin-left: 10px;">
                         {{ `${type}(${count})` }}
                     </el-tag>
@@ -66,7 +63,9 @@ export default {
         return {
             switchValue: false,
             inputValue: "",
-
+            allNodes: [],
+            allEdges: [],
+            expandedNodes: {},
             currentClickNodeSkill: null,
             allNodeTypesCount: 0,
             skillUnitCount: 0,
@@ -81,13 +80,13 @@ export default {
             },
             skillGraphData: {
                 nodes: [
-                    {id: "nodeA", label: "Node A"},
-                    {id: "nodeB", label: "Node B"},
-                    {id: "nodeC", label: "Node C"}
+                    { id: "nodeA", label: "Node A" },
+                    { id: "nodeB", label: "Node B" },
+                    { id: "nodeC", label: "Node C" }
                 ],
                 edges: [
-                    {source: "nodeA", target: "nodeB"},
-                    {source: "nodeB", target: "nodeC"}
+                    { source: "nodeA", target: "nodeB" },
+                    { source: "nodeB", target: "nodeC" }
                 ]
             },
             relationDialogVisible: false,
@@ -108,67 +107,108 @@ export default {
     methods: {
         clearStates(graph) {
             graph.getNodes() &&
-            graph.getNodes().forEach(item => {
-                if (
-                    item.getStates().findIndex(node => {
-                        return node === "highlight";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "highlight", false);
-                }
-                if (
-                    item.getStates().findIndex(node => {
-                        return node === "dark";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "dark", false);
-                }
-            });
+                graph.getNodes().forEach(item => {
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
             graph.getEdges() &&
-            graph.getEdges().forEach(item => {
-                if (
-                    item.getStates().findIndex(edge => {
-                        return edge === "highlight";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "highlight", false);
-                }
-                if (
-                    item.getStates().findIndex(edge => {
-                        return edge === "dark";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "dark", false);
-                }
-            });
+                graph.getEdges().forEach(item => {
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
         },
+        showChildNodes(node) {
+            const nodeId = node.abilityNo;
+
+            // 找到所有子节点
+            const childNodes = this.allNodes.filter(n => n.upabilityId === nodeId);
+            const childNodeIds = childNodes.map(n => n.id);
+
+            // 找到所有相关的边，确保边的源节点和目标节点都在当前节点列表中
+            const childEdges = this.allEdges.filter(edge =>
+                (childNodeIds.includes(edge.source) && this.skillGraphData.nodes.some(n => n.id === edge.target)) ||
+                (childNodeIds.includes(edge.target) && this.skillGraphData.nodes.some(n => n.id === edge.source))
+            );
+
+            // 合并新节点和边到现有数据中
+            this.skillGraphData.nodes = [...this.skillGraphData.nodes, ...childNodes];
+            this.skillGraphData.edges = [...this.skillGraphData.edges, ...childEdges];
+
+            // 更新图表数据
+            this.skillGraph.changeData(this.skillGraphData);
+
+            // 记录节点的展开状态
+            this.$set(this.expandedNodes, node.id, true);
+        }
+        ,
+
+        collapseChildNodes(node) {
+            const nodeId = node.abilityNo;
+
+            // 找到所有子节点
+            const childNodes = this.skillGraphData.nodes.filter(n => n.upabilityId === nodeId);
+            const childNodeIds = childNodes.map(n => n.id);
+
+            // 移除子节点及其相关的边
+            this.skillGraphData.nodes = this.skillGraphData.nodes.filter(n => n.upabilityId !== nodeId);
+            this.skillGraphData.edges = this.skillGraphData.edges.filter(edge =>
+                !childNodeIds.includes(edge.source) && !childNodeIds.includes(edge.target)
+            );
+
+            // 更新图表数据
+            this.skillGraph.changeData(this.skillGraphData);
+
+            // 更新节点的展开状态
+            this.$set(this.expandedNodes, node.id, false);
+        }
+        ,
 
         async fetchSkillGraphData() {
-
             kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
-                // Calculate node type counts
-                let counts = this.nodeTypeCounts;
-                let total = res.data.node.length;
-                res.data.node.forEach(node => {
-                    counts[node.type]++; // Increment the count for the node type
-                });
-                this.allNodeTypesCount = total;
-                this.nodeTypeCounts = counts;
-                // Update the graph data
-                this.skillGraph.changeData(this.skillGraphData);
-                console.log(res);
-                let nodes = res.data.node.map(node => ({
+                let allNodes = res.data.node.map(node => ({
                     id: node.uuid,
                     label: node.abilityNm,
                     ...node
                 }));
-                let edges = res.data.relationship.map(rel => ({
+                let allEdges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
 
+                // 只展示顶层节点
+                let nodes = allNodes.filter(node => node.level === 1);
+                let nodeIds = nodes.map(node => node.id);
+
+                let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+
+                this.allNodes = allNodes;
+                this.allEdges = allEdges;
                 this.skillGraphData = {
                     nodes,
                     edges
@@ -176,6 +216,7 @@ export default {
                 this.skillGraph.changeData(this.skillGraphData);
             });
         },
+
         updateGraph() {
             if (this.skillGraph) {
                 this.skillGraph.changeData(this.skillGraphData);
@@ -219,8 +260,8 @@ export default {
             const menu = new G6.Menu({
                 getContent(evt) {
                     return `<ul>
-                    <li title='addChild'>Add Child Node</li>
-                    </ul>`;
+            <li title='addChild'>Add Child Node</li>
+            </ul>`;
                 },
                 handleMenuClick(target, item) {
                     if (target.title === 'addChild') {
@@ -233,10 +274,10 @@ export default {
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: "force",
+                    type: "dagre",
                     preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
-                    gpuEnabled: true, 
+                    gpuEnabled: true,
                     linkDistance: 100, // 增加这个值可以使节点间距离更大
                     preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
@@ -278,11 +319,22 @@ export default {
 
             skillGraph.on("node:click", e => {
                 const nodeItem = e.item;
+                const model = nodeItem.getModel();
                 this.currentClickNodeSkill = {
                     graph: "skill",
-                    id: nodeItem.getModel().id
+                    id: model.id
                 };
+                console.log(model);
+                // 判断节点是否已经展开
+                if (this.expandedNodes[model.id]) {
+                    // 如果已经展开，则收回子节点
+                    this.collapseChildNodes(model);
+                } else {
+                    // 如果未展开，则展示子节点
+                    this.showChildNodes(model);
+                }
             });
+
             skillGraph.on("node:mouseenter", ev => {
                 const nodeItem = ev.item;
 
@@ -306,9 +358,9 @@ export default {
                 this.clearStates(this.skillGraph);
             });
 
-
             this.skillGraph = skillGraph;
         },
+
         // Method to show relation dialog
         showRelationDialog() {
             if (this.currentClickNodeSkill) {

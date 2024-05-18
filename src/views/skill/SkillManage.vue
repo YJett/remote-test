@@ -1,7 +1,6 @@
 <template>
     <div>
         <el-header>
-            <!-- Header content -->
             <el-switch v-model="switchValue"></el-switch>
             <el-input v-model="inputValue"></el-input>
             <el-button @click="showRelationDialog">关联实体</el-button>
@@ -10,17 +9,7 @@
         </el-header>
 
         <div class="graph-container">
-<!--            &lt;!&ndash; Knowledge Graph &ndash;&gt;-->
-<!--            <el-card class="box-card">-->
-<!--                <div slot="header" class="clearfix">-->
-<!--                    <span>知识图谱</span>-->
-<!--                </div>-->
-<!--                <div class="el-card__body">-->
-<!--                    <div id="knowledge-graph" class="graph"></div>-->
-<!--                </div>-->
-<!--            </el-card>-->
 
-            <!-- Skill Graph -->
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
@@ -41,12 +30,9 @@
             </el-card>
         </div>
 
-        <!-- Relation Dialog -->
         <el-dialog title="关联实体" :visible.sync="relationDialogVisible" width="30%" top="10vh">
             <el-form ref="relationForm" :model="relationForm" label-width="120px">
-<!--                <el-form-item label="实体1：知识图谱">-->
-<!--                    <el-input v-model="relationForm.entity1" disabled></el-input>-->
-<!--                </el-form-item>-->
+
                 <el-form-item label="实体2：技能图谱">
                     <el-input v-model="relationForm.entity2" disabled></el-input>
                 </el-form-item>
@@ -72,8 +58,7 @@
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 
-// const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m
-// `;
+
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 
 export default {
@@ -81,28 +66,8 @@ export default {
         return {
             switchValue: false,
             inputValue: "",
-            // currentClickNodeKnowledge: null,
-            // knowledgeGraphData: {
-            //     nodes: [
-            //         {id: "node1", label: "Node 1"},
-            //         {id: "node2", label: "Node 2"},
-            //         {id: "node3", label: "Node 3"}
-            //     ],
-            //     edges: [
-            //         {
-            //             source: "node1",
-            //             target: "node2",
-            //             label: "This is edge1" // Set the edge name here
-            //         },
-            //         {
-            //             source: "node2",
-            //             target: "node3",
-            //             label: "This is edge1" // Set the edge name here
-            //         }
-            //     ]
-            // },
+
             currentClickNodeSkill: null,
-            // currentClickNodeSkill: null,
             allNodeTypesCount: 0,
             skillUnitCount: 0,
             skillGraphCount: 0,
@@ -137,9 +102,7 @@ export default {
         };
     },
     async mounted() {
-        // this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
-        // this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         this.fetchSkillGraphData(); // 获取技能图谱数据
     },
     methods: {
@@ -179,36 +142,9 @@ export default {
                 }
             });
         },
-        // fetchKnowledgeGraphData() {
-        //     // Fetch data from backend here for the knowledge graph
-        //     // For now, we'll just use some dummy data
-        //     kgBuilderApi.getCypherResult(KNOWLEDGEANDSHIP).then(res => {
-        //         console.log(res);
-        //         let nodes = res.data.node.map(node => ({
-        //             id: node.uuid,
-        //             label: node.knowledgeNm,
-        //             ...node
-        //         }));
-        //         let edges = res.data.relationship.map(rel => ({
-        //             source: rel.sourceId,
-        //             target: rel.targetId,
-        //             label: rel.type,
-        //             uuid: rel.uuid
-        //         }));
-        //         this.knowledgeGraphData = {
-        //             nodes,
-        //             edges
-        //         };
-        //         this.knowledgeGraph.changeData(this.knowledgeGraphData);
-        //     });
-        // },
+
         async fetchSkillGraphData() {
-            // Fetch data from backend here for the skill graph
-            // For now, we'll just use some dummy data
-            // let cypher = `MATCH (n) RETURN n LIMIT 25`;
-            // kgBuilderApi.getCypherResult(cypher).then((res) => {
-            //     console.log(res);
-            // });
+
             kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
                 // Calculate node type counts
                 let counts = this.nodeTypeCounts;
@@ -240,99 +176,6 @@ export default {
                 this.skillGraph.changeData(this.skillGraphData);
             });
         },
-        // initKnowledgeGraph() {
-        //     const menu = new G6.Menu({
-        //         getContent(evt) {
-        //             return `<ul>
-        //             <li title='addChild'>Add Child Node</li>
-        //             </ul>`;
-        //         },
-        //         handleMenuClick(target, item) {
-        //             if (target.title === 'addChild') {
-        //                 console.log(`Add child node for ${item.getID()}`);
-        //                 console.log(item.getModel());
-        //                 // Here you can add your logic to add a child node
-        //             }
-        //         },
-        //     });
-
-
-        //     const knowledgeGraph = new G6.Graph({
-        //         container: "knowledge-graph",
-        //         layout: {
-        //             type: "force",
-        //             preventOverlap: true,
-        //             linkDistance: 100, // 增加这个值可以使节点间距离更大
-        //             preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
-        //         },
-        //         defaultNode: {
-        //             size: [60, 60], // 改变节点大小
-        //             style: {
-        //                 fill: "#87CEEB", // 天空蓝填充
-        //                 stroke: "#0F52BA" // 宝石蓝描边
-        //             },
-        //             labelCfg: {
-        //                 style: {
-        //                     fill: "#000",
-        //                     fontSize: 12 // 改变标签字体大小
-        //                 }
-        //             }
-        //         },
-        //         defaultEdge: {
-        //             style: {
-        //                 stroke: "#F6BD16", // 改变边的颜色
-        //                 lineWidth: 2 // 改变边的宽度
-        //             },
-        //             labelCfg: {
-        //                 autoRotate: true // Label follows the edge direction
-        //             }
-        //         },
-        //         nodeStateStyles: {
-        //             selected: {
-        //                 fill: "lightblue"
-        //             }
-        //         },
-        //         modes: {
-        //             default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
-        //         },
-        //         plugins: [menu]
-        //     });
-        //     knowledgeGraph.data(this.knowledgeGraphData);
-        //     knowledgeGraph.render();
-        //
-        //     knowledgeGraph.on("node:click", e => {
-        //         const nodeItem = e.item;
-        //         this.currentClickNodeKnowledge = {
-        //             graph: "knowledge",
-        //             id: nodeItem.getModel().id
-        //         };
-        //     });
-        //     knowledgeGraph.on("node:mouseenter", ev => {
-        //         const nodeItem = ev.item;
-        //
-        //         // Highlight the node itself
-        //         knowledgeGraph.setItemState(nodeItem, "highlight", true);
-        //
-        //         // Get the edges connected to the node
-        //         const connectedEdges = nodeItem.getEdges();
-        //
-        //         // Highlight the nodes at the other end of these edges
-        //         connectedEdges.forEach(edge => {
-        //             const sourceNode = edge.getSource();
-        //             const targetNode = edge.getTarget();
-        //             const neighborNode = sourceNode === nodeItem ? targetNode : sourceNode;
-        //             knowledgeGraph.setItemState(neighborNode, "highlight", true);
-        //         });
-        //     });
-        //
-        //     knowledgeGraph.on("node:mouseleave", ev => {
-        //         // Clear all highlights
-        //         this.clearStates(this.knowledgeGraph);
-        //     });
-        //
-        //
-        //     this.knowledgeGraph = knowledgeGraph;
-        // },
         updateGraph() {
             if (this.skillGraph) {
                 this.skillGraph.changeData(this.skillGraphData);

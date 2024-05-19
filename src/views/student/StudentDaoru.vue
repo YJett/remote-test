@@ -104,6 +104,7 @@ export default {
             return true;
         },
         uploadCourseFile() {
+            console.log('Sending course upload request...');
             if (!this.selectedCourseFile) {
                 Message.warning('请选择要上传的课程信息文件');
                 return;
@@ -135,6 +136,7 @@ export default {
                 });
         },
         uploadStudentFile() {
+            console.log('Sending student upload request...');
             if (!this.selectedStudentFile) {
                 Message.warning('请选择要上传的学生信息文件');
                 return;

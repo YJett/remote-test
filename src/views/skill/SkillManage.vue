@@ -430,4 +430,14 @@ export default {
 .graph {
     height: 100%;
 }
+.el-tag {
+    white-space: nowrap; /* 防止内容换行 */
+    overflow: visible; /* 确保内容可见 */
+    text-overflow: ellipsis; /* 显示省略号 */
+}
+
+/* 移除省略号，确保所有内容可见 */
+.el-tag .el-tag__close {
+    text-overflow: clip;
+}
 </style>

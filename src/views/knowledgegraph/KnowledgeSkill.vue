@@ -292,7 +292,7 @@ export default {
                     type: 'random', // 使用 force2 力导向布局
                     preventOverlap: true, // 防止节点重叠
                     workerEnabled: true, // 启用 Web Worker
-                    gpuEnabled: true, 
+                    gpuEnabled: true,
                 //    linkDistance: 100, // 边的引力距离
                 //    nodeStrength: -30, // 节点的斥力强度
                 //    edgeStrength: 0.1, // 边的引力强度
@@ -422,7 +422,7 @@ export default {
                     type: 'force2', // 使用 force2 力导向布局
                     preventOverlap: true, // 防止节点重叠
                     workerEnabled: true, // 启用 Web Worker
-                    gpuEnabled: true, 
+                    gpuEnabled: true,
 
                   //  linkDistance: 100, // 边的引力距离
                   //  nodeStrength: -30, // 节点的斥力强度
@@ -638,5 +638,15 @@ export default {
 
 .graph {
     height: 100%;
+}
+.el-tag {
+    white-space: nowrap; /* 防止内容换行 */
+    overflow: visible; /* 确保内容可见 */
+    text-overflow: ellipsis; /* 显示省略号 */
+}
+
+/* 移除省略号，确保所有内容可见 */
+.el-tag .el-tag__close {
+    text-overflow: clip;
 }
 </style>

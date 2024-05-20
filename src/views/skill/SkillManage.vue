@@ -6,6 +6,16 @@
             <el-button @click="showRelationDialog">关联实体</el-button>
             <el-button @click="showAddEntityDialog">添加实体</el-button>
             <el-button @click="showEditEntityDialog">修改实体</el-button>
+
+            <el-select v-model="selectedJobId" placeholder="Select Job Position">
+                <el-option
+                    v-for="job in jobPositions"
+                    :key="job.jobId"
+                    :label="job.jobName"
+                    :value="job.jobId">
+                </el-option>
+            </el-select>
+
         </el-header>
 
         <div class="graph-container">
@@ -96,13 +106,16 @@ export default {
                 relationName: "",
                 direction: "正向关系"
             },
+            selectedJobId: '',
+            jobPositions: [],
             // knowledgeGraph: null,
             skillGraph: null
         };
     },
     async mounted() {
         this.initSkillGraph(); // 初始化技能图谱
-        this.fetchSkillGraphData(); // 获取技能图谱数据
+        this.fetchSkillGraphData();
+        this.fetchJobPositions();// 获取技能图谱数据
     },
     methods: {
         clearStates(graph) {
@@ -140,6 +153,27 @@ export default {
                         graph.setItemState(item, "dark", false);
                     }
                 });
+        },
+        async fetchJobPositions() {
+            try {
+                // 从数据库中获取已有的 Jobid
+                const res = await kgBuilderApi.getJobPositions();
+
+                // 处理获取的数据，将其添加到 jobPositions 数组中
+                if (res && res.data && Array.isArray(res.data)) {
+                    this.jobPositions = res.data.map(job => ({
+                        jobId: job.jobId,
+                        jobName: job.jobName
+                    }));
+
+                    // 如果获取的数据不为空，则默认选中第一个 Jobid
+                    if (this.jobPositions.length > 0) {
+                        this.selectedJobId = this.jobPositions[0].jobId;
+                    }
+                }
+            } catch (error) {
+                console.error('获取 Jobid 数据时出错：', error);
+            }
         },
         showChildNodes(node) {
             const nodeId = node.abilityNo;
@@ -184,11 +218,20 @@ export default {
 
             // 更新节点的展开状态
             this.$set(this.expandedNodes, node.id, false);
-        }
-        ,
+        },
+        async fetchSkillGraphData(selectedJobId = null) {
+            let cypherQuery = '';
 
-        async fetchSkillGraphData() {
-            kgBuilderApi.getCypherResult(SKILLANDSHIP).then(res => {
+            // 根据是否提供了selectedJobId参数，决定执行不同的查询
+            if (selectedJobId) {
+                cypherQuery = `MATCH (n:Skill {jobid: '${selectedJobId}'})-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
+            } else {
+                cypherQuery = SKILLANDSHIP;
+            }
+
+            try {
+                const res = await kgBuilderApi.getCypherResult(cypherQuery);
+
                 let allNodes = res.data.node.map(node => ({
                     id: node.uuid,
                     label: node.abilityNm,
@@ -214,8 +257,11 @@ export default {
                     edges
                 };
                 this.skillGraph.changeData(this.skillGraphData);
-            });
+            } catch (error) {
+                console.error('获取技能图谱数据时出错：', error);
+            }
         },
+
 
         updateGraph() {
             if (this.skillGraph) {

@@ -7,15 +7,11 @@
             <el-button @click="showAddEntityDialog">添加实体</el-button>
             <el-button @click="showEditEntityDialog">修改实体</el-button>
 
-            <el-select v-model="selectedJobId" placeholder="Select Job Position">
-                <el-option
-                    v-for="job in jobPositions"
-                    :key="job.jobId"
-                    :label="job.jobName"
-                    :value="job.jobId">
-                </el-option>
-            </el-select>
-
+            <div class="job-input">
+                <Select v-model="selectedJobId" placeholder="请选择Job" @change="handleJobChange" style="width: 200px; font-size: 18px;">
+                    <Option v-for="job in jobs" :key="job.jobId" :value="job.value">{{ job.label }}</Option>
+                </Select>
+            </div>
         </el-header>
 
         <div class="graph-container">
@@ -64,6 +60,8 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
+import {fetchAllJobs} from '@/api/Jobmanage';
+import {Message} from "view-design";
 
 
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
@@ -106,16 +104,20 @@ export default {
                 relationName: "",
                 direction: "正向关系"
             },
-            selectedJobId: '',
-            jobPositions: [],
+            selectedJobName: '',
+            selectedJobId: '', // 存储当前选中的 jobId
+            jobs: [],
             // knowledgeGraph: null,
             skillGraph: null
         };
     },
+    created() {
+        this.fetchJobs();
+    },
     async mounted() {
         this.initSkillGraph(); // 初始化技能图谱
         this.fetchSkillGraphData();
-        this.fetchJobPositions();// 获取技能图谱数据
+        // this.fetchJobPositions();// 获取技能图谱数据
     },
     methods: {
         clearStates(graph) {
@@ -154,26 +156,45 @@ export default {
                     }
                 });
         },
-        async fetchJobPositions() {
-            try {
-                // 从数据库中获取已有的 Jobid
-                const res = await kgBuilderApi.getJobPositions();
-
-                // 处理获取的数据，将其添加到 jobPositions 数组中
-                if (res && res.data && Array.isArray(res.data)) {
-                    this.jobPositions = res.data.map(job => ({
-                        jobId: job.jobId,
-                        jobName: job.jobName
-                    }));
-
-                    // 如果获取的数据不为空，则默认选中第一个 Jobid
-                    if (this.jobPositions.length > 0) {
-                        this.selectedJobId = this.jobPositions[0].jobId;
+        // async fetchJobPositions() {
+        //     try {
+        //         // 从数据库中获取已有的 Jobid
+        //         const res = await kgBuilderApi.getJobPositions();
+        //
+        //         // 处理获取的数据，将其添加到 jobPositions 数组中
+        //         if (res && res.data && Array.isArray(res.data)) {
+        //             this.jobPositions = res.data.map(job => ({
+        //                 jobId: job.jobId,
+        //             }));
+        //
+        //             // 如果获取的数据不为空，则默认选中第一个 Jobid
+        //             if (this.jobPositions.length > 0) {
+        //                 this.selectedJobId = this.jobPositions[0].jobId;
+        //             }
+        //         }
+        //     } catch (error) {
+        //         console.error('获取 Jobid 数据时出错：', error);
+        //     }
+        // },
+        fetchJobs() {
+            fetchAllJobs()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        this.jobs = response.data.map(job => ({
+                            value: job.jobname,
+                            label: job.jobname
+                        }));
+                    } else {
+                        Message.error('Failed to fetch jobs: Invalid data format');
                     }
-                }
-            } catch (error) {
-                console.error('获取 Jobid 数据时出错：', error);
-            }
+                })
+                .catch(error => {
+                    Message.error('Failed to fetch jobs');
+                });
+        },
+        handleJobChange(jobId) {
+            this.selectedJobId = jobId;
+            this.fetchSkillGraphData(jobId);
         },
         showChildNodes(node) {
             const nodeId = node.abilityNo;
@@ -219,19 +240,17 @@ export default {
             // 更新节点的展开状态
             this.$set(this.expandedNodes, node.id, false);
         },
-        async fetchSkillGraphData(selectedJobId = null) {
-            let cypherQuery = '';
+        async fetchSkillGraphData(jobId = null) { // 允许 jobId 为 null，表示默认查询
+            let cypherQuery = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`; // 默认查询
 
-            // 根据是否提供了selectedJobId参数，决定执行不同的查询
-            if (selectedJobId) {
-                cypherQuery = `MATCH (n:Skill {jobid: '${selectedJobId}'})-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
-            } else {
-                cypherQuery = SKILLANDSHIP;
+            // 如果提供了 jobId 参数，修改查询语句以包含 jobId 条件
+            if (jobId) {
+                cypherQuery = `MATCH (n:Skill {jobid: '${jobId}'})-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {
                 const res = await kgBuilderApi.getCypherResult(cypherQuery);
-
+                // 处理查询结果，更新技能图谱数据
                 let allNodes = res.data.node.map(node => ({
                     id: node.uuid,
                     label: node.abilityNm,
@@ -244,17 +263,12 @@ export default {
                     label: rel.type,
                 }));
 
-                // 只展示顶层节点
-                let nodes = allNodes.filter(node => node.level === 1);
-                let nodeIds = nodes.map(node => node.id);
-
-                let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
-
+                // 更新图表数据
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes,
-                    edges
+                    nodes: allNodes,
+                    edges: allEdges
                 };
                 this.skillGraph.changeData(this.skillGraphData);
             } catch (error) {

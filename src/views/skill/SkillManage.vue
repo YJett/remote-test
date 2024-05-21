@@ -106,7 +106,7 @@ export default {
                 direction: "正向关系"
             },
             selectedJobName: '',
-            selectedJobId: '', // 存储当前选中的 jobId
+            selectedJobId: 80, // 存储当前选中的 jobId
             jobs: [],
             // knowledgeGraph: null,
             skillGraph: null
@@ -182,9 +182,10 @@ export default {
                 .then(response => {
                     if (Array.isArray(response.data)) {
                         this.jobs = response.data.map(job => ({
-                            value: job.jobname,
+                            value: job.jobid,
                             label: job.jobname
                         }));
+                        console.log(this.jobs[0].value);
                         this.selectedJobId = this.jobs[0].value;
                         this.selectedJobName = this.jobs[0].label;
                     } else {
@@ -246,10 +247,10 @@ export default {
         },
         async fetchSkillGraphData() {
             let cypherQuery = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`; // 默认查询
-
+            console.log(this.selectedJobId)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedJobId) {
-                cypherQuery = `MATCH (n:Skill {jobid: '${this.selectedJobId}'})-[r]->(m:Skill) RETURN n, r, m`;
+                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedJobId}})-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {

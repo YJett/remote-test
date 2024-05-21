@@ -90,7 +90,7 @@ export default {
             }
             this.selectedCourseFileName = file.name;
             this.selectedCourseFile = file;
-            return true;
+            return false;
         },
 
         handleStudentBeforeUpload(file) {
@@ -101,7 +101,7 @@ export default {
             }
             this.selectedStudentFileName = file.name;
             this.selectedStudentFile = file;
-            return true;
+            return false;
         },
         uploadCourseFile() {
             console.log('Sending course upload request...');

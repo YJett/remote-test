@@ -44,7 +44,7 @@ export default {
             }
             this.selectedFileName = file.name;
             this.selectedFile = file;
-            return true;
+            return false;
         },
 
         uploadFile() {

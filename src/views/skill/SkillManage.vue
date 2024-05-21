@@ -106,8 +106,10 @@ export default {
                 direction: "正向关系"
             },
             selectedJobName: '',
-            selectedJobId: 80, // 存储当前选中的 jobId
-            jobs: [],
+            selectedJobId:'', // 存储当前选中的 jobId
+            jobs: [
+                { value: 'all', label: '全部' },
+            ],
             // knowledgeGraph: null,
             skillGraph: null
         };
@@ -116,7 +118,7 @@ export default {
     //    this.fetchJobs();
     },
     async mounted() {
-        await this.fetchJobs()
+        await this.fetchJobs();
         this.initSkillGraph(); // 初始化技能图谱
         await this.fetchSkillGraphData();
     },
@@ -185,9 +187,13 @@ export default {
                             value: job.jobid,
                             label: job.jobname
                         }));
-                        console.log(this.jobs[0].value);
-                        this.selectedJobId = this.jobs[0].value;
-                        this.selectedJobName = this.jobs[0].label;
+                        if (this.jobs.length > 0) {
+                            // 设置默认选中的 jobId 和 jobName
+                            const defaultJob = this.jobs.find(job => job.label === '全部') || this.jobs[0];
+                            this.selectedJobId = defaultJob.value;
+                            this.selectedJobName = defaultJob.label;
+                        }
+                        // console.log(this.jobs[0].value);
                     } else {
                         Message.error('Failed to fetch jobs: Invalid data format');
                     }
@@ -198,7 +204,11 @@ export default {
         },
         handleJobChange(jobId) {
             console.log(jobId);
-            this.selectedJobId = jobId;
+            if (jobId === 'all') {
+                this.selectedJobId = '';
+            } else {
+                this.selectedJobId = jobId;
+            }
             this.fetchSkillGraphData();
         },
         showChildNodes(node) {

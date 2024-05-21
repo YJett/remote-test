@@ -8,7 +8,8 @@
             <el-button @click="showEditEntityDialog">修改实体</el-button>
 
             <div class="job-input">
-                <Select v-model="selectedJobId" placeholder="请选择Job" @change="handleJobChange" style="width: 200px; font-size: 18px;">
+                <Select v-model="selectedJobId" placeholder="请选择Job" @change="handleJobChange"
+                    style="width: 200px; font-size: 18px;">
                     <Option v-for="job in jobs" :key="job.jobId" :value="job.value">{{ job.label }}</Option>
                 </Select>
             </div>
@@ -60,8 +61,8 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
-import {fetchAllJobs} from '@/api/Jobmanage';
-import {Message} from "view-design";
+import { fetchAllJobs } from '@/api/Jobmanage';
+import { Message } from "view-design";
 
 
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
@@ -112,12 +113,12 @@ export default {
         };
     },
     created() {
-        this.fetchJobs();
+    //    this.fetchJobs();
     },
     async mounted() {
+        await this.fetchJobs()
         this.initSkillGraph(); // 初始化技能图谱
-        this.fetchSkillGraphData();
-        // this.fetchJobPositions();// 获取技能图谱数据
+        await this.fetchSkillGraphData();
     },
     methods: {
         clearStates(graph) {
@@ -184,6 +185,8 @@ export default {
                             value: job.jobname,
                             label: job.jobname
                         }));
+                        this.selectedJobId = this.jobs[0].value;
+                        this.selectedJobName = this.jobs[0].label;
                     } else {
                         Message.error('Failed to fetch jobs: Invalid data format');
                     }
@@ -193,8 +196,9 @@ export default {
                 });
         },
         handleJobChange(jobId) {
+            console.log(jobId);
             this.selectedJobId = jobId;
-            this.fetchSkillGraphData(jobId);
+            this.fetchSkillGraphData();
         },
         showChildNodes(node) {
             const nodeId = node.abilityNo;
@@ -240,12 +244,12 @@ export default {
             // 更新节点的展开状态
             this.$set(this.expandedNodes, node.id, false);
         },
-        async fetchSkillGraphData(jobId = null) { // 允许 jobId 为 null，表示默认查询
+        async fetchSkillGraphData() {
             let cypherQuery = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`; // 默认查询
 
-            // 如果提供了 jobId 参数，修改查询语句以包含 jobId 条件
-            if (jobId) {
-                cypherQuery = `MATCH (n:Skill {jobid: '${jobId}'})-[r]->(m:Skill) RETURN n, r, m`;
+            // 如果提供了 参数，修改查询语句以包含 jobId 条件
+            if (this.selectedJobId) {
+                cypherQuery = `MATCH (n:Skill {jobid: '${this.selectedJobId}'})-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {
@@ -266,7 +270,30 @@ export default {
                 let nodes = allNodes.filter(node => node.level === 1);
                 let nodeIds = nodes.map(node => node.id);
                 let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+                // 手动添加 job 节点
+                if (this.selectedJobId) {
+                    const jobNode = {
+                        id: `${this.selectedJobId}`,
+                        label: this.selectedJobName,
+                        jobId: this.selectedJobId,
+                        level: 0 // job 节点的层级设为 0
+                    };
+                    allNodes.push(jobNode); // 将 job 节点添加到 allNodes 中
+                    nodes.push(jobNode); // 将 job 节点添加到 nodes 中
 
+                    // 将所有 level === 1 的节点作为 job 节点的子节点
+                    nodes.forEach(node => {
+                        if (node.level === 1) {
+                            const newEdge = {
+                                source: jobNode.id,
+                                target: node.id,
+                                label: 'HAS_CHILD'
+                            };
+                            allEdges.push(newEdge); // 将新关系添加到 allEdges 中
+                            edges.push(newEdge); // 将新关系添加到 edges 中
+                        }
+                    });
+                }
 
                 // 更新图表数据
                 this.allNodes = allNodes;
@@ -275,6 +302,7 @@ export default {
                     nodes,
                     edges
                 };
+                console.log(this.skillGraphData)
                 this.skillGraph.changeData(this.skillGraphData);
             } catch (error) {
                 console.error('获取技能图谱数据时出错：', error);
@@ -339,7 +367,7 @@ export default {
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: "dagre",
+                    type: "fruchterman",
                     preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
@@ -495,10 +523,14 @@ export default {
 .graph {
     height: 100%;
 }
+
 .el-tag {
-    white-space: nowrap; /* 防止内容换行 */
-    overflow: visible; /* 确保内容可见 */
-    text-overflow: ellipsis; /* 显示省略号 */
+    white-space: nowrap;
+    /* 防止内容换行 */
+    overflow: visible;
+    /* 确保内容可见 */
+    text-overflow: ellipsis;
+    /* 显示省略号 */
 }
 
 /* 移除省略号，确保所有内容可见 */

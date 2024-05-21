@@ -262,13 +262,18 @@ export default {
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
+                // 只展示顶层节点
+                let nodes = allNodes.filter(node => node.level === 1);
+                let nodeIds = nodes.map(node => node.id);
+                let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+
 
                 // 更新图表数据
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes: allNodes,
-                    edges: allEdges
+                    nodes,
+                    edges
                 };
                 this.skillGraph.changeData(this.skillGraphData);
             } catch (error) {

@@ -107,9 +107,7 @@ export default {
             },
             selectedJobName: '',
             selectedJobId:'', // 存储当前选中的 jobId
-            jobs: [
-                { value: 'all', label: '全部' },
-            ],
+            jobs: [],
             // knowledgeGraph: null,
             skillGraph: null
         };
@@ -179,6 +177,7 @@ export default {
         //         console.error('获取 Jobid 数据时出错：', error);
         //     }
         // },
+
         fetchJobs() {
             fetchAllJobs()
                 .then(response => {
@@ -187,13 +186,9 @@ export default {
                             value: job.jobid,
                             label: job.jobname
                         }));
-                        if (this.jobs.length > 0) {
-                            // 设置默认选中的 jobId 和 jobName
-                            const defaultJob = this.jobs.find(job => job.label === '全部') || this.jobs[0];
-                            this.selectedJobId = defaultJob.value;
-                            this.selectedJobName = defaultJob.label;
-                        }
                         // console.log(this.jobs[0].value);
+                        this.selectedJobId = this.jobs[0].value;
+                        this.selectedJobName = this.jobs[0].label;
                     } else {
                         Message.error('Failed to fetch jobs: Invalid data format');
                     }

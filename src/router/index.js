@@ -141,6 +141,12 @@ export const asyncRoutes = {
         meta: { title: 'graphmatch' },
         component: () => import('../views/knowledgegraph/KnowledgeSkill.vue'),
     },
+    jobportray: {
+        path: 'jobportray',
+        name: 'jobportray',
+        meta: { title: 'jobportray' },
+        component: () => import('../views/portray/jobportray.vue'),
+    },
 }
 
 const createRouter = () => new Router({

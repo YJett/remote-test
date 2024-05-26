@@ -73,7 +73,7 @@ export default {
             courseUploadData: {},
             selectedStudentFileName: '',
             selectedStudentFile: null,
-            studentUploadUrl: 'import/studentInfoData',
+            studentUploadUrl: 'api/import/studentInfoData',
             studentUploadData: {},
             schools: [],
         };

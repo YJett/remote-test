@@ -8,7 +8,7 @@
             <el-button @click="showEditEntityDialog">修改实体</el-button>
 
             <div class="job-input">
-                <Select v-model="selectedJobId" placeholder="请选择Job" @change="handleJobChange"
+                <Select v-model="selectedJobId" placeholder="请选择Job" @on-change="handleJobChange"
                     style="width: 200px; font-size: 18px;">
                     <Option v-for="job in jobs" :key="job.jobId" :value="job.value">{{ job.label }}</Option>
                 </Select>
@@ -255,7 +255,7 @@ export default {
             console.log(this.selectedJobId)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedJobId) {
-                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedJobId}})-[r]->(m:Skill) RETURN n, r, m`;
+                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {

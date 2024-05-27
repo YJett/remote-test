@@ -16,7 +16,7 @@
 <!--            </div>-->
 
             <div class="sch-input">
-                <Select v-model="selectedSchool" placeholder="请选择school" @change="handleSchChange"
+                <Select v-model="selectedSchool" placeholder="请选择school" @on-change="handleSchChange"
                         style="width: 200px; font-size: 18px;">
                     <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label }}</Option>
                 </Select>
@@ -233,7 +233,7 @@ export default {
             console.log(this.selectedSchool)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedSchool) {
-                cypherQuery = `MATCH (n:KnowledgePoint {schId: ${this.selectedSchool}})-[r]->(m:KnowledgePoint) RETURN n, r, m`;
+                cypherQuery = `MATCH (n:KnowledgePoint {schId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
             }
 
             try {
@@ -241,7 +241,7 @@ export default {
                 // 处理查询结果，更新技能图谱数据
                 let allNodes = res.data.node.map(node => ({
                     id: node.uuid,
-                    label: node.abilityNm,
+                    label: node.knowledgeNm,
                     ...node
                 }));
                 let allEdges = res.data.relationship.map(rel => ({
@@ -250,41 +250,11 @@ export default {
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
-                // 只展示顶层节点
-                let nodes = allNodes.filter(node => node.level === 1);
-                let nodeIds = nodes.map(node => node.id);
-                let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
-                // 手动添加 job 节点
-                if (this.selectedSchool) {
-                    const jobNode = {
-                        id: `${this.selectedSchool}`,
-                        label: this.selectedSchName,
-                        jobId: this.selectedSchool,
-                        level: 0 // job 节点的层级设为 0
-                    };
-                    allNodes.push(jobNode); // 将 job 节点添加到 allNodes 中
-                    nodes.push(jobNode); // 将 job 节点添加到 nodes 中
-
-                    // 将所有 level === 1 的节点作为 job 节点的子节点
-                    nodes.forEach(node => {
-                        if (node.level === 1) {
-                            const newEdge = {
-                                source: schNode.id,
-                                target: node.id,
-                                label: 'HAS_CHILD'
-                            };
-                            allEdges.push(newEdge); // 将新关系添加到 allEdges 中
-                            edges.push(newEdge); // 将新关系添加到 edges 中
-                        }
-                    });
-                }
-
-                // 更新图表数据
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.knowledgeGraphData = {
-                    nodes,
-                    edges
+                    nodes:allNodes,
+                    edges:allEdges
                 };
                 console.log(this.knowledgeGraphData)
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);

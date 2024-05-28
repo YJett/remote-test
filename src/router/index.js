@@ -147,6 +147,18 @@ export const asyncRoutes = {
         meta: { title: 'jobportray' },
         component: () => import('../views/portray/jobportray.vue'),
     },
+    radar: {
+        path: 'radar',
+        name: 'radar',
+        meta: { title: '雷达图' },
+        component: () => import('../views/radarMap/radar.vue'),
+    },
+    radar2: {
+        path: 'radar2',
+        name: 'radar2',
+        meta: { title: '雷达图2' },
+        component: () => import('../views/radarMap/radar2.vue'),
+    },
 }
 
 const createRouter = () => new Router({
@@ -161,3 +173,6 @@ export function resetRouter() {
 }
 
 export default router
+
+
+

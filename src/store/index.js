@@ -153,6 +153,25 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '岗位画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
+            {
+                text: '雷达图',
+                type: 'ios-paper',
+                children: [
+                    {
+                        type: 'ios-grid',
+                        name: 'radar',
+                        text: '雷达图点击切换',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    },
+                    {
+                        type: 'ios-grid',
+                        name: 'radar2',
+                        text: '一张图展示',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    }],
+            },
             /*
             {
                 text: '二级菜单',
@@ -222,3 +241,6 @@ const store = new Vuex.Store({
 })
 
 export default store
+
+
+

@@ -13,6 +13,7 @@
     "axios": "^0.24.0",
     "cookie": "^0.4.1",
     "core-js": "^3.6.5",
+    "echarts": "^5.5.0",
     "element-ui": "^2.15.14",
     "html2canvas": "^1.4.0",
     "jquery": "^3.5.1",

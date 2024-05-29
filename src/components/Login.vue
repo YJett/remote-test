@@ -42,6 +42,7 @@
 
   <script>
   import { getToken, getInfo, registerUser } from '@/api/login';
+  import store from '@/store'
 
   export default {
     name: 'login',
@@ -86,6 +87,7 @@
         if (this.account && this.pwd) {
           getToken({ username: this.account, password: this.pwd }).then(data => {
             localStorage.setItem('token', data.data.token);
+            store.commit('setUserType', parseInt(data.data.flg));
             this.$router.push('/');
             getInfo().then(data => {
               localStorage.setItem('userName', data.data.name);

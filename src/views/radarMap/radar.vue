@@ -1,12 +1,7 @@
 <template>
     <div class="container">
         <div v-if="currentChart === 'mainRadar'" ref="mainRadar" class="chart"></div>
-        <div v-if="currentChart === 'javaBasicsRadar'" ref="javaBasicsRadar" class="chart">
-            <!-- 添加返回按钮 -->
-            <button @click="goBackToMain">返回</button>
-        </div>
-        <div v-if="currentChart === 'bsWebsiteRadar'" ref="bsWebsiteRadar" class="chart">
-            <!-- 添加返回按钮 -->
+        <div v-if="currentChart !== 'mainRadar'" ref="subRadar" class="chart">
             <button @click="goBackToMain">返回</button>
         </div>
     </div>
@@ -14,18 +9,19 @@
 
 <script>
 import * as echarts from 'echarts';
-import {getAbilityScores} from '@/api/radar';
+import { getAbilityScores } from '@/api/radar';
 
 export default {
     name: 'RadarCharts',
     data() {
         return {
             currentChart: 'mainRadar',
+            mainRadarData: [],
+            subRadarData: []
         };
     },
     mounted() {
         this.fetchData();
-        this.drawChart();
     },
     watch: {
         currentChart() {
@@ -33,46 +29,48 @@ export default {
         },
     },
     methods: {
-        fetchData(){
+        fetchData() {
             getAbilityScores().then(res => {
-                console.log(res);
+                const data = res.data;
+                this.processData(data);
+                this.drawChart();
             });
+        },
+        processData(data) {
+            // 处理数据并保存
+            this.mainRadarData = data;
         },
         drawChart() {
             if (this.chartInstance) {
-                this.chartInstance.dispose(); // 确保每次切换图表时销毁之前的实例
+                this.chartInstance.dispose();
             }
+
             if (this.currentChart === 'mainRadar') {
                 this.drawMainRadar();
-            } else if (this.currentChart === 'javaBasicsRadar') {
-                this.drawJavaBasicsRadar();
-            } else if (this.currentChart === 'bsWebsiteRadar') {
-                this.drawBSWebsiteRadar();
+            } else {
+                this.drawSubRadar();
             }
         },
         drawMainRadar() {
             this.chartInstance = echarts.init(this.$refs.mainRadar);
             const option = {
                 title: {
-                    text: 'Java工程师岗位能力要求',
+                    text: '能力评分雷达图',
+                },
+                tooltip: {
+                    trigger: 'item',
                 },
                 radar: {
-                    indicator: [
-                        { name: 'Java基础技术', max: 50 },
-                        { name: 'B/S网站开发技术', max: 50 },
-                        { name: '软件项目管理', max: 50 },
-                        { name: '系统测试', max: 50 },
-                        { name: '使用框架开发企业级应用', max: 50 },
-                    ],
+                    indicator: this.mainRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
                 },
                 series: [
                     {
-                        name: '能力要求',
+                        name: '能力评分',
                         type: 'radar',
                         data: [
                             {
-                                value: [50, 40, 30, 20, 40],
-                                name: '能力',
+                                value: this.mainRadarData.map(item => item.score),
+                                name: '评分',
                             },
                         ],
                     },
@@ -80,75 +78,34 @@ export default {
             };
             this.chartInstance.setOption(option);
 
+            // 添加点击事件
             this.chartInstance.on('click', (params) => {
                 if (params.componentType === 'series') {
-                    if (params.name === 'Java基础技术') {
-                        this.currentChart = 'javaBasicsRadar';
-                    } else if (params.name === 'B/S网站开发技术') {
-                        this.currentChart = 'bsWebsiteRadar';
+                    const clickedAbility = this.mainRadarData.find(item => item.abilityNm === params.name);
+                    if (clickedAbility) {
+                        this.currentChart = clickedAbility.abilityNm;
+                        this.subRadarData = [clickedAbility]; // 假设子图只展示单个能力的数据
                     }
                 }
             });
         },
-        drawJavaBasicsRadar() {
-            this.chartInstance = echarts.init(this.$refs.javaBasicsRadar);
+        drawSubRadar() {
+            this.chartInstance = echarts.init(this.$refs.subRadar);
             const option = {
                 title: {
-                    text: 'Java基础技术',
+                    text: `${this.currentChart} 详情`,
                 },
                 radar: {
-                    indicator: [
-                        { name: '编写简单控制台程序', max: 50 },
-                        { name: '用简单算法实现业务需求', max: 50 },
-                        { name: '会使用MyEclipse', max: 50 },
-                        { name: '文件读取', max: 50 },
-                        { name: '面向对象编程', max: 50 },
-                        { name: '实现常用I/O操作', max: 50 },
-                        { name: '会使用JDBC', max: 50 },
-                        { name: '熟练运用Java常用API', max: 50 },
-                        { name: '会使用异常处理', max: 50 },
-                    ],
+                    indicator: this.subRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
                 },
                 series: [
                     {
-                        name: 'Java基础技术',
+                        name: '能力评分',
                         type: 'radar',
                         data: [
                             {
-                                value: [50, 40, 30, 20, 30, 40, 50, 40, 30],
-                                name: 'Java基础技术',
-                            },
-                        ],
-                    },
-                ],
-            };
-            this.chartInstance.setOption(option);
-        },
-        drawBSWebsiteRadar() {
-            this.chartInstance = echarts.init(this.$refs.bsWebsiteRadar);
-            const option = {
-                title: {
-                    text: 'B/S网站开发技术',
-                },
-                radar: {
-                    indicator: [
-                        { name: '会使用JSP开发', max: 50 },
-                        { name: '会使用Web容器', max: 50 },
-                        { name: '会使用JSP+Servlet+JavaBean', max: 50 },
-                        { name: '会使用Session、Cookie', max: 50 },
-                        { name: '会使用Commons-FileUpload', max: 50 },
-                        { name: '会结合jQuery', max: 50 },
-                        { name: '会使用JNDI、DataSource', max: 50 },
-                    ],
-                },
-                series: [
-                    {
-                        name: 'B/S网站开发技术',
-                        type: 'radar',
-                        data: [
-                            {
-                                value: [50, 40, 30, 20, 40, 30, 50],
-                                name: 'B/S网站开发技术',
+                                value: this.subRadarData.map(item => item.score),
+                                name: '评分',
                             },
                         ],
                     },

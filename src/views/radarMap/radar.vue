@@ -14,6 +14,7 @@
 
 <script>
 import * as echarts from 'echarts';
+import {getAbilityScores} from '@/api/radar';
 
 export default {
     name: 'RadarCharts',
@@ -23,6 +24,7 @@ export default {
         };
     },
     mounted() {
+        this.fetchData();
         this.drawChart();
     },
     watch: {
@@ -31,6 +33,11 @@ export default {
         },
     },
     methods: {
+        fetchData(){
+            getAbilityScores().then(res => {
+                console.log(res);
+            });
+        },
         drawChart() {
             if (this.chartInstance) {
                 this.chartInstance.dispose(); // 确保每次切换图表时销毁之前的实例

@@ -12,6 +12,12 @@
     <!--保存旧代码-->
     <!--保存旧代码-->
     <!--保存旧代码-->
+    <!--保存旧代码-->
+    <!--保存旧代码-->
+    <!--保存旧代码-->
+    <!--保存旧代码-->
+    <!--保存旧代码-->
+    <!--保存旧代码--><!--保存旧代码--><!--保存旧代码-->
     <div class="container">
         <div v-if="currentChart === 'mainRadar'" ref="mainRadar" class="chart"></div>
         <div v-if="currentChart === 'javaBasicsRadar'" ref="javaBasicsRadar" class="chart">

@@ -1,9 +1,22 @@
 <template>
     <div class="container">
-        <div v-if="currentChart === 'mainRadar'" ref="mainRadar" class="chart"></div>
-        <div v-if="currentChart !== 'mainRadar'" ref="subRadar" class="chart">
-            <button @click="goBackToMain">返回</button>
+        <i-form inline>
+            <form-item label="学校ID">
+                <i-input v-model="schoolId" placeholder="请输入学校ID"></i-input>
+            </form-item>
+            <form-item label="学生ID">
+                <i-input v-model="studentId" placeholder="请输入学生ID"></i-input>
+            </form-item>
+            <form-item>
+                <i-button type="primary" @click="handleSearch">查询</i-button>
+            </form-item>
+        </i-form>
+
+        <div class="charts-container" v-if="showSubRadar">
+            <div ref="mainRadar" class="chart"></div>
+            <div ref="subRadar" class="chart"></div>
         </div>
+        <div ref="mainRadar" class="chart" v-else></div>
     </div>
 </template>
 
@@ -15,44 +28,53 @@ export default {
     name: 'RadarCharts',
     data() {
         return {
-            currentChart: 'mainRadar',
+            schoolId: '',
+            studentId: '',
             mainRadarData: [],
-            subRadarData: []
+            showSubRadar: false,
+            mainChartInstance: null,
+            subChartInstance: null
         };
     },
-    mounted() {
-        this.fetchData();
-    },
-    watch: {
-        currentChart() {
-            this.drawChart();
-        },
-    },
     methods: {
+        handleSearch() {
+            if (this.schoolId && this.studentId) {
+                this.fetchData();
+            } else {
+                this.$Message.warning('请填写学校ID和学生ID');
+            }
+        },
         fetchData() {
-            getAbilityScores().then(res => {
-                const data = res.data;
-                this.processData(data);
-                this.drawChart();
-            });
+            const params = {
+                jobId: 82,
+                schId: this.schoolId,
+                studentId: this.studentId,
+                lv: 1,
+            };
+            getAbilityScores(params.jobId, params.schId, params.studentId, params.lv)
+                .then(res => {
+                    const data = res.data;
+                    this.processData(data);
+                    this.drawChart();
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.$Message.error('获取数据失败');
+                });
         },
         processData(data) {
-            // 处理数据并保存
             this.mainRadarData = data;
         },
         drawChart() {
-            if (this.chartInstance) {
-                this.chartInstance.dispose();
-            }
-
-            if (this.currentChart === 'mainRadar') {
+            this.$nextTick(() => {
+                if (this.mainChartInstance) {
+                    this.mainChartInstance.dispose();
+                }
                 this.drawMainRadar();
-            } else {
-                this.drawSubRadar();
-            }
+            });
         },
         drawMainRadar() {
-            this.chartInstance = echarts.init(this.$refs.mainRadar);
+            this.mainChartInstance = echarts.init(this.$refs.mainRadar);
             const option = {
                 title: {
                     text: '能力评分雷达图',
@@ -61,7 +83,7 @@ export default {
                     trigger: 'item',
                 },
                 radar: {
-                    indicator: this.mainRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
+                    indicator: this.mainRadarData.map(item => ({name: item.abilityNm, max: 100})),
                 },
                 series: [
                     {
@@ -76,27 +98,37 @@ export default {
                     },
                 ],
             };
-            this.chartInstance.setOption(option);
+            this.mainChartInstance.setOption(option);
 
             // 添加点击事件
-            this.chartInstance.on('click', (params) => {
-                if (params.componentType === 'series') {
-                    const clickedAbility = this.mainRadarData.find(item => item.abilityNm === params.name);
-                    if (clickedAbility) {
-                        this.currentChart = clickedAbility.abilityNm;
-                        this.subRadarData = [clickedAbility]; // 假设子图只展示单个能力的数据
-                    }
-                }
+            this.mainChartInstance.on('click', (params) => {
+                console.log(params); // 输出点击事件的信息以供调试
+                this.showSubRadar = true;
+                this.$nextTick(() => {
+                    this.drawSubRadar();
+                });
             });
         },
         drawSubRadar() {
-            this.chartInstance = echarts.init(this.$refs.subRadar);
+            if (this.subChartInstance) {
+                this.subChartInstance.dispose();
+            }
+            this.subChartInstance = echarts.init(this.$refs.subRadar);
+            const subRadarData = [
+                {type: "专业基础课", score: 79},
+                {type: "专业核心课", score: 78},
+                {type: "专业拓展课", score: 81},
+                {type: "公共基础课", score: 72}
+            ];
             const option = {
                 title: {
-                    text: `${this.currentChart} 详情`,
+                    text: '知识评分雷达图',
+                },
+                tooltip: {
+                    trigger: 'item',
                 },
                 radar: {
-                    indicator: this.subRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
+                    indicator: subRadarData.map(item => ({name: item.type, max: 100})),
                 },
                 series: [
                     {
@@ -104,22 +136,25 @@ export default {
                         type: 'radar',
                         data: [
                             {
-                                value: this.subRadarData.map(item => item.score),
+                                value: subRadarData.map(item => item.score),
                                 name: '评分',
                             },
                         ],
                     },
                 ],
             };
-            this.chartInstance.setOption(option);
+            this.subChartInstance.setOption(option);
         },
         goBackToMain() {
-            this.currentChart = 'mainRadar';
+            this.showSubRadar = false;
         },
     },
     beforeDestroy() {
-        if (this.chartInstance) {
-            this.chartInstance.dispose();
+        if (this.mainChartInstance) {
+            this.mainChartInstance.dispose();
+        }
+        if (this.subChartInstance) {
+            this.subChartInstance.dispose();
         }
     },
 };
@@ -135,9 +170,14 @@ export default {
     padding: 20px;
 }
 
-.chart {
+.charts-container {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
-    max-width: 800px;
+}
+
+.chart {
+    width: 48%;
     height: 600px;
     margin-top: 20px;
 }

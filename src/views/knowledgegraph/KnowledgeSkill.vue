@@ -3,7 +3,6 @@
         <el-header>
             <!-- Header content -->
             <el-switch v-model="switchValue"></el-switch>
-            <el-input v-model="inputValue"></el-input>
             <el-button @click="showRelationDialog">关联实体</el-button>
             <el-button @click="showAddEntityDialog">添加实体</el-button>
             <el-button @click="showEditEntityDialog">修改实体</el-button>
@@ -114,6 +113,7 @@ const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 export default {
     data() {
         return {
+            expandedNodes: {},
             selectedIdentity: 'sch',
             selectedJobName: '',
             selectedJobId:'', // 存储当前选中的 jobId
@@ -532,9 +532,25 @@ export default {
             });
             knowledgeGraph.data(this.knowledgeGraphData);
             knowledgeGraph.render();
+            knowledgeGraph.on("node:dblclick", e => {
+                const nodeItem = e.item;
+                const currentTime = new Date().toLocaleString(); // 获取当前时间
+                console.log("当前节点:", nodeItem.getModel());
+                console.log("当前时间:", currentTime);
+                    // 获取当前节点的 id
+                const nodeId = nodeItem.getModel().id;
+                const knowledgeId = nodeItem.getModel().knowledgeId;
+                const schId = nodeItem.getModel().schId;
+                // 构造 Cypher 查询语句
+                let cypherQuery = `MATCH (n {id: ${nodeId}})-[]-(relatedNode) RETURN relatedNode`;
+                const cypherQuery2 = `MATCH (kp:KnowledgePoint {knowledgeId: ${knowledgeId}, schId: ${schId}})-[]-(relatedNode) RETURN relatedNode`;
+                this.fetchSkillGraphDataAndRenderChart(cypherQuery2);
+                });
 
             knowledgeGraph.on("node:click", e => {
+
                 const nodeItem = e.item;
+                console.log(nodeItem.getModel());
                 this.currentClickNodeKnowledge = {
                     graph: "knowledge",
                     id: nodeItem.getModel().id
@@ -673,7 +689,7 @@ export default {
         },
         showRelationDialog() {
             if (this.currentClickNodeSkill) {
-                // this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
+                this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
             } else {

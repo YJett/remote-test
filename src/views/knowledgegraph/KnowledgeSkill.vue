@@ -19,12 +19,23 @@
                         v-for="(count, type) in KnowNodeTypeCounts"
                         :key="type"
                         @click="filterKnowNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;">
+                        style="cursor: pointer; margin-left: 10px;"
+                    >
                         {{ `${type}(${count})` }}
                     </el-tag>
-                    <el-tag :key="'all'" @click="filterKnowNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                    <el-tag
+                        :key="'all'"
+                        @click="filterKnowNodeType('all')"
+                        style="cursor: pointer; margin-left: 10px;"
+                    >
                         {{ `所有类型(${allKnowNodeTypesCount})` }}
                     </el-tag>
+                    <div class="sch-input">
+                        <Select v-model="selectedSchool" placeholder="请选择school" @on-change="handleSchChange"
+                                style="width: 200px; font-size: 18px;">
+                            <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label }}</Option>
+                        </Select>
+                    </div>
                 </div>
                 <div class="el-card__body">
                     <div id="knowledge-graph" class="graph"></div>
@@ -39,12 +50,23 @@
                         v-for="(count, type) in SkillNodeTypeCounts"
                         :key="type"
                         @click="filterSkillNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;">
+                        style="cursor: pointer; margin-left: 10px;"
+                    >
                         {{ `${type}(${count})` }}
                     </el-tag>
-                    <el-tag :key="'all'" @click="filterSkillNodeType('all')" style="cursor: pointer; margin-left: 10px;">
+                    <el-tag
+                        :key="'all'"
+                        @click="filterSkillNodeType('all')"
+                        style="cursor: pointer; margin-left: 10px;"
+                    >
                         {{ `所有类型(${allSkillNodeTypesCount})` }}
                     </el-tag>
+                    <div class="job-input">
+                        <Select v-model="selectedJobId" placeholder="请选择Job" @on-change="handleJobChange"
+                                style="width: 200px; font-size: 18px;">
+                            <Option v-for="job in jobs" :key="job.jobId" :value="job.value">{{ job.label }}</Option>
+                        </Select>
+                    </div>
                 </div>
                 <div class="el-card__body">
                     <div id="skill-graph" class="graph"></div>
@@ -82,6 +104,9 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
+import {fetchAllSchools} from "@/api/schmanage";
+import { fetchAllJobs } from '@/api/Jobmanage';
+import {Message} from "view-design";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
@@ -89,8 +114,18 @@ const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 export default {
     data() {
         return {
+            selectedIdentity: 'sch',
+            selectedJobName: '',
+            selectedJobId:'', // 存储当前选中的 jobId
+            jobs: [],
+            selectedSchName: '',
+            schools: [],
             switchValue: false,
             inputValue: "",
+            selectedSchool: '',
+            selectedJob: "",
+            schoolList: [],
+            jobList: [],
             currentClickNodeKnowledge: null,
             currentClickNodeSkill: null,
             allKnowNodeTypesCount: 0,
@@ -157,125 +192,291 @@ export default {
         };
     },
     async mounted() {
+        await this.fetchSchools();
+        await this.fetchJobs();
+        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+        await this.fetchSkillGraphData()
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
         this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
-        this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据？
+        this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
+        this.fetchSchoolList(); // 获取学校列表
+        this.fetchJobList(); // 获取 Job 列表
     },
     methods: {
-        clearStates(graph) {
-            graph.getNodes() &&
-                graph.getNodes().forEach(item => {
-                    if (
-                        item.getStates().findIndex(node => {
-                            return node === "highlight";
-                        }) !== -1
-                    ) {
-                        graph.setItemState(item, "highlight", false);
+        fetchSchools() {
+            fetchAllSchools()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        this.schools = response.data.map(school => ({
+                            value: school.schId,
+                            label: school.schName
+                        }));
+                        console.log(this.schools[0].value);
+                        this.selectedSchool = this.schools[0].value;
+                        this.selectedSchName = this.schools[0].label;
+                    } else {
+                        Message.error('Failed to fetch schools: Invalid data format');
                     }
-                    if (
-                        item.getStates().findIndex(node => {
-                            return node === "dark";
-                        }) !== -1
-                    ) {
-                        graph.setItemState(item, "dark", false);
-                    }
-                });
-            graph.getEdges() &&
-                graph.getEdges().forEach(item => {
-                    if (
-                        item.getStates().findIndex(edge => {
-                            return edge === "highlight";
-                        }) !== -1
-                    ) {
-                        graph.setItemState(item, "highlight", false);
-                    }
-                    if (
-                        item.getStates().findIndex(edge => {
-                            return edge === "dark";
-                        }) !== -1
-                    ) {
-                        graph.setItemState(item, "dark", false);
-                    }
+                })
+                .catch(error => {
+                    Message.error('Failed to fetch schools');
                 });
         },
-        fetchKnowledgeGraphDataAndRenderChart(cypher) {
-            // Fetch data from backend here for the knowledge graph
-            // For now, we'll just use some dummy data
-            kgBuilderApi.getCypherResult(cypher).then(res => {
-                // Calculate node type counts
-                let counts = this.KnowNodeTypeCounts;
-                let total = res.data.node.length;
-                res.data.node.forEach(node => {
-                    counts[node.type]++; // Increment the count for the node type
-                });
-                this.allKnowNodeTypesCount = total;
-                this.KnowNodeTypeCounts = counts;
-                // Update the graph data
-                this.knowledgeGraph.changeData(this.knowledgeGraphData);
-                console.log(res);
-                let nodes = res.data.node.map(node => ({
-                    id: node.uuid,
-                    label: node.knowledgeNm,
-                    ...node
-                }));
-                let edges = res.data.relationship.map(rel => ({
-                    source: rel.sourceId,
-                    target: rel.targetId,
-                    label: rel.type,
-                    uuid: rel.uuid
-                }));
-                this.knowledgeGraphData = {
-                    nodes,
-                    edges
-                };
-                this.knowledgeGraph.changeData(this.knowledgeGraphData);
-            });
+        handleSchChange(schId) {
+            console.log(schId);
+            this.selectedSchool = schId;
+            this.fetchKnowledgeGraphData();
         },
-        async fetchSkillGraphDataAndRenderChart(cypher) {
-            // Fetch data from backend here for the skill graph
-            // For now, we'll just use some dummy data
-            // let cypher = `MATCH (n) RETURN n LIMIT 25`;
-            // kgBuilderApi.getCypherResult(cypher).then((res) => {
-            //     console.log(res);
-            // });
-            kgBuilderApi.getCypherResult(cypher).then(res => {
-                let counts = this.SkillNodeTypeCounts;
-                let total = res.data.node.length;
-                res.data.node.forEach(node => {
-                    counts[node.type]++; // Increment the count for the node type
+        fetchJobs() {
+            fetchAllJobs()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        this.jobs = response.data.map(job => ({
+                            value: job.jobid,
+                            label: job.jobname
+                        }));
+                        // console.log(this.jobs[0].value);
+                        this.selectedJobId = this.jobs[0].value;
+                        this.selectedJobName = this.jobs[0].label;
+                    } else {
+                        Message.error('Failed to fetch jobs: Invalid data format');
+                    }
+                })
+                .catch(error => {
+                    Message.error('Failed to fetch jobs');
                 });
-                this.allSkillNodeTypesCount = total;
-                this.SkillNodeTypeCounts = counts;
-                // Update the graph data
-                this.skillGraph.changeData(this.skillGraphData);
-                console.log(res);
-                let nodes = res.data.node.map(node => ({
+        },
+        handleJobChange(jobId) {
+            console.log(jobId);
+            if (jobId === 'all') {
+                this.selectedJobId = '';
+            } else {
+                this.selectedJobId = jobId;
+            }
+            this.fetchSkillGraphData();
+        },
+        showChildNodes(node) {
+            const nodeId = node.abilityNo;
+
+            // 找到所有子节点
+            const childNodes = this.allNodes.filter(n => n.upabilityId === nodeId);
+            const childNodeIds = childNodes.map(n => n.id);
+
+            // 找到所有相关的边，确保边的源节点和目标节点都在当前节点列表中
+            const childEdges = this.allEdges.filter(edge =>
+                (childNodeIds.includes(edge.source) && this.skillGraphData.nodes.some(n => n.id === edge.target)) ||
+                (childNodeIds.includes(edge.target) && this.skillGraphData.nodes.some(n => n.id === edge.source))
+            );
+
+            // 合并新节点和边到现有数据中
+            this.skillGraphData.nodes = [...this.skillGraphData.nodes, ...childNodes];
+            this.skillGraphData.edges = [...this.skillGraphData.edges, ...childEdges];
+
+            // 更新图表数据
+            this.skillGraph.changeData(this.skillGraphData);
+
+            // 记录节点的展开状态
+            this.$set(this.expandedNodes, node.id, true);
+        }
+        ,
+
+        collapseChildNodes(node) {
+            const nodeId = node.abilityNo;
+
+            // 找到所有子节点
+            const childNodes = this.skillGraphData.nodes.filter(n => n.upabilityId === nodeId);
+            const childNodeIds = childNodes.map(n => n.id);
+
+            // 移除子节点及其相关的边
+            this.skillGraphData.nodes = this.skillGraphData.nodes.filter(n => n.upabilityId !== nodeId);
+            this.skillGraphData.edges = this.skillGraphData.edges.filter(edge =>
+                !childNodeIds.includes(edge.source) && !childNodeIds.includes(edge.target)
+            );
+
+            // 更新图表数据
+            this.skillGraph.changeData(this.skillGraphData);
+
+            // 更新节点的展开状态
+            this.$set(this.expandedNodes, node.id, false);
+        },
+        async fetchSkillGraphData() {
+            let cypherQuery = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`; // 默认查询
+            console.log(this.selectedJobId)
+            // 如果提供了 参数，修改查询语句以包含 jobId 条件
+            if (this.selectedJobId) {
+                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
+            }
+
+            try {
+                const res = await kgBuilderApi.getCypherResult(cypherQuery);
+                // 处理查询结果，更新技能图谱数据
+                let allNodes = res.data.node.map(node => ({
                     id: node.uuid,
                     label: node.abilityNm,
                     ...node
                 }));
-                let edges = res.data.relationship.map(rel => ({
+                let allEdges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
+                // 只展示顶层节点
+                let nodes = allNodes.filter(node => node.level === 1);
+                let nodeIds = nodes.map(node => node.id);
+                let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+                // 手动添加 job 节点
+                if (this.selectedJobId) {
+                    const jobNode = {
+                        id: `${this.selectedJobId}`,
+                        label: this.selectedJobName,
+                        jobId: this.selectedJobId,
+                        level: 0 // job 节点的层级设为 0
+                    };
+                    allNodes.push(jobNode); // 将 job 节点添加到 allNodes 中
+                    nodes.push(jobNode); // 将 job 节点添加到 nodes 中
 
+                    // 将所有 level === 1 的节点作为 job 节点的子节点
+                    nodes.forEach(node => {
+                        if (node.level === 1) {
+                            const newEdge = {
+                                source: jobNode.id,
+                                target: node.id,
+                                label: 'HAS_CHILD'
+                            };
+                            allEdges.push(newEdge); // 将新关系添加到 allEdges 中
+                            edges.push(newEdge); // 将新关系添加到 edges 中
+                        }
+                    });
+                }
+
+                // 更新图表数据
+                this.allNodes = allNodes;
+                this.allEdges = allEdges;
                 this.skillGraphData = {
                     nodes,
                     edges
                 };
+                console.log(this.skillGraphData)
                 this.skillGraph.changeData(this.skillGraphData);
+            } catch (error) {
+                console.error('获取技能图谱数据时出错：', error);
+            }
+        },
+        fetchSchoolList() {
+            // Fetch school list from backend
+            // For now, use dummy data
+            this.schoolList = [
+                { value: "school1", label: "School 1" },
+                { value: "school2", label: "School 2" },
+                { value: "school3", label: "School 3" }
+            ];
+        },
+        fetchJobList() {
+            // Fetch job list from backend
+            // For now, use dummy data
+            this.jobList = [
+                { value: "job1", label: "Job 1" },
+                { value: "job2", label: "Job 2" },
+                { value: "job3", label: "Job 3" }
+            ];
+        },
+        clearStates(graph) {
+            graph.getNodes() &&
+            graph.getNodes().forEach(item => {
+                if (
+                    item.getStates().findIndex(node => {
+                        return node === "highlight";
+                    }) !== -1
+                ) {
+                    graph.setItemState(item, "highlight", false);
+                }
+                if (
+                    item.getStates().findIndex(node => {
+                        return node === "dark";
+                    }) !== -1
+                ) {
+                    graph.setItemState(item, "dark", false);
+                }
             });
+            graph.getEdges() &&
+            graph.getEdges().forEach(item => {
+                if (
+                    item.getStates().findIndex(edge => {
+                        return edge === "highlight";
+                    }) !== -1
+                ) {
+                    graph.setItemState(item, "highlight", false);
+                }
+                if (
+                    item.getStates().findIndex(edge => {
+                        return edge === "dark";
+                    }) !== -1
+                ) {
+                    graph.setItemState(item, "dark", false);
+                }
+            });
+        },
+        async fetchKnowledgeGraphData() {
+            let cypherQuery = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m LIMIT 100`; // 默认查询
+            console.log(this.selectedSchool)
+            // 如果提供了 参数，修改查询语句以包含 jobId 条件
+            if (this.selectedSchool) {
+                cypherQuery = `MATCH (n:KnowledgePoint {schId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
+            }
+
+            try {
+                const res = await kgBuilderApi.getCypherResult(cypherQuery);
+                // 处理查询结果，更新技能图谱数据
+                let allNodes = res.data.node.map(node => ({
+                    id: node.uuid,
+                    label: node.knowledgeNm,
+                    ...node
+                }));
+                let allEdges = res.data.relationship.map(rel => ({
+                    source: rel.sourceId,
+                    target: rel.targetId,
+                    uuid: rel.uuid,
+                    label: rel.type,
+                }));
+                this.allNodes = allNodes;
+                this.allEdges = allEdges;
+                this.knowledgeGraphData = {
+                    nodes:allNodes,
+                    edges:allEdges
+                };
+                console.log(this.knowledgeGraphData)
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
+            } catch (error) {
+                console.error('获取技能图谱数据时出错：', error);
+            }
+        },
+        fetchKnowledgeGraphDataAndRenderChart(cql) {
+            kgBuilderApi(cql)
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        fetchSkillGraphDataAndRenderChart(cql) {
+            kgBuilderApi(cql)
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         },
         initKnowledgeGraph() {
             const menu = new G6.Menu({
                 getContent(evt) {
-                                    return `<ul>
+                    return `<ul>
                     <li title='addChild'>Add Child Node</li>
                     </ul>`;
-                                },
+                },
                 handleMenuClick(target, item) {
                     if (target.title === 'addChild') {
                         console.log(`Add child node for ${item.getID()}`);
@@ -289,14 +490,13 @@ export default {
             const knowledgeGraph = new G6.Graph({
                 container: "knowledge-graph",
                 layout: {
-                    type: 'random', // 使用 force2 力导向布局
-                    preventOverlap: true, // 防止节点重叠
-                    workerEnabled: true, // 启用 Web Worker
+                    type: 'random',
+                    preventOverlap: true,
                     gpuEnabled: true,
-                //    linkDistance: 100, // 边的引力距离
-                //    nodeStrength: -30, // 节点的斥力强度
-                //    edgeStrength: 0.1, // 边的引力强度
-                //    iterations: 300 // 迭代次数，影响布局的稳定性和最终效果
+                    workerEnabled: true, // 启用 Web Worker
+
+                    linkDistance: 50, // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [60, 60], // 改变节点大小
@@ -326,27 +526,7 @@ export default {
                     }
                 },
                 modes: {
-                    default: [{
-      type: 'drag-canvas',
-      enableOptimize: true,
-      // ... 其他配置
-    }, {
-      type: 'zoom-canvas',
-      enableOptimize: true,
-      // ... 其他配置
-    },
-    {
-      type: 'click-select',
-      enableOptimize: true,
-      // ... 其他配置
-    },
-    {
-      type: 'drag-node',
-      enableOptimize: true,
-      // ... 其他配置
-    },
-
-]
+                    default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
                 plugins: [menu]
             });
@@ -357,8 +537,7 @@ export default {
                 const nodeItem = e.item;
                 this.currentClickNodeKnowledge = {
                     graph: "knowledge",
-                    id: nodeItem.getModel().id,
-                    node: nodeItem.getModel()
+                    id: nodeItem.getModel().id
                 };
             });
             knowledgeGraph.on("node:mouseenter", ev => {
@@ -384,30 +563,16 @@ export default {
                 this.clearStates(this.knowledgeGraph);
             });
 
-            // 监听双击事件
-            knowledgeGraph.on("node:dblclick", e => {
-                const nodeItem = e.item;
-                const currentTime = new Date().toLocaleString(); // 获取当前时间
-                console.log("当前节点:", nodeItem.getModel());
-                console.log("当前时间:", currentTime);
-                    // 获取当前节点的 id
-                const nodeId = nodeItem.getModel().id;
-                const knowledgeId = nodeItem.getModel().knowledgeId;
-                const schId = nodeItem.getModel().schId;
-                // 构造 Cypher 查询语句
-                let cypherQuery = `MATCH (n {id: ${nodeId}})-[]-(relatedNode) RETURN relatedNode`;
-                const cypherQuery2 = `MATCH (kp:KnowledgePoint {knowledgeId: ${knowledgeId}, schId: ${schId}})-[]-(relatedNode) RETURN relatedNode`;
 
-                this.fetchSkillGraphDataAndRenderChart(cypherQuery2);
-                });
             this.knowledgeGraph = knowledgeGraph;
         },
+
         initSkillGraph() {
             const menu = new G6.Menu({
                 getContent(evt) {
                     return `<ul>
-                    <li title='addChild'>Add Child Node</li>
-                    </ul>`;
+            <li title='addChild'>Add Child Node</li>
+            </ul>`;
                 },
                 handleMenuClick(target, item) {
                     if (target.title === 'addChild') {
@@ -420,24 +585,12 @@ export default {
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: 'force2', // 使用 force2 力导向布局
-                    preventOverlap: true, // 防止节点重叠
+                    type: "fruchterman",
+                    preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
-
-                  //  linkDistance: 100, // 边的引力距离
-                  //  nodeStrength: -30, // 节点的斥力强度
-                  //  edgeStrength: 0.1, // 边的引力强度
-                  //  iterations: 100 // 迭代次数
-                },
-                defaultEdge: {
-                    style: {
-                        stroke: "#F6BD16", // 改变边的颜色
-                        lineWidth: 2 // 改变边的宽度
-                    },
-                    labelCfg: {
-                        autoRotate: true // Label follows the edge direction
-                    }
+                    linkDistance: 100, // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [50, 50],
@@ -450,6 +603,15 @@ export default {
                             fill: "#000",
                             fontSize: 10
                         }
+                    }
+                },
+                defaultEdge: {
+                    style: {
+                        stroke: "#F6BD16", // 改变边的颜色
+                        lineWidth: 2 // 改变边的宽度
+                    },
+                    labelCfg: {
+                        autoRotate: true // Label follows the edge direction
                     }
                 },
                 nodeStateStyles: {
@@ -468,188 +630,116 @@ export default {
 
             skillGraph.on("node:click", e => {
                 const nodeItem = e.item;
+                const model = nodeItem.getModel();
                 this.currentClickNodeSkill = {
                     graph: "skill",
-                    id: nodeItem.getModel().id,
-                    node: nodeItem.getModel()
-
+                    id: model.id
                 };
+                console.log(model);
+                // 判断节点是否已经展开
+                if (this.expandedNodes[model.id]) {
+                    // 如果已经展开，则收回子节点
+                    this.collapseChildNodes(model);
+                } else {
+                    // 如果未展开，则展示子节点
+                    this.showChildNodes(model);
+                }
             });
+
+            skillGraph.on("node:mouseenter", ev => {
+                const nodeItem = ev.item;
+
+                // Highlight the node itself
+                skillGraph.setItemState(nodeItem, "highlight", true);
+
+                // Get the edges connected to the node
+                const connectedEdges = nodeItem.getEdges();
+
+                // Highlight the nodes at the other end of these edges
+                connectedEdges.forEach(edge => {
+                    const sourceNode = edge.getSource();
+                    const targetNode = edge.getTarget();
+                    const neighborNode = sourceNode === nodeItem ? targetNode : sourceNode;
+                    skillGraph.setItemState(neighborNode, "highlight", true);
+                });
+            });
+
+            skillGraph.on("node:mouseleave", ev => {
+                // Clear all highlights
+                this.clearStates(this.skillGraph);
+            });
+
             this.skillGraph = skillGraph;
         },
-        updateGraphData(res, graphType) {
-            const nodes = res.data.node.map(node => ({
-                id: node.uuid,
-                label: graphType === 'knowledge' ? node.knowledgeNm : node.name,
-                ...node
-            }));
-            const edges = res.data.relationship.map(rel => ({
-                source: rel.sourceId,
-                target: rel.targetId,
-                label: rel.type,
-                uuid: rel.uuid
-            }));
-            const graphData = {
-                nodes,
-                edges
-            };
-            this[`${graphType}GraphData`] = graphData;
-            this[`update${graphType.capitalize()}Graph`]();
-        },
-        updateKnowledgeGraph() {
-            if (this.knowledgeGraph) {
-                this.knowledgeGraph.changeData(this.knowledgeGraphData);
-            }
-        },
-
-        updateSkillGraph() {
-            if (this.skillGraph) {
-                this.skillGraph.changeData(this.skillGraphData);
-            }
-        },
-        filterSkillNodeType(type) {
-            // Clear the graph data
-            this.skillGraphData = {
-                nodes: [],
-                edges: []
-            };
-
-            // If 'all' is selected, fetch all data
-            if (type === 'all') {
-                this.fetchSkillGraphData();
-            } else {
-                // Otherwise, fetch data for the specific node type
-                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
-                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
-                    let nodes = res.data.node.map(node => ({
-                        id: node.uuid,
-                        label: node.skillNm,
-                        ...node
-                    }));
-                    let edges = res.data.relationship.map(rel => ({
-                        source: rel.sourceId,
-                        target: rel.targetId,
-                        label: rel.type,
-                        uuid: rel.uuid
-                    }));
-                    this.skillGraphData = {
-                        nodes,
-                        edges
-                    };
-                    this.skillGraph.changeData(this.skillGraphData);
-                });
-            }
-        },
-        filterKnowNodeType(type) {
-            // Clear the graph data
-            this.knowledgeGraphData = {
-                nodes: [],
-                edges: []
-            };
-
-            // If 'all' is selected, fetch all data
-            if (type === 'all') {
-                this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP);
-            } else {
-                // Otherwise, fetch data for the specific node type
-                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
-                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
-                    let nodes = res.data.node.map(node => ({
-                        id: node.uuid,
-                        label: node.knowledgeNm,
-                        ...node
-                    }));
-                    let edges = res.data.relationship.map(rel => ({
-                        source: rel.sourceId,
-                        target: rel.targetId,
-                        label: rel.type,
-                        uuid: rel.uuid
-                    }));
-                    this.knowledgeGraphData = {
-                        nodes,
-                        edges
-                    };
-                    this.knowledgeGraph.changeData(this.knowledgeGraphData);
-                });
-            }
-        },
-        // Method to show relation dialog
         showRelationDialog() {
-            if (this.currentClickNodeKnowledge && this.currentClickNodeSkill) {
-                this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
+            if (this.currentClickNodeSkill) {
+                // this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
             } else {
                 this.$message.error("请先选择知识图谱和技能图谱中的节点！");
             }
         },
-        // Method to add relation
         addRelation() {
-            // Logic to add relation
+            // Add relation between knowledge and skill nodes
+            this.$message({
+                type: "success",
+                message: "关系添加成功"
+            });
             this.relationDialogVisible = false;
-            this.$message.success("成功添加关联关系！");
         },
-        // Method to show add entity dialog
         showAddEntityDialog() {
-            // Logic to show add entity dialog
-            this.fetchKnowledgeGraphData();
-            this.fetchSkillGraphData();
-            this.$message.info("添加实体功能暂未实现！");
+            // Show add entity dialog
         },
-        // Method to show edit entity dialog
         showEditEntityDialog() {
-            // Logic to show edit entity dialog
-            this.$message.info("修改实体功能暂未实现！");
+            // Show edit entity dialog
         },
-        beforeDestroy() {
-            // Destroy the knowledge graph and skill graph instances
-            if (this.knowledgeGraph) {
-                this.knowledgeGraph.destroy();
+        filterKnowNodeType(type) {
+            if (type === "all") {
+                this.knowledgeGraph.getNodes().forEach(node => {
+                    this.knowledgeGraph.showItem(node);
+                });
+            } else {
+                this.knowledgeGraph.getNodes().forEach(node => {
+                    if (node.getModel().type === type) {
+                        this.knowledgeGraph.showItem(node);
+                    } else {
+                        this.knowledgeGraph.hideItem(node);
+                    }
+                });
             }
-            if (this.skillGraph) {
-                this.skillGraph.destroy();
+        },
+        filterSkillNodeType(type) {
+            if (type === "all") {
+                this.skillGraph.getNodes().forEach(node => {
+                    this.skillGraph.showItem(node);
+                });
+            } else {
+                this.skillGraph.getNodes().forEach(node => {
+                    if (node.getModel().type === type) {
+                        this.skillGraph.showItem(node);
+                    } else {
+                        this.skillGraph.hideItem(node);
+                    }
+                });
             }
         }
-    },
+    }
 };
 </script>
 
-<style>
-.el-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.el-card__body {
-    height: 100%;
-    /* Set the height of the card body */
-}
-
+<style scoped>
 .graph-container {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    height: 80vh;
-    /* Set the height of the container to 80% of the viewport height */
-}
-
-.box-card {
-    margin: 10px;
-    flex: 1;
 }
 
 .graph {
-    height: 100%;
-}
-.el-tag {
-    white-space: nowrap; /* 防止内容换行 */
-    overflow: visible; /* 确保内容可见 */
-    text-overflow: ellipsis; /* 显示省略号 */
+    width: 100%;
+    height: 500px;
 }
 
-/* 移除省略号，确保所有内容可见 */
-.el-tag .el-tag__close {
-    text-overflow: clip;
+.box-card {
+    width: 48%;
 }
 </style>

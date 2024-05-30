@@ -357,7 +357,8 @@ export default {
                 const nodeItem = e.item;
                 this.currentClickNodeKnowledge = {
                     graph: "knowledge",
-                    id: nodeItem.getModel().id
+                    id: nodeItem.getModel().id,
+                    node: nodeItem.getModel()
                 };
             });
             knowledgeGraph.on("node:mouseenter", ev => {
@@ -469,7 +470,9 @@ export default {
                 const nodeItem = e.item;
                 this.currentClickNodeSkill = {
                     graph: "skill",
-                    id: nodeItem.getModel().id
+                    id: nodeItem.getModel().id,
+                    node: nodeItem.getModel()
+
                 };
             });
             this.skillGraph = skillGraph;

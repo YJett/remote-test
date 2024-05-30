@@ -84,6 +84,7 @@ export default {
                 },
                 radar: {
                     indicator: this.mainRadarData.map(item => ({name: item.abilityNm, max: 100})),
+                    triggerEvent: true
                 },
                 series: [
                     {
@@ -93,6 +94,7 @@ export default {
                             {
                                 value: this.mainRadarData.map(item => item.score),
                                 name: '评分',
+                                abilityNo: this.mainRadarData.map(item => item.abilityNo),
                             },
                         ],
                     },

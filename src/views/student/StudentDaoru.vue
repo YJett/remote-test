@@ -1,16 +1,16 @@
 <template>
     <div class="container">
         <!-- 学校选择 -->
-        <div class="school-selection centered" style="margin-bottom: 50px; font-size: 24px;">
-            <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px;">
+        <div class="school-selection centered">
+            <Select v-model="selectedSchool" placeholder="请选择学校" class="school-select">
                 <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
             </Select>
         </div>
 
         <div class="file-imports">
             <!-- 课程信息文件导入 -->
-            <div class="file-import">
-                <h2 style="font-size: 24px; margin-bottom: 20px;">课程信息导入</h2>
+            <div class="file-import course-import">
+                <h2>课程信息导入</h2>
                 <div class="file-select">
                     <Upload
                         :action="courseUploadUrl"
@@ -20,21 +20,19 @@
                         :auto-upload="false"
                         ref="courseUpload"
                     >
-                        <i-button type="primary" size="large" style="font-size: 18px;">选择课程信息文件</i-button>
+                        <i-button type="primary" size="large" class="select-button">选择课程信息文件</i-button>
                     </Upload>
-                    <div class="selected-file" style="font-size: 16px;">{{ selectedCourseFileName }}</div>
+                    <div class="selected-file">{{ selectedCourseFileName }}</div>
                 </div>
                 <div class="button-group">
-                    <i-button type="primary" size="large" :disabled="!selectedCourseFile" @click="uploadCourseFile"
-                              style="font-size: 18px;">上传
-                    </i-button>
-                    <i-button size="large" @click="clearCourseFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
+                    <i-button type="primary" size="large" :disabled="!selectedCourseFile" @click="uploadCourseFile" class="action-button">上传</i-button>
+                    <i-button size="large" @click="clearCourseFile" class="clear-button">清除</i-button>
                 </div>
             </div>
 
             <!-- 学生信息文件导入 -->
-            <div class="file-import">
-                <h2 style="font-size: 24px; margin-bottom: 20px;">学生信息导入</h2>
+            <div class="file-import student-import">
+                <h2>学生信息导入</h2>
                 <div class="file-select">
                     <Upload
                         :action="studentUploadUrl"
@@ -44,15 +42,13 @@
                         :auto-upload="false"
                         ref="studentUpload"
                     >
-                        <i-button type="primary" size="large" style="font-size: 18px;">选择学生信息文件</i-button>
+                        <i-button type="primary" size="large" class="select-button">选择学生信息文件</i-button>
                     </Upload>
-                    <div class="selected-file" style="font-size: 16px;">{{ selectedStudentFileName }}</div>
+                    <div class="selected-file">{{ selectedStudentFileName }}</div>
                 </div>
                 <div class="button-group">
-                    <i-button type="primary" size="large" :disabled="!selectedStudentFile" @click="uploadStudentFile"
-                              style="font-size: 18px;">上传
-                    </i-button>
-                    <i-button size="large" @click="clearStudentFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
+                    <i-button type="primary" size="large" :disabled="!selectedStudentFile" @click="uploadStudentFile" class="action-button">上传</i-button>
+                    <i-button size="large" @click="clearStudentFile" class="clear-button">清除</i-button>
                 </div>
             </div>
         </div>
@@ -83,7 +79,6 @@ export default {
     },
     methods: {
         handleCourseBeforeUpload(file) {
-            // Handle file type validation and setting file data for course upload
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
                 Message.error('请选择XLSX文件');
                 return false;
@@ -94,7 +89,6 @@ export default {
         },
 
         handleStudentBeforeUpload(file) {
-            // Handle file type validation and setting file data for course upload
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
                 Message.error('请选择XLSX文件');
                 return false;
@@ -104,7 +98,6 @@ export default {
             return false;
         },
         uploadCourseFile() {
-            console.log('Sending course upload request...');
             if (!this.selectedCourseFile) {
                 Message.warning('请选择要上传的课程信息文件');
                 return;
@@ -136,7 +129,6 @@ export default {
                 });
         },
         uploadStudentFile() {
-            console.log('Sending student upload request...');
             if (!this.selectedStudentFile) {
                 Message.warning('请选择要上传的学生信息文件');
                 return;
@@ -186,11 +178,9 @@ export default {
         },
 
         clearCourseFile() {
-            // Clear selected course file
             this.clearFile('selectedCourseFileName', 'selectedCourseFile', 'courseUploadData', 'courseUploadUrl', 'courseUpload');
         },
         clearStudentFile() {
-            // Clear selected student file
             this.clearFile('selectedStudentFileName', 'selectedStudentFile', 'studentUploadData', 'studentUploadUrl', 'studentUpload');
         },
         clearFile(fileNameProp, fileProp, uploadDataProp, uploadUrlProp, refName) {
@@ -203,12 +193,37 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
+    background-image: url('/mnt/data/image.png');
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+}
+
+.school-selection {
+    margin-bottom: 50px;
+    font-size: 24px;
+    color: #333;
+    font-family: 'Roboto', sans-serif;
+}
+
+.school-select {
+    width: 200px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+    color: #333;
 }
 
 .file-imports {
@@ -219,13 +234,17 @@ export default {
 
 .file-import {
     width: 48%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
 }
 
-.file-import {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 40px;
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #00796b;
 }
 
 .file-select {
@@ -234,9 +253,24 @@ export default {
     margin-bottom: 30px;
 }
 
+.select-button {
+    font-size: 18px;
+    background: rgba(0, 123, 255, 0.9);
+    border-color: rgba(0, 123, 255, 0.9);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.select-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+}
+
 .selected-file {
     margin-left: 10px;
     font-size: 16px;
+    color: #333;
 }
 
 .button-group {
@@ -244,7 +278,38 @@ export default {
     justify-content: center;
 }
 
-.button-group i-button {
-    margin: 0 10px;
+.action-button {
+    font-size: 18px;
+    background: rgba(40, 167, 69, 0.9);
+    border-color: rgba(40, 167, 69, 0.9);
+    color: white;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+}
+
+.clear-button {
+    font-size: 18px;
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    margin-left: 10px;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.clear-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+}
+
+.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 </style>

@@ -1,48 +1,47 @@
 <template>
     <div class="container">
-        <!-- 选择身份 -->
-        <div class="identity-selection">
-            <RadioGroup v-model="selectedIdentity">
-                <Radio label="sch">学校身份</Radio>
-            </RadioGroup>
-        </div>
-
-        <!-- 学校选择下拉框 -->
-        <div v-if="selectedIdentity === 'sch'" class="school-input">
-            <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px; font-size: 18px;">
-                <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
-            </Select>
-        </div>
-
-        <!-- 文件导入功能 -->
-        <div class="file-import" style="margin-top: 40px;">
-            <div class="file-select">
-                <Upload
-                    :action="uploadUrl"
-                    :before-upload="handleBeforeUpload"
-                    :data="uploadData"
-                    :show-upload-list="false"
-                    :auto-upload="false"
-                    ref="upload"
-                >
-                    <i-button type="primary" size="large" style="font-size: 18px;">选择文件</i-button>
-                </Upload>
-                <div class="selected-file" style="font-size: 16px;">{{ selectedFileName }}</div>
+        <div class="card">
+            <!-- 选择身份 -->
+            <div class="identity-selection">
+                <RadioGroup v-model="selectedIdentity">
+                    <Radio label="sch">学校身份</Radio>
+                </RadioGroup>
             </div>
-            <div class="button-group" style="margin-top: 40px;"> <!-- Increased margin-top -->
-                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
-                <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button> <!-- Increased left margin -->
+
+            <!-- 学校选择下拉框 -->
+            <div v-if="selectedIdentity === 'sch'" class="school-input">
+                <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 300px;">
+                    <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
+                </Select>
+            </div>
+
+            <!-- 文件导入功能 -->
+            <div class="file-import">
+                <div class="file-select">
+                    <Upload
+                        :action="uploadUrl"
+                        :before-upload="handleBeforeUpload"
+                        :data="uploadData"
+                        :show-upload-list="false"
+                        :auto-upload="false"
+                        ref="upload"
+                    >
+                        <i-button type="primary" size="large">选择文件</i-button>
+                    </Upload>
+                    <div class="selected-file">{{ selectedFileName }}</div>
+                </div>
+                <div class="button-group">
+                    <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile">上传</i-button>
+                    <i-button size="large" @click="clearFile" style="margin-left: 20px;">清除</i-button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
-<!-- Your script and style sections remain unchanged -->
-
-
 <script>
-import {RadioGroup, Radio, Select, Option, Message, Upload, Button as IButton} from 'view-design';
-import {fetchAllSchools} from '@/api/schmanage';
+import { RadioGroup, Radio, Select, Option, Message, Upload, Button as IButton } from 'view-design';
+import { fetchAllSchools } from '@/api/schmanage';
 
 export default {
     data() {
@@ -79,8 +78,6 @@ export default {
                 Message.warning('请选择学校');
                 return;
             }
-
-            // this.uploadData.schoolName = this.selectedSchool;
 
             const formData = new FormData();
             formData.append('file', this.selectedFile);
@@ -131,35 +128,98 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background-color: #eaeff1;
+}
+
 .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #f0f4f8 30%, #d9e2ec 70%);
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 80%;
+    max-width: 800px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
+    text-align: center;
+    border: 1px solid #ccc;
 }
+
 .identity-selection {
-    margin-bottom: 40px; /* Increase margin */
+    margin-bottom: 20px;
+    width: 100%;
+    color: #333;
 }
+
+.school-input {
+    margin-bottom: 30px;
+    width: 100%;
+}
+
 .file-import {
-    display: flex;
-    flex-direction: column; /* Change to column layout */
-    align-items: center; /* Center align */
+    margin-top: 20px;
+    width: 100%;
 }
+
 .file-select {
     display: flex;
     align-items: center;
-    margin-bottom: 30px; /* Increase margin */
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
 }
+
 .selected-file {
     margin-left: 10px;
     font-size: 16px;
+    color: #606266;
 }
+
 .button-group {
     display: flex;
-    justify-content: center; /* Center align */
+    justify-content: center;
+    width: 100%;
 }
+
 .button-group i-button {
-    margin: 0 10px; /* Adjust margin */
+    margin: 0 10px;
+    width: 120px;
+}
+
+i-button {
+    font-size: 16px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #0078d7 30%, #005cbf 70%);
+    border: none;
+    color: #fff;
+}
+
+i-button:hover {
+    background: linear-gradient(135deg, #005cbf 30%, #003e9f 70%);
+}
+
+.identity-selection .ivu-radio-group {
+    display: flex;
+    justify-content: center;
+}
+
+.school-input .ivu-select {
+    display: block;
+    margin: 0 auto;
+    background-color: #f0f4f8;
+    color: #333;
 }
 </style>

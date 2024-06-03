@@ -60,6 +60,13 @@
                     >
                         {{ `所有类型(${allSkillNodeTypesCount})` }}
                     </el-tag>
+                    <el-tag
+                        :key="'refresh'"
+                        @click="fetchSkillGraphData"
+                        style="cursor: pointer; margin-left: 10px;"
+                    >
+                        {{ `刷新` }}
+                    </el-tag>
                     <div class="job-input">
                         <Select v-model="selectedJobId" placeholder="请选择Job" @on-change="handleJobChange"
                                 style="width: 200px; font-size: 18px;">
@@ -105,6 +112,7 @@ import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
 import {fetchAllSchools} from "@/api/schmanage";
 import { fetchAllJobs } from '@/api/Jobmanage';
+import { insertJbAbilityKnowledge } from "@/api/JbAbilityKnowledge";
 import {Message} from "view-design";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
@@ -305,7 +313,7 @@ export default {
             console.log(this.selectedJobId)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedJobId) {
-                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
+                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedJobId}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {
@@ -326,6 +334,7 @@ export default {
                 let nodes = allNodes.filter(node => node.level === 1);
                 let nodeIds = nodes.map(node => node.id);
                 let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+                /*
                 // 手动添加 job 节点
                 if (this.selectedJobId) {
                     const jobNode = {
@@ -350,7 +359,7 @@ export default {
                         }
                     });
                 }
-
+                */
                 // 更新图表数据
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
@@ -439,8 +448,6 @@ export default {
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
-                this.allNodes = allNodes;
-                this.allEdges = allEdges;
                 this.knowledgeGraphData = {
                     nodes:allNodes,
                     edges:allEdges
@@ -472,8 +479,6 @@ export default {
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
-                this.allNodes = allNodes;
-                this.allEdges = allEdges;
                 this.knowledgeGraphData = {
                     nodes:allNodes,
                     edges:allEdges
@@ -600,7 +605,10 @@ export default {
                 this.currentClickNodeKnowledge = {
                     graph: "knowledge",
                     id: nodeItem.getModel().id,
-                    node: nodeItem.getModel()
+                    knowledgeId: nodeItem.getModel().knowledgeId,
+                    label: nodeItem.getModel().label,
+
+                    node: nodeItem.getModel(),
                 };
             });
             knowledgeGraph.on("node:mouseenter", ev => {
@@ -696,10 +704,13 @@ export default {
                 const model = nodeItem.getModel();
                 this.currentClickNodeSkill = {
                     graph: "skill",
+                    label: model.label,
+                    abilityNo: model.abilityNo,
                     id: model.id,
                     node: model
                 };
                 console.log(model);
+                console.log(this.expandedNodes);
                 // 判断节点是否已经展开
                 if (this.expandedNodes[model.id]) {
                     // 如果已经展开，则收回子节点
@@ -740,6 +751,9 @@ export default {
                 this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
+                insertJbAbilityKnowledge(this.selectedSchool,this.currentClickNodeSkill.abilityNo,this.currentClickNodeKnowledge.knowledgeId).then(res => {
+                    this.$Message.success('关联成功');
+                });
             } else {
                 this.$message.error("请先选择知识图谱和技能图谱中的节点！");
             }

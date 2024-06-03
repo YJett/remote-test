@@ -7,8 +7,8 @@
                         <Option v-for="opt in schools" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
                 </FormItem>
-                <FormItem label="学生学号">
-                    <i-input v-model="studentId" placeholder="请输入学生学号" style="width: 250px;"></i-input>
+                <FormItem label="学生ID">
+                    <i-input v-model="studentId" placeholder="请输入学生ID" style="width: 250px;"></i-input>
                 </FormItem>
                 <FormItem class="button-container">
                     <i-button type="primary" @click="handleSearch" shape="round" class="query-button">查询</i-button>
@@ -17,11 +17,16 @@
             </i-form>
         </Card>
 
-        <Card class="charts-container">
-            <div ref="mainRadar" class="chart"></div>
-        </Card>
+        <div class="charts-container">
+            <Card class="chart-card">
+                <div ref="mainRadar" class="chart"></div>
+            </Card>
+            <Card class="chart-card">
+                <div ref="knowledgeRadar" class="chart"></div>
+            </Card>
+        </div>
 
-        <Modal v-model="showSubRadar" width="60%" :styles="{ top: '10px' }" @on-ok="handleModalOk" @on-cancel="handleModalCancel">
+        <Modal v-model="showSubRadar" width="50%" :styles="{ top: '10px' }" @on-ok="handleModalOk" @on-cancel="handleModalCancel">
             <p>{{ previousAbilityNm }} (层级: {{ currentLv - 1 }}) - 当前层级: {{ currentLv }}</p>
             <div v-if="subRadarData.length > 0" ref="subRadar" class="chart"></div>
             <p v-else>当前无下钻数据</p>
@@ -31,9 +36,9 @@
 
 <script>
 import * as echarts from 'echarts';
-import { fetchAllSchools } from '@/api/schmanage';
-import { getAbilityScores } from '@/api/radar';
-import { Message, Modal } from 'view-design';
+import {fetchAllSchools} from '@/api/schmanage';
+import {getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName} from '@/api/radar';
+import {Message, Modal} from 'view-design';
 
 export default {
     name: 'RadarCharts',
@@ -43,15 +48,17 @@ export default {
             selectedSchool: null,
             studentId: '',
             mainRadarData: [],
+            knowledgeRadarData: [],
             subRadarData: [],
             showSubRadar: false,
             mainChartInstance: null,
+            knowledgeChartInstance: null,
             subChartInstance: null,
             schools: [],
             currentLv: 1,
             currentUpabilityId: null,
-            abilityMap: {},  // 用于存储 abilityNm 到 abilityNo 的映射
-            previousAbilityNm: '',  // 用于存储上一级的 abilityNm
+            abilityMap: {}, // 用于存储 abilityNm 到 abilityNo 的映射
+            previousAbilityNm: '', // 用于存储上一级的 abilityNm
         };
     },
     created() {
@@ -77,8 +84,9 @@ export default {
         handleSearch() {
             if (this.selectedSchool && this.studentId) {
                 this.fetchData();
+                this.fetchKnowledgeData();
             } else {
-                Message.warning('请填写学校ID和学生学号');
+                Message.warning('请填写学校ID和学生ID');
             }
         },
         handleClear() {
@@ -88,6 +96,9 @@ export default {
             this.currentLv = 1;
             if (this.mainChartInstance) {
                 this.mainChartInstance.clear();
+            }
+            if (this.knowledgeChartInstance) {
+                this.knowledgeChartInstance.clear();
             }
             if (this.subChartInstance) {
                 this.subChartInstance.clear();
@@ -104,68 +115,126 @@ export default {
                 .then(res => {
                     const data = res.data;
                     this.processData(data);
-                    this.drawChart();
+                    this.drawMainRadar();
                 })
                 .catch(error => {
                     console.error(error);
                     Message.error('获取数据失败');
                 });
         },
+        fetchKnowledgeData() {
+            getAverageScoreByType(this.selectedSchool.value, this.studentId)
+                .then(res => {
+                    const data = res.data;
+                    this.processKnowledgeData(data);
+                    this.drawKnowledgeRadar();
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取知识评分数据失败');
+                });
+        },
         processData(data) {
             this.mainRadarData = data;
-            this.abilityMap = {};  // 重置映射
+            this.abilityMap = {}; // 重置映射
             data.forEach(item => {
-                this.abilityMap[item.abilityNm] = item.abilityNo;  // 记录 abilityNm 到 abilityNo 的映射
+                this.abilityMap[item.abilityNm] = item.abilityNo; // 记录 abilityNm 到 abilityNo 的映射
             });
         },
-        drawChart() {
+        processKnowledgeData(data) {
+            this.knowledgeRadarData = data;
+        },
+        drawMainRadar() {
             this.$nextTick(() => {
                 if (this.mainChartInstance) {
                     this.mainChartInstance.dispose();
                 }
-                this.drawMainRadar();
+                this.mainChartInstance = echarts.init(this.$refs.mainRadar);
+                const option = {
+                    title: {
+                        text: '能力评分雷达图',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                    },
+                    radar: {
+                        indicator: this.mainRadarData.map(item => ({name: item.abilityNm, max: 100})),
+                        triggerEvent: true
+                    },
+                    series: [
+                        {
+                            name: '能力评分',
+                            type: 'radar',
+                            data: [
+                                {
+                                    value: this.mainRadarData.map(item => item.score),
+                                    name: '评分',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                this.mainChartInstance.setOption(option);
+
+                // 添加点击事件
+                this.mainChartInstance.on('click', (params) => {
+                    if (params.componentType === 'radar' && params.name) {
+                        const abilityNo = this.abilityMap[params.name];
+                        this.currentUpabilityId = abilityNo;
+                        this.currentLv = 2;
+                        this.previousAbilityNm = params.name;
+                        this.showSubRadar = true;
+                        this.$nextTick(() => {
+                            this.drawSubRadar(abilityNo, this.currentLv);
+                        });
+                    }
+                });
             });
         },
-        drawMainRadar() {
-            this.mainChartInstance = echarts.init(this.$refs.mainRadar);
-            const option = {
-                title: {
-                    text: '能力评分雷达图',
-                },
-                tooltip: {
-                    trigger: 'item',
-                },
-                radar: {
-                    indicator: this.mainRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
-                    triggerEvent: true
-                },
-                series: [
-                    {
-                        name: '能力评分',
-                        type: 'radar',
-                        data: [
-                            {
-                                value: this.mainRadarData.map(item => item.score),
-                                name: '评分',
-                            },
-                        ],
-                    },
-                ],
-            };
-            this.mainChartInstance.setOption(option);
-
-            // 添加点击事件
-            this.mainChartInstance.on('click', (params) => {
-                if (params.componentType === 'radar' && params.name) {
-                    const abilityNo = this.abilityMap[params.name];
-                    this.currentUpabilityId = abilityNo;
-                    this.currentLv = 2;
-                    this.previousAbilityNm = params.name;
-                    this.showSubRadar = true;
-                    this.$nextTick(() => {
-                        this.drawSubRadar(abilityNo, this.currentLv);
-                    });
+        drawKnowledgeRadar() {
+            this.$nextTick(() => {
+                if (this.knowledgeChartInstance) {
+                    this.knowledgeChartInstance.dispose();
                 }
+                this.knowledgeChartInstance = echarts.init(this.$refs.knowledgeRadar);
+                const option = {
+                    title: {
+                        text: '知识评分雷达图',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                    },
+                    radar: {
+                        indicator: this.knowledgeRadarData.map(item => ({name: item.type, max: 100})),
+                        triggerEvent: true
+                    },
+                    series: [
+                        {
+                            name: '知识评分',
+                            type: 'radar',
+                            data: [
+                                {
+                                    value: this.knowledgeRadarData.map(item => item.avg_score),
+                                    name: '评分',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                this.knowledgeChartInstance.setOption(option);
+
+                // 添加点击事件
+                this.knowledgeChartInstance.on('click', (params) => {
+                    if (params.componentType === 'radar' && params.name) {
+                        const type = params.name;
+                        this.currentLv = 2;
+                        this.previousAbilityNm = type;
+                        this.showSubRadar = true;
+                        this.$nextTick(() => {
+                            this.drawSubKnowledgeRadar(type, this.currentLv);
+                        });
+                    }
+                });
             });
         },
         drawSubRadar(abilityNo, lv) {
@@ -196,7 +265,7 @@ export default {
                                 trigger: 'item',
                             },
                             radar: {
-                                indicator: data.map(item => ({ name: item.abilityNm, max: 100 })),
+                                indicator: data.map(item => ({name: item.abilityNm, max: 100})),
                                 triggerEvent: true
                             },
                             series: [
@@ -233,6 +302,51 @@ export default {
                     Message.error('获取数据失败');
                 });
         },
+        drawSubKnowledgeRadar(type, lv) {
+            if (this.subChartInstance) {
+                this.subChartInstance.dispose();
+            }
+            if (lv > 3) {
+                this.subRadarData = [];
+                return;
+            }
+            getScoreAndKnowledgeName(this.selectedSchool.value, this.studentId, type)
+                .then(res => {
+                    const data = res.data;
+                    if (!data || data.length === 0) {
+                        this.subRadarData = [];
+                    } else {
+                        this.subRadarData = data;
+                        this.subChartInstance = echarts.init(this.$refs.subRadar);
+                        const option = {
+                            tooltip: {
+                                trigger: 'item',
+                            },
+                            radar: {
+                                indicator: data.map(item => ({name: item.knowledgenm, max: 100})),
+                                triggerEvent: true
+                            },
+                            series: [
+                                {
+                                    name: '知识评分',
+                                    type: 'radar',
+                                    data: [
+                                        {
+                                            value: data.map(item => item.score),
+                                            name: '评分',
+                                        },
+                                    ],
+                                },
+                            ],
+                        };
+                        this.subChartInstance.setOption(option);
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取课程评分数据失败');
+                });
+        },
         handleModalOk() {
             this.showSubRadar = false;
         },
@@ -243,6 +357,9 @@ export default {
     beforeDestroy() {
         if (this.mainChartInstance) {
             this.mainChartInstance.dispose();
+        }
+        if (this.knowledgeChartInstance) {
+            this.knowledgeChartInstance.dispose();
         }
         if (this.subChartInstance) {
             this.subChartInstance.dispose();
@@ -287,11 +404,17 @@ export default {
 }
 
 .charts-container {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
+    margin-top: 20px;
+}
+
+.chart-card {
+    flex: 1;
+    margin: 0 10px;
     border: 1px solid #d9d9d9;
     padding: 20px;
-    margin-top: 20px;
-    flex: 1;
 }
 
 .chart {
@@ -300,6 +423,6 @@ export default {
 }
 
 .modal .chart {
-    height: 500px;
+    height: 400px; /* Reduced height */
 }
 </style>

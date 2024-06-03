@@ -7,8 +7,8 @@
                         <Option v-for="opt in schools" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
                 </FormItem>
-                <FormItem label="学生ID">
-                    <i-input v-model="studentId" placeholder="请输入学生ID" style="width: 250px;"></i-input>
+                <FormItem label="学生学号">
+                    <i-input v-model="studentId" placeholder="请输入学生学号" style="width: 250px;"></i-input>
                 </FormItem>
                 <FormItem class="button-container">
                     <i-button type="primary" @click="handleSearch" shape="round" class="query-button">查询</i-button>
@@ -19,7 +19,7 @@
 
         <div class="charts-container">
             <Card class="chart-card">
-                <div ref="mainRadar" class="chart"></div>
+                <div ref="AbilityRadar" class="chart"></div>
             </Card>
             <Card class="chart-card">
                 <div ref="knowledgeRadar" class="chart"></div>
@@ -47,11 +47,11 @@ export default {
             selectedIdentity: 'sch',
             selectedSchool: null,
             studentId: '',
-            mainRadarData: [],
+            AbilityRadarData: [],
             knowledgeRadarData: [],
             subRadarData: [],
             showSubRadar: false,
-            mainChartInstance: null,
+            AbilityChartInstance: null,
             knowledgeChartInstance: null,
             subChartInstance: null,
             schools: [],
@@ -86,7 +86,7 @@ export default {
                 this.fetchData();
                 this.fetchKnowledgeData();
             } else {
-                Message.warning('请填写学校ID和学生ID');
+                Message.warning('请填写学校ID和学生学号');
             }
         },
         handleClear() {
@@ -94,8 +94,8 @@ export default {
             this.studentId = '';
             this.showSubRadar = false;
             this.currentLv = 1;
-            if (this.mainChartInstance) {
-                this.mainChartInstance.clear();
+            if (this.AbilityChartInstance) {
+                this.AbilityChartInstance.clear();
             }
             if (this.knowledgeChartInstance) {
                 this.knowledgeChartInstance.clear();
@@ -115,7 +115,7 @@ export default {
                 .then(res => {
                     const data = res.data;
                     this.processData(data);
-                    this.drawMainRadar();
+                    this.drawAbilityRadar();
                 })
                 .catch(error => {
                     console.error(error);
@@ -135,7 +135,7 @@ export default {
                 });
         },
         processData(data) {
-            this.mainRadarData = data;
+            this.AbilityRadarData = data;
             this.abilityMap = {}; // 重置映射
             data.forEach(item => {
                 this.abilityMap[item.abilityNm] = item.abilityNo; // 记录 abilityNm 到 abilityNo 的映射
@@ -144,12 +144,12 @@ export default {
         processKnowledgeData(data) {
             this.knowledgeRadarData = data;
         },
-        drawMainRadar() {
+        drawAbilityRadar() {
             this.$nextTick(() => {
-                if (this.mainChartInstance) {
-                    this.mainChartInstance.dispose();
+                if (this.AbilityChartInstance) {
+                    this.AbilityChartInstance.dispose();
                 }
-                this.mainChartInstance = echarts.init(this.$refs.mainRadar);
+                this.AbilityChartInstance = echarts.init(this.$refs.AbilityRadar);
                 const option = {
                     title: {
                         text: '能力评分雷达图',
@@ -158,7 +158,7 @@ export default {
                         trigger: 'item',
                     },
                     radar: {
-                        indicator: this.mainRadarData.map(item => ({name: item.abilityNm, max: 100})),
+                        indicator: this.AbilityRadarData.map(item => ({name: item.abilityNm, max: 100})),
                         triggerEvent: true
                     },
                     series: [
@@ -167,17 +167,17 @@ export default {
                             type: 'radar',
                             data: [
                                 {
-                                    value: this.mainRadarData.map(item => item.score),
+                                    value: this.AbilityRadarData.map(item => item.score),
                                     name: '评分',
                                 },
                             ],
                         },
                     ],
                 };
-                this.mainChartInstance.setOption(option);
+                this.AbilityChartInstance.setOption(option);
 
                 // 添加点击事件
-                this.mainChartInstance.on('click', (params) => {
+                this.AbilityChartInstance.on('click', (params) => {
                     if (params.componentType === 'radar' && params.name) {
                         const abilityNo = this.abilityMap[params.name];
                         this.currentUpabilityId = abilityNo;
@@ -355,8 +355,8 @@ export default {
         }
     },
     beforeDestroy() {
-        if (this.mainChartInstance) {
-            this.mainChartInstance.dispose();
+        if (this.AbilityChartInstance) {
+            this.AbilityChartInstance.dispose();
         }
         if (this.knowledgeChartInstance) {
             this.knowledgeChartInstance.dispose();

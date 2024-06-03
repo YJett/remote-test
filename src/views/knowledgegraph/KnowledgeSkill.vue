@@ -198,8 +198,8 @@ export default {
         await this.fetchSkillGraphData()
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
-        this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
-        this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
+    //    this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
+    //    this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
         this.fetchSchoolList(); // 获取学校列表
         this.fetchJobList(); // 获取 Job 列表
     },
@@ -361,7 +361,6 @@ export default {
                 console.log(this.skillGraphData)
                 this.skillGraph.changeData(this.skillGraphData);
             } catch (error) {
-                console.error('获取技能图谱数据时出错：', error);
             }
         },
         fetchSchoolList() {
@@ -449,26 +448,73 @@ export default {
                 console.log(this.knowledgeGraphData)
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
             } catch (error) {
-                console.error('获取技能图谱数据时出错：', error);
             }
         },
-        fetchKnowledgeGraphDataAndRenderChart(cql) {
-            kgBuilderApi(cql)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(error => {
-                    console.log(error);
+        fetchKnowledgeGraphDataAndRenderChart(cypher) {
+            kgBuilderApi.getCypherResult(cypher).then(res => {
+                // Calculate node type counts
+                let counts = this.KnowNodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
                 });
+                this.allKnowNodeTypesCount = total;
+                this.KnowNodeTypeCounts = counts;
+                // Update the graph data
+                let allNodes = res.data.node.map(node => ({
+                    id: node.uuid,
+                    label: node.knowledgeNm,
+                    ...node
+                }));
+                let allEdges = res.data.relationship.map(rel => ({
+                    source: rel.sourceId,
+                    target: rel.targetId,
+                    uuid: rel.uuid,
+                    label: rel.type,
+                }));
+                this.allNodes = allNodes;
+                this.allEdges = allEdges;
+                this.knowledgeGraphData = {
+                    nodes:allNodes,
+                    edges:allEdges
+                };
+                console.log(this.knowledgeGraphData)
+                this.knowledgeGraph.changeData(this.knowledgeGraphData);
+                console.log(res);
+            })
         },
-        fetchSkillGraphDataAndRenderChart(cql) {
-            kgBuilderApi(cql)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(error => {
-                    console.log(error);
+        fetchSkillGraphDataAndRenderChart(cypher) {
+            kgBuilderApi.getCypherResult(cypher).then(res => {
+                // Calculate node type counts
+                let counts = this.KnowNodeTypeCounts;
+                let total = res.data.node.length;
+                res.data.node.forEach(node => {
+                    counts[node.type]++; // Increment the count for the node type
                 });
+                this.allKnowNodeTypesCount = total;
+                this.KnowNodeTypeCounts = counts;
+                let allNodes = res.data.node.map(node => ({
+                    id: node.uuid,
+                    label: node.abilityNm,
+                    ...node
+                }));
+                let allEdges = res.data.relationship.map(rel => ({
+                    source: rel.sourceId,
+                    target: rel.targetId,
+                    uuid: rel.uuid,
+                    label: rel.type,
+                }));
+                this.allNodes = allNodes;
+                this.allEdges = allEdges;
+                this.skillGraphData = {
+                    nodes:allNodes,
+                    edges:allEdges
+                };
+                console.log(this.skillGraphData)
+                // Update the graph data
+                this.skillGraph.changeData(this.skillGraphData);
+                console.log(res);
+            })
         },
         initKnowledgeGraph() {
             const menu = new G6.Menu({
@@ -553,7 +599,8 @@ export default {
                 console.log(nodeItem.getModel());
                 this.currentClickNodeKnowledge = {
                     graph: "knowledge",
-                    id: nodeItem.getModel().id
+                    id: nodeItem.getModel().id,
+                    node: nodeItem.getModel()
                 };
             });
             knowledgeGraph.on("node:mouseenter", ev => {
@@ -649,7 +696,8 @@ export default {
                 const model = nodeItem.getModel();
                 this.currentClickNodeSkill = {
                     graph: "skill",
-                    id: model.id
+                    id: model.id,
+                    node: model
                 };
                 console.log(model);
                 // 判断节点是否已经展开

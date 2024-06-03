@@ -11,7 +11,7 @@
             <!-- 课程信息文件导入 -->
             <div class="file-import course-import">
                 <h2>课程信息导入</h2>
-                <div class="file-select">
+                <div class="file-select centered"> <!-- Centered the file-select div -->
                     <Upload
                         :action="courseUploadUrl"
                         :before-upload="handleCourseBeforeUpload"
@@ -24,7 +24,7 @@
                     </Upload>
                     <div class="selected-file">{{ selectedCourseFileName }}</div>
                 </div>
-                <div class="button-group">
+                <div class="button-group"> <!-- Removed 'centered' class from button-group -->
                     <i-button type="primary" size="large" :disabled="!selectedCourseFile" @click="uploadCourseFile" class="action-button">上传</i-button>
                     <i-button size="large" @click="clearCourseFile" class="clear-button">清除</i-button>
                 </div>
@@ -33,7 +33,7 @@
             <!-- 学生信息文件导入 -->
             <div class="file-import student-import">
                 <h2>学生信息导入</h2>
-                <div class="file-select">
+                <div class="file-select centered"> <!-- Centered the file-select div -->
                     <Upload
                         :action="studentUploadUrl"
                         :before-upload="handleStudentBeforeUpload"
@@ -46,7 +46,7 @@
                     </Upload>
                     <div class="selected-file">{{ selectedStudentFileName }}</div>
                 </div>
-                <div class="button-group">
+                <div class="button-group"> <!-- Removed 'centered' class from button-group -->
                     <i-button type="primary" size="large" :disabled="!selectedStudentFile" @click="uploadStudentFile" class="action-button">上传</i-button>
                     <i-button size="large" @click="clearStudentFile" class="clear-button">清除</i-button>
                 </div>
@@ -54,6 +54,9 @@
         </div>
     </div>
 </template>
+
+
+
 
 <script>
 import { Upload, Message } from 'view-design';
@@ -201,12 +204,8 @@ export default {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-image: url('/mnt/data/image.png');
-    background-size: cover;
-    background-position: center;
     padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 15px;
+    background: url('../../assets/backimg.png') no-repeat center center/cover;
 }
 
 .school-selection {
@@ -214,16 +213,21 @@ export default {
     font-size: 24px;
     color: #333;
     font-family: 'Roboto', sans-serif;
+    width: 300px;
 }
 
 .school-select {
-    width: 200px;
-    font-size: 18px;
+    width: 300px;
+    font-size: 20px;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    padding: 10px;
+    padding: 15px;
     color: #333;
+}
+
+.school-select:hover {
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .file-imports {
@@ -233,7 +237,7 @@ export default {
 }
 
 .file-import {
-    width: 48%;
+    width: 45%;
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
@@ -244,12 +248,13 @@ export default {
 h2 {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #00796b;
+    color: black;
 }
 
 .file-select {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Adjusted to a column layout */
+    align-items: center; /* Centered the items horizontally */
     margin-bottom: 30px;
 }
 
@@ -275,15 +280,16 @@ h2 {
 
 .button-group {
     display: flex;
-    justify-content: center;
+    justify-content: center; /* Centered the buttons horizontally */
+    align-items: center;
 }
 
 .action-button {
     font-size: 18px;
-    background: rgba(40, 167, 69, 0.9);
-    border-color: rgba(40, 167, 69, 0.9);
+    background: rgba(0, 123, 255, 0.9);
+    border-color: rgba(0, 123, 255, 0.9);
     color: white;
-    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 10px rgba(40, 123, 255, 0.9);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -311,5 +317,10 @@ h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Centered content vertically */
+}
+.ivu-select-selection {
+    width: 100%; /* Ensure dropdown width spans the container */
+    text-align: center; /* Center text within dropdown */
 }
 </style>

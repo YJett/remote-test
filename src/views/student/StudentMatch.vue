@@ -1,24 +1,26 @@
 <template>
     <div class="container">
-        <!-- 文件导入功能 -->
-        <div class="file-import">
-            <div class="file-select">
-                <Upload
-                    :action="uploadUrl"
-                    :before-upload="handleBeforeUpload"
-                    :data="uploadData"
-                    :show-upload-list="false"
-                    auto-upload="false"
-                    ref="upload"
-                >
-                    <i-button type="primary" size="large" style="font-size: 18px;">技能信息文件</i-button>
-                </Upload>
-                <div class="selected-file" v-if="selectedFileName" style="font-size: 16px; margin-top: 10px;">{{ selectedFileName }}</div>
-                <div v-else style="color: black; font-size: 16px; margin-top: 10px;">请选选择技能信息文件</div>
-            </div>
-            <div class="button-group" style="margin-top: 20px;">
-                <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
-                <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
+        <div class="card">
+            <!-- 文件导入功能 -->
+            <div class="file-import">
+                <div class="file-select">
+                    <Upload
+                        :action="uploadUrl"
+                        :before-upload="handleBeforeUpload"
+                        :data="uploadData"
+                        :show-upload-list="false"
+                        auto-upload="false"
+                        ref="upload"
+                    >
+                        <i-button type="primary" size="large" style="font-size: 18px;">技能信息文件</i-button>
+                    </Upload>
+                    <div class="selected-file" v-if="selectedFileName" style="font-size: 16px; margin-top: 10px;">{{ selectedFileName }}</div>
+                    <div v-else style="color: black; font-size: 16px; margin-top: 10px;">请选选择技能信息文件</div>
+                </div>
+                <div class="button-group" style="margin-top: 20px;">
+                    <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
+                    <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
+                </div>
             </div>
         </div>
     </div>
@@ -92,6 +94,21 @@ export default {
     align-items: center;
     justify-content: center;
     height: 100vh;
+    background: url('../../assets/backimg.png') no-repeat center center/cover;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 80%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
 }
 
 .file-import {

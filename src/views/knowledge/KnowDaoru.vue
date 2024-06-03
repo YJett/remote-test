@@ -10,7 +10,7 @@
 
             <!-- 学校选择下拉框 -->
             <div v-if="selectedIdentity === 'sch'" class="school-input">
-                <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 300px;">
+                <Select v-model="selectedSchool" placeholder="请选择学校" class="transparent-input" style="width: 300px;">
                     <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
                 </Select>
             </div>
@@ -141,11 +141,11 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #f0f4f8 30%, #d9e2ec 70%);
+    background: url('../../assets/backimg.png') no-repeat center center/cover;
 }
 
 .card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     padding: 40px;
@@ -219,7 +219,11 @@ i-button:hover {
 .school-input .ivu-select {
     display: block;
     margin: 0 auto;
-    background-color: #f0f4f8;
+    background-color: rgba(255, 255, 255, 0.7);
     color: #333;
+}
+
+.transparent-input .ivu-select-selection {
+    background-color: rgba(255, 255, 255, 0.7) !important;
 }
 </style>

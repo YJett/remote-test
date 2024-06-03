@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!-- 选择身份 -->
-        <div class="identity-selection">
+        <div class="card identity-selection">
             <RadioGroup v-model="selectedIdentity">
                 <Radio label="sch">学校身份</Radio>
                 <Radio label="com">企业身份</Radio>
@@ -10,31 +10,36 @@
         </div>
 
         <!-- 文件导入功能 -->
-        <div class="file-import">
-            <Upload
-                v-if="selectedIdentity === 'sch'"
-                :action="'api/sch/importSchInfoData'"
-                :before-upload="handleBeforeUpload"
-                :on-success="handleUploadSuccess"
-                :show-upload-list="false"
-            >
-                <i-button type="primary" size="large">选择文件</i-button>
-            </Upload>
+        <div class="card file-import">
+            <div class="file-select">
+                <Upload
+                    class="upload-component-wrapper"
+                    v-if="selectedIdentity === 'sch'"
+                    :action="'api/sch/importSchInfoData'"
+                    :before-upload="handleBeforeUpload"
+                    :on-success="handleUploadSuccess"
+                    :show-upload-list="false"
+                >
+                    <i-button type="primary" size="large">选择文件</i-button>
+                </Upload>
 
-            <Upload
-                v-if="selectedIdentity === 'com'"
-                :action="'api/com/importComData'"
-                :before-upload="handleBeforeUpload"
-                :on-success="handleUploadSuccess"
-                :show-upload-list="false"
-            >
-                <i-button type="primary" size="large">选择文件</i-button>
-            </Upload>
 
-            <div class="file-info">{{ selectedFileName }}</div>
+                <Upload
+                    class="upload-component-wrapper"
+                    v-if="selectedIdentity === 'com'"
+                    :action="'api/com/importComData'"
+                    :before-upload="handleBeforeUpload"
+                    :on-success="handleUploadSuccess"
+                    :show-upload-list="false"
+                >
+                    <i-button type="primary" size="large" >选择文件</i-button>
+                </Upload>
+
+                <div class="file-info">{{ selectedFileName }}</div>
+            </div>
             <div class="button-group">
                 <i-button type="primary" size="large" @click="uploadFile" :disabled="!selectedFile">上传</i-button>
-                <i-button size="large" @click="clearFile">清除</i-button>
+                <i-button size="large" @click="clearFile" style="margin-left: 50px;">清除</i-button>
             </div>
         </div>
     </div>
@@ -111,21 +116,38 @@ export default {
 </script>
 
 <style scoped>
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; /* 让容器高度占满整个屏幕 */
+    height: 100vh;
+    background: url('../assets/backimg.png') no-repeat center center/cover;
 }
 
 .identity-selection {
     margin-bottom: 30px;
 }
+.card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 80%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+}
 
 .file-import {
     display: flex;
     align-items: center;
+    margin-top: 20px;
+    width: 100%;
 }
 
 .file-info {
@@ -141,10 +163,34 @@ export default {
 }
 
 .button-group {
-    margin-left: 20px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
-.button-group i-button {
-    margin-left: 10px;
+.button-group i-button{
+    margin: 0 10px;
+    width: 120px;
+}
+
+.upload-component-wrapper {
+    display: block;
+    width: 100%;
+    text-align: center; /* For any text inside Upload component to be centered as well */
+}
+
+i-button {
+    font-size: 16px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #0078d7 30%, #005cbf 70%);
+    border: none;
+    color: #fff;
+}
+.file-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
 }
 </style>

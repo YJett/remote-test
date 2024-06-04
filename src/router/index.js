@@ -150,7 +150,7 @@ export const asyncRoutes = {
     radar: {
         path: 'radar',
         name: 'radar',
-        meta: { title: '雷达图' },
+        meta: { title: '学生画像' },
         component: () => import('../views/radarMap/radar.vue'),
     },
 

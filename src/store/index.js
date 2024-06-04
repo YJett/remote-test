@@ -113,23 +113,16 @@ const store = new Vuex.Store({
                     }],
             },
             {
-                text: '雷达图',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 'radar',
-                        text: '学生画像',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
-                ],
-            },
-            {
                 name: 'jobportray', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
-                text: '岗位画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
+            {
+                name: 'radar', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-paper', // icon类型
+                text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             // {
             //     name: 'user', // 要跳转的路由名称 不是路径
@@ -367,17 +360,10 @@ const store = new Vuex.Store({
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
-                text: '雷达图',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 'radar',
-                        text: '学生画像',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
-                    ],
+                name: 'radar', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-paper', // icon类型
+                text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             /*
             {
@@ -438,16 +424,10 @@ const store = new Vuex.Store({
                 text: '主页', // 文本内容
             },
             {
-                text: '雷达图',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 'radar',
-                        text: '学生画像',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },],
+                name: 'radar', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-paper', // icon类型
+                text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
         ],
         rewardDict: {

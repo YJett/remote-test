@@ -2,11 +2,19 @@
     <div class="container">
         <Card class="form-card">
             <i-form inline class="form-container">
-                <FormItem label="学校" v-if="selectedIdentity === 'sch'">
+                <FormItem label="学校">
                     <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 250px;">
                         <Option v-for="opt in schools" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
                 </FormItem>
+                <FormItem label="岗位">
+                    <Select v-model="selectedJob" placeholder="请选择Job"
+                            style="width: 200px; font-size: 18px;">
+                        <Option v-for="opt in jobs" :key="opt.value" :value="opt">{{ opt.label }}</Option>
+                    </Select>
+
+                </FormItem>
+
                 <FormItem label="学生学号">
                     <i-input v-model="studentId" placeholder="请输入学生学号" style="width: 250px;"></i-input>
                 </FormItem>
@@ -39,12 +47,14 @@ import * as echarts from 'echarts';
 import {fetchAllSchools} from '@/api/schmanage';
 import {getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName} from '@/api/radar';
 import {Message, Modal} from 'view-design';
+import {fetchAllJobs} from "@/api/Jobmanage";
 
 export default {
     name: 'RadarCharts',
     data() {
         return {
-            selectedIdentity: 'sch',
+            selectedJob: null, // 存储当前选中的 jobId
+            jobs: [],
             selectedSchool: null,
             studentId: '',
             AbilityRadarData: [],
@@ -63,8 +73,25 @@ export default {
     },
     created() {
         this.fetchSchools();
+        this.fetchJobs();
     },
     methods: {
+        fetchJobs() {
+            fetchAllJobs()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        this.jobs = response.data.map(job => ({
+                            value: job.jobid,
+                            label: job.jobname
+                        }));
+                    } else {
+                        Message.error('获取岗位列表失败：无效的数据格式');
+                    }
+                })
+                .catch(error => {
+                    Message.error('获取岗位列表失败');
+                });
+        },
         fetchSchools() {
             fetchAllSchools()
                 .then(response => {
@@ -82,15 +109,16 @@ export default {
                 });
         },
         handleSearch() {
-            if (this.selectedSchool && this.studentId) {
-                this.fetchData();
+            if (this.selectedSchool && this.studentId && this.selectedJob) {
+                this.fetchAbilityData();
                 this.fetchKnowledgeData();
             } else {
-                Message.warning('请填写学校ID和学生学号');
+                Message.warning('请填写学校ID、岗位和学生学号');
             }
         },
         handleClear() {
             this.selectedSchool = null;
+            this.selectedJob = null;
             this.studentId = '';
             this.showSubRadar = false;
             this.currentLv = 1;
@@ -104,9 +132,9 @@ export default {
                 this.subChartInstance.clear();
             }
         },
-        fetchData() {
+        fetchAbilityData() {
             const params = {
-                jobId: 82,
+                jobId: this.selectedJob.value,
                 schId: this.selectedSchool.value,
                 studentId: this.studentId,
                 lv: 1,
@@ -246,7 +274,7 @@ export default {
                 return;
             }
             const params = {
-                jobId: 82,
+                jobId: this.selectedJob.value,
                 schId: this.selectedSchool.value,
                 studentId: this.studentId,
                 lv: lv,

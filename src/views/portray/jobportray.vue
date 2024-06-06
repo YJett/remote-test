@@ -297,13 +297,13 @@ export default {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: url('../../assets/backimg.png') no-repeat center center/cover;
+    background-color: #e6f7ff; /* Light blue background color */
     height: 100vh;
     overflow-y: scroll;
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 90%;
@@ -346,7 +346,7 @@ span {
 }
 
 .result-card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 20px;

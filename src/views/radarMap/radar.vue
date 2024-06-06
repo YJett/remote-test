@@ -12,9 +12,7 @@
                             style="width: 200px; font-size: 18px;">
                         <Option v-for="opt in jobs" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
-
                 </FormItem>
-
                 <FormItem label="学生学号">
                     <i-input v-model="studentId" placeholder="请输入学生学号" style="width: 250px;"></i-input>
                 </FormItem>
@@ -405,11 +403,13 @@ export default {
     max-height: 100vh;
     padding: 20px;
     width: 100%;
+    background-color: #e6f7ff; /* Light blue background color */
 }
 
 .form-card {
     width: 100%;
     margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.7); /* Set background color with 90% opacity */
 }
 
 .form-container {
@@ -443,6 +443,7 @@ export default {
     margin: 0 10px;
     border: 1px solid #d9d9d9;
     padding: 20px;
+    background-color: rgba(255, 255, 255, 0.7); /* Set background color with 90% opacity */
 }
 
 .chart {

@@ -205,7 +205,7 @@ export default {
     justify-content: center;
     height: 100vh;
     padding: 20px;
-    background: url('../../assets/backimg.png') no-repeat center center/cover;
+    background-color: #e6f7ff; /* Light blue background color */
 }
 
 .school-selection {
@@ -286,10 +286,10 @@ h2 {
 
 .action-button {
     font-size: 18px;
-    background: rgba(0, 123, 255, 0.9);
-    border-color: rgba(0, 123, 255, 0.9);
+    background: rgba(0, 123, 255, 0.7);
+    border-color: rgba(0, 123, 255, 0.7);
     color: white;
-    box-shadow: 0 4px 10px rgba(40, 123, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(40, 123, 255, 0.7);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -300,8 +300,8 @@ h2 {
 
 .clear-button {
     font-size: 18px;
-    background: rgba(220, 53, 69, 0.9);
-    border-color: rgba(220, 53, 69, 0.9);
+    background: rgba(220, 53, 69, 0.7);
+    border-color: rgba(220, 53, 69, 0.7);
     color: white;
     margin-left: 10px;
     box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);

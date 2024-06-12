@@ -318,7 +318,7 @@ export default {
                     preventOverlapPadding: 10 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
-                    size: [60, 60], // 改变节点大小
+                    size: [100, 100], // 改变节点大小
                     style: {
                         fill: "#87CEEB", // 天空蓝填充
                         stroke: "#0F52BA" // 宝石蓝描边
@@ -326,7 +326,7 @@ export default {
                     labelCfg: {
                         style: {
                             fill: "#000",
-                            fontSize: 12 // 改变标签字体大小
+                            fontSize: 14 // 改变标签字体大小
                         }
                     }
                 },

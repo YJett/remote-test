@@ -381,7 +381,7 @@ export default {
                     preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
-                    size: [50, 50],
+                    size: [100, 100],
                     style: {
                         fill: "#9EC9FF",
                         stroke: "#5B8FF9"
@@ -389,7 +389,7 @@ export default {
                     labelCfg: {
                         style: {
                             fill: "#000",
-                            fontSize: 10
+                            fontSize: 14
                         }
                     }
                 },

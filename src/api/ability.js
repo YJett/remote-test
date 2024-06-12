@@ -9,3 +9,11 @@ export function fetchAllAbilities() {
 }
 
 
+
+export function getNewData() {
+    return request({
+        url: 'studentInfo/getNewData', // Endpoint to fetch new data
+        method: 'POST'
+    });
+}
+

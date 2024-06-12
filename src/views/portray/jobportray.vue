@@ -156,10 +156,12 @@
 import {Select, Option, Input, CheckboxGroup, Checkbox, Button as IButton, Message} from 'view-design';
 import {fetchAllSchools} from '@/api/schmanage';
 import {fetchAllJobs} from '@/api/Jobmanage';
-import {fetchAllAbilities} from '@/api/ability';
+import {fetchAllAbilities,getNewData} from '@/api/ability';
 import {getStudentInfo} from '@/api/jobportray';
 
 export default {
+    name: 'SearchPage',
+    components: { IButton },
     data() {
         return {
             selectedAbilityNm: '',
@@ -206,6 +208,15 @@ export default {
         this.fetchJobs();
     },
     methods: {
+        async fetchLatestData() {
+            try {
+                await getNewData();
+                Message.success('最新数据获取成功');
+                // Optionally refresh your data here
+            } catch (error) {
+                Message.error('获取最新数据失败');
+            }
+        },
         fetchAbilities() {
             fetchAllAbilities()
                 .then(response => {
@@ -247,7 +258,7 @@ export default {
                 .then(response => {
                     if (Array.isArray(response.data)) {
                         this.schools = response.data.map(school => ({
-                            value: school.schName,
+                            value: school.schId,
                             label: school.schName
                         }));
                     } else {
@@ -259,45 +270,45 @@ export default {
                 });
         },
         search() {
-            const jobAbilityQuery = this.selectedJobId && this.selectedAbility && this.selectedLevel && this.selectedOperator && this.abilityScore ? {
-                jobid: this.selectedJobId,
-                abilityid: this.selectedAbility,
-                scoreComparison: this.selectedOperator,
-                score: this.abilityScore
-            } : null;
+            const group1 = this.selectedJobId && this.selectedAbility && this.selectedLevel && this.selectedOperator && this.abilityScore;
+            const group2 = this.selectedSchool || (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
 
-            const knowledgeQuery = this.selectedSchool || this.selectedCoreCourseOperator && this.coreCourseScore || this.selectedExpCourseOperator && this.expCourseScore || this.selectedBasicCourseOperator && this.basicCourseScore ? {
-                school: this.selectedSchool,
-                types: [],
-                minScores: [],
-                minScoreComparisons: []
-            } : null;
-
-            if (this.selectedCoreCourseOperator && this.coreCourseScore) {
-                knowledgeQuery.types.push('专业核心课');
-                knowledgeQuery.minScores.push(this.coreCourseScore);
-                knowledgeQuery.minScoreComparisons.push(this.selectedCoreCourseOperator);
-            }
-            if (this.selectedExpCourseOperator && this.expCourseScore) {
-                knowledgeQuery.types.push('专业拓展课');
-                knowledgeQuery.minScores.push(this.expCourseScore);
-                knowledgeQuery.minScoreComparisons.push(this.selectedExpCourseOperator);
-            }
-            if (this.selectedBasicCourseOperator && this.basicCourseScore) {
-                knowledgeQuery.types.push('专业基础课');
-                knowledgeQuery.minScores.push(this.basicCourseScore);
-                knowledgeQuery.minScoreComparisons.push(this.selectedBasicCourseOperator);
+            if (!group1 && !group2) {
+                Message.error('Either group1 (jobid, abilityId, score, scoreComparison) or group2 (schid, types, minScores, minScoreComparisons) must be provided.');
+                return;
             }
 
-            const personalQuery = {
-                party: this.politicalStatus,
-                certificate: this.certificate,
-                contest: this.competition,
-                scholarship: this.scholarship,
-                hometown: this.studentSource
-            };
+            const params = {};
+            if (group1) {
+                params.jobid = this.selectedJobId;
+                params.abilityId = this.selectedAbility;
+                params.score = this.abilityScore;
+                params.scoreComparison = this.selectedOperator;
+            }
+            if (group2) {
+                params.schid = this.selectedSchool;
+                params.types = [];
+                params.minScores = [];
+                params.minScoreComparisons = [];
 
-            getStudentInfo({jobAbilityQuery: jobAbilityQuery, knowledgeQuery, personalQuery})
+                if (this.selectedCoreCourseOperator && this.coreCourseScore) {
+                    params.types.push('专业核心课');
+                    params.minScores.push(this.coreCourseScore);
+                    params.minScoreComparisons.push(this.selectedCoreCourseOperator);
+                }
+                if (this.selectedExpCourseOperator && this.expCourseScore) {
+                    params.types.push('专业拓展课');
+                    params.minScores.push(this.expCourseScore);
+                    params.minScoreComparisons.push(this.selectedExpCourseOperator);
+                }
+                if (this.selectedBasicCourseOperator && this.basicCourseScore) {
+                    params.types.push('专业基础课');
+                    params.minScores.push(this.basicCourseScore);
+                    params.minScoreComparisons.push(this.selectedBasicCourseOperator);
+                }
+            }
+
+            getStudentInfo(params)
                 .then(response => {
                     if (response.data) {
                         this.results = response.data.map((item, index) => ({
@@ -339,22 +350,9 @@ export default {
             this.studentSource = '';
             this.results = [];
         },
-        fetchLatestData() {
-            this.fetchSchools();
-            this.fetchAbilities();
-            this.fetchJobs();
-        },
         formatScholarship(scholarship) {
             return scholarship.replace(/;/g, '\n');
         }
-    },
-    components: {
-        Select,
-        Option,
-        Input,
-        CheckboxGroup,
-        Checkbox,
-        IButton
     }
 };
 </script>

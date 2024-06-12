@@ -123,14 +123,15 @@ export default {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: url('../assets/backimg.png') no-repeat center center/cover;
+    background-color: #e6f7ff; /* Light blue background color */
+
 }
 
 .identity-selection {
     margin-bottom: 30px;
 }
 .card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     padding: 40px;

@@ -13,8 +13,6 @@
                     <Select v-model="selectedAbility" placeholder="请选择能力" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="ability in abilities" :key="ability.value" :value="ability.value">{{ ability.label }}</Option>
                     </Select>
-                </div>
-                <div class="row" style="margin-top: 10px;">
                     <span>分数查询</span>
                     <Select v-model="selectedOperator" placeholder="符号" style="width: 80px; margin-left: 10px; margin-right: 10px;">
                         <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{ operator.label }}</Option>
@@ -124,14 +122,14 @@
                 <tbody>
                 <tr v-for="(result, index) in results" :key="index">
                     <td>{{ index + 1 }}</td>
-                    <td>{{ result.studentNm || 'null' }}</td>
-                    <td>{{ result.schName || 'null' }}</td>
-                    <td>{{ result.hometown || 'null' }}</td>
-                    <td>{{ result.party || 'null' }}</td>
-                    <td>{{ result.scholarship || 'null' }}</td>
-                    <td>{{ result.contest || 'null' }}</td>
-                    <td>{{ result.certificate || 'null' }}</td>
-                    <td>{{ result.gpa !== null && result.gpa !== undefined ? result.gpa : 'null' }}</td>
+                    <td>{{ result.studentNm || '' }}</td>
+                    <td>{{ result.schName || '' }}</td>
+                    <td>{{ result.hometown || '' }}</td>
+                    <td>{{ result.party || '' }}</td>
+                    <td v-html="formatScholarship(result.scholarship)"></td>
+                    <td>{{ result.contest || '' }}</td>
+                    <td>{{ result.certificate || '' }}</td>
+                    <td>{{ result.gpa !== null && result.gpa !== undefined ? result.gpa : '' }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -153,7 +151,7 @@ export default {
         return {
             selectedAbilityNm: '',
             selectedJobName: '',
-            selectedJobId: '', // 存储当前选中的 jobId
+            selectedJobId: '',
             jobs: [],
             selectedLevel: '',
             selectedAbility: '',
@@ -316,6 +314,9 @@ export default {
             this.scholarship = '';
             this.studentSource = '';
             this.results = [];
+        },
+        formatScholarship(scholarship) {
+            return scholarship ? scholarship.replace(/;/g, '<br>') : '';
         },
     }
 };

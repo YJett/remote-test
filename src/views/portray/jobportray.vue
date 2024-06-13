@@ -13,10 +13,6 @@
                     <Select v-model="selectedAbility" placeholder="请选择能力" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="ability in abilities" :key="ability.value" :value="ability.value">{{ ability.label }}</Option>
                     </Select>
-                    <span>选择级别</span>
-                    <Select v-model="selectedLevel" placeholder="请选择级别" style="width: 200px; margin-left: 10px; margin-right: 30px;">
-                        <Option v-for="level in levels" :key="level.value" :value="level.value">{{ level.label }}</Option>
-                    </Select>
                 </div>
                 <div class="row" style="margin-top: 10px;">
                     <span>分数查询</span>
@@ -43,10 +39,7 @@
                         <span>专业核心课</span>
                         <Select v-model="selectedCoreCourseOperator" placeholder="符号"
                                 style="width: 80px; margin-left: 5px; margin-right: 5px;">
-                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{
-                                    operator.label
-                                }}
-                            </Option>
+                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{ operator.label }}</Option>
                         </Select>
                         <Input v-model="coreCourseScore" placeholder="分数" style="width: 50px; margin-right: 20px;"/>
                     </div>
@@ -54,10 +47,7 @@
                         <span>专业拓展课</span>
                         <Select v-model="selectedExpCourseOperator" placeholder="符号"
                                 style="width: 80px; margin-left: 5px; margin-right: 5px;">
-                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{
-                                    operator.label
-                                }}
-                            </Option>
+                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{ operator.label }}</Option>
                         </Select>
                         <Input v-model="expCourseScore" placeholder="分数" style="width: 50px; margin-right: 20px;"/>
                     </div>
@@ -65,10 +55,7 @@
                         <span>专业基础课</span>
                         <Select v-model="selectedBasicCourseOperator" placeholder="符号"
                                 style="width: 80px; margin-left: 5px; margin-right: 5px;">
-                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{
-                                    operator.label
-                                }}
-                            </Option>
+                            <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{ operator.label }}</Option>
                         </Select>
                         <Input v-model="basicCourseScore" placeholder="分数" style="width: 50px;"/>
                     </div>
@@ -120,7 +107,7 @@
         <!-- 查询结果 -->
         <div class="card" v-if="results.length" style="margin-top: 20px;">
             <h3>查询结果</h3>
-            <table>
+            <table class="result-table">
                 <thead>
                 <tr>
                     <th>No</th>
@@ -137,14 +124,14 @@
                 <tbody>
                 <tr v-for="(result, index) in results" :key="index">
                     <td>{{ index + 1 }}</td>
-                    <td>{{ result.studentNm }}</td>
-                    <td>{{ result.schNm }}</td>
-                    <td>{{ result.hometown }}</td>
-                    <td>{{ result.party }}</td>
-                    <td>{{ formatScholarship(result.scholarship) }}</td>
-                    <td>{{ result.contest }}</td>
-                    <td>{{ result.certificate }}</td>
-                    <td>{{ result.gpa }}</td>
+                    <td>{{ result.studentNm || 'null' }}</td>
+                    <td>{{ result.schName || 'null' }}</td>
+                    <td>{{ result.hometown || 'null' }}</td>
+                    <td>{{ result.party || 'null' }}</td>
+                    <td>{{ result.scholarship || 'null' }}</td>
+                    <td>{{ result.contest || 'null' }}</td>
+                    <td>{{ result.certificate || 'null' }}</td>
+                    <td>{{ result.gpa !== null && result.gpa !== undefined ? result.gpa : 'null' }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -156,12 +143,12 @@
 import {Select, Option, Input, CheckboxGroup, Checkbox, Button as IButton, Message} from 'view-design';
 import {fetchAllSchools} from '@/api/schmanage';
 import {fetchAllJobs} from '@/api/Jobmanage';
-import {fetchAllAbilities,getNewData} from '@/api/ability';
+import {fetchAllAbilities, getNewData} from '@/api/ability';
 import {getStudentInfo} from '@/api/jobportray';
 
 export default {
     name: 'SearchPage',
-    components: { IButton },
+    components: {IButton},
     data() {
         return {
             selectedAbilityNm: '',
@@ -185,13 +172,6 @@ export default {
             scholarship: '',
             studentSource: '',
             results: [],
-            levels: [
-                {value: '一级', label: '一级'},
-                {value: '二级', label: '二级'},
-                {value: '三级', label: '三级'},
-                {value: '四级', label: '四级'},
-                {value: '五级', label: '五级'}
-            ],
             abilities: [],
             operators: [
                 {value: '>', label: '>'},
@@ -212,66 +192,50 @@ export default {
             try {
                 await getNewData();
                 Message.success('最新数据获取成功');
-                // Optionally refresh your data here
             } catch (error) {
                 Message.error('获取最新数据失败');
             }
         },
-        fetchAbilities() {
-            fetchAllAbilities()
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        this.abilities = response.data.map(ability => ({
-                            value: ability.abilityid,
-                            label: ability.abilitynm
-                        }));
-                        this.selectedAbility = this.abilities[0].value;
-                        this.selectedAbilityNm = this.abilities[0].label;
-                    } else {
-                        Message.error('Failed to fetch abilities: Invalid data format');
-                    }
-                })
-                .catch(error => {
-                    Message.error('Failed to fetch abilities');
-                });
+        async fetchAbilities() {
+            try {
+                const response = await fetchAllAbilities();
+                this.abilities = response.data.map(ability => ({
+                    label: ability.abilitynm,
+                    value: ability.abilityid
+                }));
+            } catch (error) {
+                Message.error('获取能力信息失败');
+            }
         },
-        fetchJobs() {
-            fetchAllJobs()
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        this.jobs = response.data.map(job => ({
-                            value: job.jobid,
-                            label: job.jobname
-                        }));
-                        this.selectedJobId = this.jobs[0].value;
-                        this.selectedJobName = this.jobs[0].label;
-                    } else {
-                        Message.error('Failed to fetch jobs: Invalid data format');
-                    }
-                })
-                .catch(error => {
-                    Message.error('Failed to fetch jobs');
-                });
+        async fetchJobs() {
+            try {
+                const response = await fetchAllJobs();
+                this.jobs = response.data.map(job => ({
+                    label: job.jobname,
+                    value: job.jobid
+                }));
+            } catch (error) {
+                Message.error('获取岗位信息失败');
+            }
         },
-        fetchSchools() {
-            fetchAllSchools()
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        this.schools = response.data.map(school => ({
-                            value: school.schId,
-                            label: school.schName
-                        }));
-                    } else {
-                        Message.error('Failed to fetch schools: Invalid data format');
-                    }
-                })
-                .catch(error => {
-                    Message.error('Failed to fetch schools');
-                });
+        async fetchSchools() {
+            try {
+                const response = await fetchAllSchools();
+                this.schools = response.data.map(school => ({
+                    label: school.schName,
+                    value: school.schId
+                }));
+            } catch (error) {
+                Message.error('获取学校信息失败');
+            }
         },
         search() {
-            const group1 = this.selectedJobId && this.selectedAbility && this.selectedLevel && this.selectedOperator && this.abilityScore;
-            const group2 = this.selectedSchool || (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
+            if (!this.selectedJobId || !this.selectedSchool) {
+                Message.error('请选择岗位和学校');
+                return;
+            }
+            const group1 = this.selectedAbility && this.selectedOperator && this.abilityScore;
+            const group2 = (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
 
             if (!group1 && !group2) {
                 Message.error('Either group1 (jobid, abilityId, score, scoreComparison) or group2 (schid, types, minScores, minScoreComparisons) must be provided.');
@@ -279,14 +243,14 @@ export default {
             }
 
             const params = {};
+            params.jobid = this.selectedJobId;
+            params.schid = this.selectedSchool;
             if (group1) {
-                params.jobid = this.selectedJobId;
                 params.abilityId = this.selectedAbility;
                 params.score = this.abilityScore;
                 params.scoreComparison = this.selectedOperator;
             }
             if (group2) {
-                params.schid = this.selectedSchool;
                 params.types = [];
                 params.minScores = [];
                 params.minScoreComparisons = [];
@@ -307,26 +271,29 @@ export default {
                     params.minScoreComparisons.push(this.selectedBasicCourseOperator);
                 }
             }
-
+            console.log('请求参数:', params);
             getStudentInfo(params)
                 .then(response => {
                     if (response.data) {
                         this.results = response.data.map((item, index) => ({
-                            No: index + 1,
                             studentNm: item.studentNm,
-                            schNm: item.schNm,
+                            schName: item.schName,
                             hometown: item.hometown,
                             party: item.party,
-                            scholarship: this.formatScholarship(item.scholarship),
+                            scholarship: item.scholarship,
                             contest: item.contest,
                             certificate: item.certificate,
                             gpa: item.gpa
                         }));
+                        if (this.results.length === 0) {
+                            Message.info('查询无结果');
+                        }
                     } else {
                         Message.error('查询结果数据格式不正确');
                     }
                 })
                 .catch(error => {
+                    console.error('Error:', error); // 添加日志
                     Message.error('查询失败');
                 });
         },
@@ -350,17 +317,19 @@ export default {
             this.studentSource = '';
             this.results = [];
         },
-        formatScholarship(scholarship) {
-            return scholarship.replace(/;/g, '\n');
-        }
     }
 };
 </script>
 
 <style scoped>
 .container {
-    width: 80%;
-    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+    overflow-y: auto; /* 启用垂直滚动条 */
+    max-height: 100%; /* 限制容器的最大高度 */
+    background-color: #e6f7ff; /* Light blue background color */
 }
 
 .card {
@@ -387,20 +356,19 @@ export default {
     margin-top: 20px;
 }
 
-.table {
+.result-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-.table th, .table td {
+.result-table th, .result-table td {
     border: 1px solid #ccc;
     padding: 10px;
     text-align: center;
 }
 
-.table th {
+.result-table th {
     background-color: #f9f9f9;
 }
 </style>
-

@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <Card class="form-card">
+        <Card class="form-card" style="margin-bottom: 0">
             <i-form inline class="form-container">
                 <FormItem label="学校">
                     <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 250px;">
@@ -23,27 +23,46 @@
             </i-form>
         </Card>
 
-        <div class="charts-container">
-            <Card class="chart-card">
-                <div ref="AbilityRadar" class="chart"></div>
-            </Card>
-            <Card class="chart-card">
-                <div ref="knowledgeRadar" class="chart"></div>
-            </Card>
+        <div class="charts-container" style="margin-top: 0">
+            <div class="row" style="width: 50%">
+                <Card class="chart-card">
+                    <div ref="AbilityRadar" class="chart"></div>
+                </Card>
+                <Card class="chart-card" style="height: 50%">
+                    <div class="personal-info-container">
+
+                        <ul>
+                            <li v-for="info in personalInfoData" :key="info.label">
+                                <strong>{{ info.label }}:</strong> {{ info.value }}
+                            </li>
+                        </ul>
+                    </div>
+                </Card>
+            </div>
+            <div class="row" style="width: 50%">
+                <Card class="chart-card">
+                    <div ref="knowledgeRadar" class="chart"></div>
+                </Card>
+                <Card class="chart-card">
+                    <div ref="literacyRadar" class="chart"></div>
+                </Card>
+            </div>
         </div>
 
-        <Modal v-model="showSubRadar" width="50%" :styles="{ top: '10px' }" @on-ok="handleModalOk" @on-cancel="handleModalCancel">
+
+        <Modal v-model="showSubRadar" width="50%" :styles="{ top: `${modalTop}px` }" @on-cancel="handleModalCancel">
             <p>{{ previousAbilityNm }} (层级: {{ currentLv - 1 }}) - 当前层级: {{ currentLv }}</p>
             <div v-if="subRadarData.length > 0" ref="subRadar" class="chart"></div>
             <p v-else>当前无下钻数据</p>
         </Modal>
+
+
     </div>
 </template>
-
 <script>
 import * as echarts from 'echarts';
 import {fetchAllSchools} from '@/api/schmanage';
-import {getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName} from '@/api/radar';
+import {getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName, getStudentLiteracy} from '@/api/radar';
 import {Message, Modal} from 'view-design';
 import {fetchAllJobs} from "@/api/Jobmanage";
 
@@ -51,29 +70,44 @@ export default {
     name: 'RadarCharts',
     data() {
         return {
+            modalTop: 0,
             selectedJob: null, // 存储当前选中的 jobId
             jobs: [],
             selectedSchool: null,
             studentId: '',
             AbilityRadarData: [],
             knowledgeRadarData: [],
+            studentLiteracyData: null,
             subRadarData: [],
             showSubRadar: false,
             AbilityChartInstance: null,
             knowledgeChartInstance: null,
+            personalInfoChartInstance: null,
+            literacyChartInstance: null,
             subChartInstance: null,
             schools: [],
             currentLv: 1,
             currentUpabilityId: null,
             abilityMap: {}, // 用于存储 abilityNm 到 abilityNo 的映射
-            previousAbilityNm: '', // 用于存储上一级的 abilityNm
+            previousAbilityNm: '',
+            personalInfoData: null,// 用于存储上一级的 abilityNm
         };
+    },
+    mounted() {
+        this.calculateModalTop(); // 在 mounted 钩子中计算 modalTop
+        window.addEventListener('resize', this.calculateModalTop); // 监听窗口大小变化
+    },
+    destroyed() {
+        window.removeEventListener('resize', this.calculateModalTop);
     },
     created() {
         this.fetchSchools();
         this.fetchJobs();
     },
     methods: {
+        calculateModalTop() {
+            this.modalTop = (window.innerHeight - 400) / 2; // 计算 modalTop
+        },
         fetchJobs() {
             fetchAllJobs()
                 .then(response => {
@@ -110,11 +144,24 @@ export default {
             if (this.selectedSchool && this.studentId && this.selectedJob) {
                 this.fetchAbilityData();
                 this.fetchKnowledgeData();
+                this.fetchStudentLiteracyData();
             } else {
                 Message.warning('请填写学校ID、岗位和学生学号');
             }
         },
         handleClear() {
+            this.selectedSchool = null;
+            this.selectedJob = null;
+            this.studentId = '';
+            this.showSubRadar = false;
+            this.currentLv = 1;
+            this.AbilityRadarData = [];
+            this.knowledgeRadarData = [];
+            this.studentLiteracyData = null;
+            this.abilityMap = {};
+            this.previousAbilityNm = '';
+            this.personalInfoData = null; // Clear
+            this.personalInfoData = null;
             this.selectedSchool = null;
             this.selectedJob = null;
             this.studentId = '';
@@ -128,6 +175,12 @@ export default {
             }
             if (this.subChartInstance) {
                 this.subChartInstance.clear();
+            }
+            if (this.personalInfoChartInstance) {
+                this.personalInfoChartInstance.clear();
+            }
+            if (this.literacyChartInstance) {
+                this.literacyChartInstance.clear();
             }
         },
         fetchAbilityData() {
@@ -145,7 +198,7 @@ export default {
                 })
                 .catch(error => {
                     console.error(error);
-                    Message.error('获取数据失败');
+                    Message.error('获取能力数据失败');
                 });
         },
         fetchKnowledgeData() {
@@ -158,6 +211,23 @@ export default {
                 .catch(error => {
                     console.error(error);
                     Message.error('获取知识评分数据失败');
+                });
+        },
+        fetchStudentLiteracyData() {
+            getStudentLiteracy(this.selectedSchool.value, this.studentId)
+                .then(res => {
+                    const data = res.data;
+                    if (!data || Object.keys(data).length === 0) {
+                        Message.warning('结果数据为空');
+                        return;
+                    }
+                    this.studentLiteracyData = data;
+                    this.drawPersonalInfo();
+                    this.drawLiteracyRadar();
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取学生素养数据失败');
                 });
         },
         processData(data) {
@@ -263,7 +333,78 @@ export default {
                 });
             });
         },
+        drawPersonalInfo() {
+            const data = this.studentLiteracyData.studentInfo;
+            if (!data) {
+                console.error('No student information data available.');
+                return;
+            }
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toISOString().split('T')[0];
+            };
+            const infoList = [
+                {label: '姓名', value: data.studentnm},
+                {label: '学校', value: data.schnm},
+                {label: '院系', value: data.department},
+                {label: '专业', value: data.major},
+                {label: '政治面貌', value: data.party},
+                {label: '生源地', value: data.hometown},
+                {label: '入学时间', value: formatDate(data.enrollmentDate)},
+                {label: '健康状况', value: data.health},
+                {label: '出生日期', value: formatDate(data.birthday)},
+            ];
+            // Set personalInfoData to infoList
+            this.personalInfoData = infoList;
+        },
+        drawLiteracyRadar() {
+            this.$nextTick(() => {
+                if (this.literacyChartInstance) {
+                    this.literacyChartInstance.dispose();
+                }
+                this.literacyChartInstance = echarts.init(this.$refs.literacyRadar);
+                const literacyData = this.studentLiteracyData.stuCharacterScore;
+                console.log(literacyData);
+                const option = {
+                    title: {
+                        text: '个人素养雷达图',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                    },
+                    radar: {
+                        indicator: [
+                            {name: '卓越能力', max: 100},
+                            {name: '敬业精神', max: 100},
+                            {name: '勤工助学', max: 100},
+                            {name: '社团参与', max: 100},
+                            {name: '个人卫生', max: 100}
+                        ],
+                    },
+                    series: [
+                        {
+                            name: '素养评分',
+                            type: 'radar',
+                            data: [
+                                {
+                                    value: [
+                                        literacyData.outstanding,
+                                        literacyData.dedication,
+                                        literacyData.workstudy,
+                                        literacyData.participation,
+                                        literacyData.healthy
+                                    ],
+                                    name: '评分',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                this.literacyChartInstance.setOption(option);
+            });
+        },
         drawSubRadar(abilityNo, lv) {
+            this.showSubRadar = true;
             if (this.subChartInstance) {
                 this.subChartInstance.dispose();
             }
@@ -311,6 +452,7 @@ export default {
 
                         // 添加点击事件
                         this.subChartInstance.on('click', (params) => {
+                            this.showSubRadar = true;
                             if (params.componentType === 'radar' && params.name) {
                                 const abilityNo = data.find(item => item.abilityNm === params.name).abilityNo;
                                 this.currentUpabilityId = abilityNo;
@@ -373,27 +515,33 @@ export default {
                     Message.error('获取课程评分数据失败');
                 });
         },
-        handleModalOk() {
-            this.showSubRadar = false;
-        },
+
         handleModalCancel() {
             this.showSubRadar = false;
+            if (this.subChartInstance) {
+                this.subChartInstance.dispose();
+            }
         }
     },
-    beforeDestroy() {
-        if (this.AbilityChartInstance) {
-            this.AbilityChartInstance.dispose();
-        }
-        if (this.knowledgeChartInstance) {
-            this.knowledgeChartInstance.dispose();
-        }
-        if (this.subChartInstance) {
-            this.subChartInstance.dispose();
-        }
-    },
+    // beforeDestroy() {
+    //     if (this.AbilityChartInstance) {
+    //         this.AbilityChartInstance.dispose();
+    //     }
+    //     if (this.knowledgeChartInstance) {
+    //         this.knowledgeChartInstance.dispose();
+    //     }
+    //     if (this.subChartInstance) {
+    //         this.subChartInstance.dispose();
+    //     }
+    //     if (this.personalInfoChartInstance) {
+    //         this.personalInfoChartInstance.dispose();
+    //     }
+    //     if (this.literacyChartInstance) {
+    //         this.literacyChartInstance.dispose();
+    //     }
+    // },
 };
 </script>
-
 <style>
 .container {
     display: flex;
@@ -433,6 +581,7 @@ export default {
 
 .charts-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
     margin-top: 20px;
@@ -440,15 +589,16 @@ export default {
 
 .chart-card {
     flex: 1;
-    margin: 0 10px;
+    margin: 10px;
     border: 1px solid #d9d9d9;
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.7); /* Set background color with 90% opacity */
+    min-width: 300px; /* Ensure a minimum width for each chart card */
 }
 
 .chart {
     width: 100%;
-    height: calc(100vh - 220px); /* Ensure it takes up the remaining height */
+    height: 300px; /* Adjust height to fit all charts */
 }
 
 .modal .chart {

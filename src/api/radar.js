@@ -31,9 +31,19 @@ export function getScoreAndKnowledgeName(schId, studentId,type) {
         method: 'GET',
         params: {// Default value is 82
             schId: schId || 102,
-            studentId: studentId || '2021051201',// Default value is 102
+            studentId: studentId || '2021051201',//
             type: type || '专业基础课',
         }
     });
 }
 
+export function getStudentLiteracy(schId, studentNo) {
+    return request({
+        url: 'student/literacy', // Endpoint to fetch ability scores
+        method: 'POST',
+        params: {// Default value is 82
+            schId: schId || 102,
+            studentNo: studentNo || '2021051201',//
+        }
+    });
+}

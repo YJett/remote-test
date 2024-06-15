@@ -33,21 +33,21 @@ export const asyncRoutes = {
 //         meta: { title: '用户管理' },
 //         component: () => import('../views/BoatUserManage.vue'),
 //     },
-    home: {
-        path: 'home',
-        name: 'home',
-        meta: { title: '主页' },
-        component: () => import('../views/Home.vue'),
-    },
+//     home: {
+//         path: 'home',
+//         name: 'home',
+//         meta: { title: '主页' },
+//         component: () => import('../views/Home.vue'),
+//     },
     // bulletin: {
     //     path: 'bulletin',
     //     name: 'bulletin',
     //     meta: { title: '公告管理' },
     //     component: () => import('../views/bulletin.vue'),
     // },
-    usermanage: {
-        path: 'usermanage',
-        name: 'usermanage',
+    home: {
+        path: 'home',
+        name: 'home',
         meta: { title: '用户管理' },
         component: () => import('../views/UserManage.vue'),
     },

@@ -9,7 +9,7 @@
             </div>
             <!-- 新增、删除、审核按钮 -->
             <div class="button-container">
-                <Button type="primary" class="button" @click="openAddCompanyModal">添加公司</Button>
+                <Button type="primary" class="button" @click="openAddCompanyModal">添加企业</Button>
                 <Button type="success" class="button" @click="handleBatchDelete">删除所选</Button>
                 <Button type="warning" class="button" @click="handleSuccess">审核所选</Button>
             </div>
@@ -20,7 +20,7 @@
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
-        <Modal v-model="addComModalVisible" title="添加企业">
+        <Modal v-model="addComModalVisible" title="添加企业" :footer-hide="true">
             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :labelWidth="parseInt('80')">
                 <FormItem label="企业名" prop="comName">
                     <Input v-model="formValidate.comName" placeholder="请输入企业名"/><br/>
@@ -37,16 +37,14 @@
                 <FormItem label="电话" prop="tel">
                     <Input v-model="formValidate.tel" placeholder="请输入电话"/><br/>
                 </FormItem>
-                <FormItem label="邮编" prop="email">
+                <FormItem label="邮箱" prop="email">
                     <Input v-model="formValidate.email" placeholder="请输入邮箱"/><br/>
                 </FormItem>
-               <FormItem label="企业资质文件" prop="filepath">
-                    <Upload multiple action="/api/com/upload"
-                    :on-success="handleSuccess"
-                    >
-                        <Button icon="ios-cloud-upload-outline">Upload files</Button>
+                <FormItem label="企业资质文件" prop="filepath">
+                    <Upload multiple action="/api/com/upload" :on-success="handleSuccess">
+                        <Button icon="ios-cloud-upload-outline">上传文件</Button>
                     </Upload>
-               </FormItem>
+                </FormItem>
                 <FormItem label="审核状态" prop="status">
                     <Select v-model="formValidate.status" placeholder="请选择状态">
                         <Option value="0">未审核</Option>
@@ -54,12 +52,15 @@
                         <Option value="9">已删除</Option>
                     </Select><br/>
                 </FormItem>
-                <FormItem label="备注" prop="comment">
-                    <Input v-model="formValidate.comment" placeholder="请输入备注"/>
+                <FormItem label="备注">
+                    <Input v-model="formValidate.comment" :required="false"/>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
-                    <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
+                    <div style="text-align: center;">
+                        <Button type="primary" @click="handleSubmit('formValidate')">确定</Button>
+                        <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
+                        <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+                    </div>
                 </FormItem>
             </Form>
         </Modal>
@@ -88,30 +89,29 @@
                     <Input v-model="currentDetailData.status" disabled/>
                 </FormItem>
                 <FormItem label="备注">
-                    <Input v-model="currentDetailData.comment" disabled/>
+                    <Input v-model="currentDetailData.comment" :required="false"/>
                 </FormItem>
             </Form>
+            <div slot="footer"></div>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
-                <Page :total=total :current=curPage @on-change="changePage" show-total></Page>
+                <Page :total="total" :current="curPage" @on-change="changePage" show-total></Page>
             </div>
         </div>
     </div>
 </template>
+
 <script>
-
-
 import {queryCom, deleteCom} from '../api/commanage';
 import PreservationRecord from '../components/PreservationRecord';
 import {createCom} from "@/api/commanage";
-import {deleteBatchCom,successBatchCom} from "@/api/commanage";
+import {deleteBatchCom, successBatchCom} from "@/api/commanage";
 import {successBatchSch} from "@/api/schmanage";
 
 export default {
     name: 'commanage',
-    // eslint-disable-next-line vue/no-unused-components
-    components: { PreservationRecord },
+    components: {PreservationRecord},
     data() {
         return {
             formValidate: {
@@ -127,65 +127,29 @@ export default {
             },
             ruleValidate: {
                 comName: [
-                    {
-                        required: true,
-                        message: 'The name cannot be empty',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '企业名不能为空', trigger: 'blur'}
                 ],
                 address: [
-                    {
-                        required: true,
-                        message: 'address cannot be empty',
-                        trigger: 'blur'
-                    },
+                    {required: true, message: '地址不能为空', trigger: 'blur'}
                 ],
                 zipcode: [
-                    {
-                        required: true,
-                        message: 'zipcode cannot be empty',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '邮编不能为空', trigger: 'blur'}
                 ],
                 contact: [
-                    {
-                        required: true,
-                        message: 'contact cannot be empty',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '联系人不能为空', trigger: 'blur'}
                 ],
                 tel: [
-                    {
-                        required: true,
-                        message: 'tel cannot be empty',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '电话不能为空', trigger: 'blur'}
                 ],
                 email: [
-                    {
-                        required: true,
-                        message: 'Mailbox cannot be empty',
-                        trigger: 'blur'
-                    },
-                    {
-                        type: 'email',
-                        message: 'Incorrect email format',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '邮箱不能为空', trigger: 'blur'},
+                    {type: 'email', message: '邮箱格式不正确', trigger: 'blur'}
                 ],
                 status: [
-                    {
-                        required: true,
-                        message: 'Please select status',
-                        trigger: 'change'
-                    }
+                    {required: true, message: '请选择审核状态', trigger: 'change'}
                 ],
                 comment: [
-                    {
-                        required: true,
-                        message: 'comment cannot be empty',
-                        trigger: 'blur'
-                    }
+                    {required: true, message: '备注不能为空', trigger: 'blur'}
                 ]
             },
             detailModalVisible: false, // 控制详情弹窗的显示
@@ -196,45 +160,15 @@ export default {
             curPage: 1,
             tableData1: [],
             tableColumns1: [
-                {
-                    type: 'selection',
-                    width: 60,
-                    align: 'center'
-                },
-                {
-                    title: 'No',
-                    key: 'comId',
-                },
-                {
-                    title: '企业名',
-                    key: 'comName',
-                },
-                {
-                    title: '地址',
-                    key: 'address',
-                },
-                {
-                    title: '联系人',
-                    key: 'contact',
-                },
-                {
-                    title: '邮编',
-                    key: 'zipcode',
-                },
-                {
-                    title: '电话',
-                    key: 'tel',
-                },
-                {
-                    title: '邮箱',
-                    key: 'email',
-                },
-                {
-                    title: 'Action',
-                    slot: 'action',
-                    width: 150,
-                    align: 'center'
-                }
+                {type: 'selection', width: 60, align: 'center'},
+                {title: 'No', key: 'comId'},
+                {title: '企业名', key: 'comName'},
+                {title: '地址', key: 'address'},
+                {title: '联系人', key: 'contact'},
+                {title: '邮编', key: 'zipcode'},
+                {title: '电话', key: 'tel'},
+                {title: '邮箱', key: 'email'},
+                {title: '操作', slot: 'action', width: 150, align: 'center'}
             ],
             curObj: {},
             isDuty: false,
@@ -248,7 +182,7 @@ export default {
             qualification: '',
             status: '',
             remark: ''
-        }
+        };
     },
     methods: {
         handleSuccess(res, file) {
@@ -260,24 +194,22 @@ export default {
                         .then(res => {
                             this.$Message.success({
                                 content: res.msg,
-                            })
-                            this.fetchData()
-                        })
+                            });
+                            this.fetchData();
+                        });
                 },
                 onCancel: () => {
-                    console.log('cancel')
+                    console.log('cancel');
                 },
-            })
+            });
         },
         openAddCompanyModal() {
             this.addComModalVisible = true;
         },
         handleSelectionChange(selection) {
-            console.log(selection);
             this.selectedIds = selection.map(item => item.comId);
         },
         handleBatchDelete() {
-            // 提示用户是否确认删除
             this.$Modal.confirm({
                 title: '删除',
                 content: '是否确认删除该公司？',
@@ -286,42 +218,41 @@ export default {
                         .then(res => {
                             this.$Message.success({
                                 content: res.msg,
-                            })
-                            this.fetchData()
-                        })
+                            });
+                            this.fetchData();
+                        });
                 },
                 onCancel: () => {
-                    console.log('cancel')
+                    console.log('cancel');
                 },
-            })
+            });
         },
         handleSubmit(name) {
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                    // 调用添加公司的方法
                     createCom(this.formValidate).then(res => {
-                        console.log(res);
                         this.$Message.success({
                             content: res.msg,
-                        })
-                        this.fetchData()
-                    })
-                    this.$Message.success('Success!');
+                        });
+                        this.fetchData();
+                        this.addComModalVisible = false; // 关闭弹窗
+                    });
                 } else {
-                    this.$Message.error('Fail!');
+                    this.$Message.error('提交失败，请检查表单输入');
                 }
-            })
+            });
         },
         handleReset(name) {
             this.$refs[name].resetFields();
         },
+        handleCancel() {
+            this.addComModalVisible = false; // 关闭弹窗
+        },
         show(row, index) {
-            console.log(row)
-            console.log(index)
+            console.log(row);
+            console.log(index);
         },
         handleDelete(obj) {
-            console.log(obj)
-            // 提示用户是否确认删除
             this.$Modal.confirm({
                 title: '删除',
                 content: '是否确认删除该企业？',
@@ -330,30 +261,28 @@ export default {
                         .then(res => {
                             this.$Message.success({
                                 content: res.msg,
-                            })
-                            this.fetchData()
-                        })
+                            });
+                            this.fetchData();
+                        });
                 },
                 onCancel: () => {
-                    console.log('cancel')
+                    console.log('cancel');
                 },
-            })
+            });
         },
         showDetailModal(row) {
-            this.currentDetailData = { ...row }; // 将当前行数据赋值给详情数据
+            this.currentDetailData = {...row}; // 将当前行数据赋值给详情数据
             this.detailModalVisible = true; // 显示详情弹窗
         },
         fetchData() {
             queryCom(this.curPage, this.email, this.comName)
                 .then(res => {
-                    console.log(res);
-                    console.log(res.data.list);
-                    this.tableData1 = res.data.list
-                    this.total = res.data.total
-                })
+                    this.tableData1 = res.data.list;
+                    this.total = res.data.total;
+                });
         },
         changePage(page) {
-            this.curPage = page
+            this.curPage = page;
         },
     },
     mounted() {
@@ -364,8 +293,7 @@ export default {
             this.fetchData();
         },
     },
-}
-
+};
 </script>
 
 <style>

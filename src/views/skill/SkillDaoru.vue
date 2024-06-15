@@ -9,32 +9,47 @@
                         :before-upload="handleBeforeUpload"
                         :data="uploadData"
                         :show-upload-list="false"
-                        auto-upload="false"
+                        :auto-upload="false"
                         ref="upload"
                     >
-                        <i-button type="primary" size="large" style="font-size: 18px;">选择文件</i-button>
+                        <i-button type="primary" size="large">选择文件</i-button>
                     </Upload>
-                    <!-- <div class="selected-file">{{ selectedFileName }}</div> -->
+                    <div class="selected-file" v-if="selectedFileName">{{ selectedFileName }}</div>
                 </div>
-                <div class="button-group" style="margin-top: 20px;">
-                    <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile" style="font-size: 18px;">上传</i-button>
-                    <i-button size="large" @click="clearFile" style="font-size: 18px; margin-left: 50px;">清除</i-button>
+                <div class="button-group">
+                    <i-button type="primary" size="large" :disabled="!selectedFile" @click="uploadFile">上传</i-button>
+                    <i-button size="large" @click="clearFile" style="margin-left: 20px;">清除</i-button>
                 </div>
+            </div>
+
+            <!-- 学校选择下拉框 -->
+            <div v-if="selectedIdentity === 'sch'" class="school-input">
+                <Select v-model="selectedSchool" placeholder="请选择学校" class="transparent-input" style="width: 300px;">
+                    <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
+                </Select>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { Upload, Message, Button as IButton } from 'view-design';
+import { Select, Option, Message, Upload, Button as IButton } from 'view-design';
+import { fetchAllSchools } from '@/api/schmanage';
 
 export default {
     data() {
         return {
+            selectedIdentity: 'sch',
+            selectedSchool: '',
+            uploadUrl: 'api/knowledge/importKpKnowledgeData',
+            selectedFileName: '',
             selectedFile: null,
-            uploadUrl: 'api/importAbilityData',
+            schools: [],
             uploadData: {},
         };
+    },
+    created() {
+        this.fetchSchools();
     },
     methods: {
         handleBeforeUpload(file) {
@@ -52,9 +67,14 @@ export default {
                 Message.warning('请选择要上传的文件');
                 return;
             }
+            if (!this.selectedSchool) {
+                Message.warning('请选择学校');
+                return;
+            }
 
             const formData = new FormData();
             formData.append('file', this.selectedFile);
+            formData.append('schoolName', this.selectedSchool);
 
             fetch(this.uploadUrl, {
                 method: 'POST',
@@ -79,16 +99,40 @@ export default {
             this.selectedFile = null;
             this.$refs.upload.clearFiles();
         },
+
+        fetchSchools() {
+            fetchAllSchools()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        this.schools = response.data.map(school => ({
+                            value: school.schName,
+                            label: school.schName
+                        }));
+                    } else {
+                        Message.error('Failed to fetch schools: Invalid data format');
+                    }
+                })
+                .catch(error => {
+                    Message.error('Failed to fetch schools');
+                });
+        },
     },
 };
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background-color: #eaeff1;
+}
+
 .container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     height: 100vh;
     background-color: #e6f7ff; /* Light blue background color */
 }
@@ -105,28 +149,75 @@ export default {
     align-items: center;
     text-align: center;
     border: 1px solid #ccc;
+    margin-top: -200px;
+}
+
+.identity-selection {
+    margin-bottom: 20px;
+    width: 100%;
+    color: #333;
+}
+
+.school-input {
+    margin-top: 20px; /* Adjusted to move above file-import */
+    width: 100%;
 }
 
 .file-import {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px; /* Increased margin */
+    margin-top: 20px;
+    width: 100%;
 }
 
 .file-select {
     display: flex;
     align-items: center;
-    margin-bottom: 30px; /* Increased margin */
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.selected-file {
+    margin-left: 10px;
+    font-size: 16px;
+    color: #606266;
 }
 
 .button-group {
     display: flex;
     justify-content: center;
+    width: 100%;
 }
 
 .button-group i-button {
     margin: 0 10px;
-    font-size: 18px; /* Increased font size */
+    width: 120px;
+}
+
+i-button {
+    font-size: 16px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #0078d7 30%, #005cbf 70%);
+    border: none;
+    color: #fff;
+}
+
+i-button:hover {
+    background: linear-gradient(135deg, #005cbf 30%, #003e9f 70%);
+}
+
+.identity-selection .ivu-radio-group {
+    display: flex;
+    justify-content: center;
+}
+
+.school-input .ivu-select {
+    display: block;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: #333;
+}
+
+.transparent-input .ivu-select-selection {
+    background-color: rgba(255, 255, 255, 0.7) !important;
 }
 </style>

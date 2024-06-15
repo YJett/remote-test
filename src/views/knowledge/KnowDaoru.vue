@@ -1,12 +1,6 @@
 <template>
     <div class="container">
         <div class="card">
-            <!-- 选择身份 -->
-            <div class="identity-selection">
-                <RadioGroup v-model="selectedIdentity">
-                    <Radio label="sch">学校身份</Radio>
-                </RadioGroup>
-            </div>
 
             <!-- 学校选择下拉框 -->
             <div v-if="selectedIdentity === 'sch'" class="school-input">
@@ -153,8 +147,8 @@ body {
     max-width: 800px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    margin-top: -200px;
+
     border: 1px solid #ccc;
 }
 

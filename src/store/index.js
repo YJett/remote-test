@@ -10,9 +10,9 @@ const store = new Vuex.Store({
         // 左侧菜单栏数据
         menuItems: [
             {
-                name: 'usermanage', // 要跳转的路由名称 不是路径
+                name: 'home', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
-                type: 'ios-grid', // icon类型
+                type: 'md-home', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
@@ -20,12 +20,12 @@ const store = new Vuex.Store({
                 text: '基本信息',
                 type: 'ios-paper',
                 children: [
-                    {
-                        name: 'home', // 要跳转的路由名称 不是路径
-                        size: 18, // icon大小
-                        type: 'md-home', // icon类型
-                        text: '数据导入', // 文本内容
-                    },
+                    // {
+                    //     name: 'home', // 要跳转的路由名称 不是路径
+                    //     size: 18, // icon大小
+                    //     type: 'md-home', // icon类型
+                    //     text: '数据导入', // 文本内容
+                    // },
                     {
                         name: 'schoolmanage', // 要跳转的路由名称 不是路径
                         size: 18, // icon大小
@@ -83,7 +83,7 @@ const store = new Vuex.Store({
                 name: 'knowledgeskill', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
-                text: 'knowledgeskill', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                text: '能力知识匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
                 text: '学生数据',
@@ -226,9 +226,9 @@ const store = new Vuex.Store({
         ],
         adminMenuItems: [
             {
-                name: 'usermanage', // 要跳转的路由名称 不是路径
+                name: 'home', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
-                type: 'ios-grid', // icon类型
+                type: 'md-home', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
@@ -236,12 +236,12 @@ const store = new Vuex.Store({
                 text: '基本信息',
                 type: 'ios-paper',
                 children: [
-                    {
-                        name: 'home', // 要跳转的路由名称 不是路径
-                        size: 18, // icon大小
-                        type: 'md-home', // icon类型
-                        text: '数据导入', // 文本内容
-                    },
+                    // {
+                    //     name: 'home', // 要跳转的路由名称 不是路径
+                    //     size: 18, // icon大小
+                    //     type: 'md-home', // icon类型
+                    //     text: '数据导入', // 文本内容
+                    // },
                     {
                         name: 'schoolmanage', // 要跳转的路由名称 不是路径
                         size: 18, // icon大小
@@ -351,7 +351,7 @@ const store = new Vuex.Store({
                 name: 'knowledgeskill', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
-                text: 'knowledgeskill', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                text: '能力知识匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
                 name: 'jobportray', // 要跳转的路由名称 不是路径
@@ -421,7 +421,7 @@ const store = new Vuex.Store({
                 name: 'home', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'md-home', // icon类型
-                text: '主页', // 文本内容
+                text: '用户管理', // 文本内容
             },
             {
                 name: 'radar', // 要跳转的路由名称 不是路径

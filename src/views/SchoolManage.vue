@@ -21,7 +21,7 @@
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
-        <Modal v-model="addSchoolModalVisible" title="添加学校">
+        <Modal v-model="addSchoolModalVisible" title="添加学校" :footer-hide="true">
             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="学校名" prop="schName">
                     <Input v-model="formValidate.schName" placeholder="请输入学校名" /><br />
@@ -49,16 +49,19 @@
                     </Select><br />
                 </FormItem>
                 <FormItem label="备注" prop="comment">
-                    <Input v-model="formValidate.comment" placeholder="请输入备注" />
+                    <Input v-model="formValidate.comment" placeholder="请输入备注" :required="false"/>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
-                    <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
+                    <div style="text-align: center;">
+                        <Button type="primary" @click="handleSubmit('formValidate')">确定</Button>
+                        <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
+                        <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+                    </div>
                 </FormItem>
             </Form>
         </Modal>
         <Modal v-model="detailModalVisible" title="学校详情">
-            <!-- 显示企业详情的表单 -->
+            <!-- 显示详情的表单 -->
             <Form :model="currentDetailData" :labelWidth="parseInt('80')" ref="detailForm">
                 <FormItem label="学校名">
                     <Input v-model="currentDetailData.schName" disabled />
@@ -79,12 +82,13 @@
                     <Input v-model="currentDetailData.email" disabled />
                 </FormItem>
                 <FormItem label="审核状态">
-                    <Input v-model="currentDetailData.status" disabled />
+                    <Input v-model="currentDetailData.status" disabled :required="false"/>
                 </FormItem>
                 <FormItem label="备注">
                     <Input v-model="currentDetailData.comment" disabled />
                 </FormItem>
             </Form>
+            <div slot="footer"></div>
         </Modal>
         <div style="margin: 10px;overflow: hidden">
             <div style="float: right;">
@@ -114,7 +118,8 @@ export default {
                 tel: '',
                 email: '',
                 status: '',
-                comment: ''
+                comment: '',
+                filepath: '',
             },
             ruleValidate: {
                 schName: [
@@ -221,7 +226,7 @@ export default {
                     key: 'email',
                 },
                 {
-                    title: 'Action',
+                    title: '操作',
                     slot: 'action',
                     width: 150,
                     align: 'center'
@@ -307,20 +312,9 @@ export default {
         handleReset(name) {
             this.$refs[name].resetFields();
         },
-        // cancelAddSchool() {
-        //     this.addSchoolModalVisible = false;
-        //     this.clearInputs();
-        // },
-        // clearInputs() {
-        //     this.schName = '';
-        //     this.address = '';
-        //     this.zipcode = '';
-        //     this.contact = '';
-        //     this.tel = '';
-        //     this.email = '';
-        //     this.status = '';
-        //     this.remark = '';
-        // },
+        handleCancel() {
+            this.addSchoolModalVisible = false; // 关闭弹窗
+        },
         show(row, index) {
             console.log(row)
             console.log(index)

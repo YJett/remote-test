@@ -2,9 +2,9 @@
     <div class="container">
         <!-- 岗位能力查询 -->
         <div class="card">
-            <h3>岗位能力查询</h3>
             <div class="query-section">
                 <div class="row">
+                    <h3 style="margin-right: 20px;">岗位能力查询</h3>
                     <span>选择岗位</span>
                     <Select v-model="selectedJobId" placeholder="请选择岗位" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="job in jobs" :key="job.value" :value="job.value">{{ job.label }}</Option>
@@ -13,27 +13,24 @@
                     <Select v-model="selectedAbility" placeholder="请选择能力" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="ability in abilities" :key="ability.value" :value="ability.value">{{ ability.label }}</Option>
                     </Select>
-                    <span>分数查询</span>
-                    <Select v-model="selectedOperator" placeholder="符号" style="width: 80px; margin-left: 10px; margin-right: 10px;">
+                    <Select v-model="selectedOperator" placeholder="符号" style="width: 80px; margin-left: -20px; margin-right: 10px;">
                         <Option v-for="operator in operators" :key="operator.value" :value="operator.value">{{ operator.label }}</Option>
                     </Select>
                     <Input v-model="abilityScore" placeholder="分数" style="width: 50px; margin-right: 30px;"/>
                 </div>
             </div>
         </div>
-
+`
         <!-- 知识能力查询 -->
         <div class="card" style="margin-top: 20px;">
-            <h3>知识能力查询</h3>
             <div class="query-section">
                 <div class="row">
-                    <span>选择学校</span>
+                    <h3 style="margin-right: 20px;">知识能力查询</h3>
+                    <span >选择学校</span>
                     <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="school in schools" :key="school.value" :value="school.value">{{ school.label }}</Option>
                     </Select>
-                </div>
-                <div class="row" style="margin-top: 10px;">
-                    <div style="display: flex; align-items: center; margin-right: 100px;">
+                    <div style="display: flex; align-items: center; margin-right: 50px;">
                         <span>专业核心课</span>
                         <Select v-model="selectedCoreCourseOperator" placeholder="符号"
                                 style="width: 80px; margin-left: 5px; margin-right: 5px;">
@@ -41,7 +38,7 @@
                         </Select>
                         <Input v-model="coreCourseScore" placeholder="分数" style="width: 50px; margin-right: 20px;"/>
                     </div>
-                    <div style="display: flex; align-items: center; margin-right: 100px;">
+                    <div style="display: flex; align-items: center; margin-right: 50px;">
                         <span>专业拓展课</span>
                         <Select v-model="selectedExpCourseOperator" placeholder="符号"
                                 style="width: 80px; margin-left: 5px; margin-right: 5px;">
@@ -63,9 +60,9 @@
 
         <!-- 个人素养查询 -->
         <div class="card" style="margin-top: 20px;">
-            <h3>个人素养查询</h3>
             <div class="query-section">
                 <div class="row">
+                    <h3 style="margin-right: 20px;">个人素养查询</h3>
                     <span style="margin-right: 10px;">政治面貌</span>
                     <CheckboxGroup v-model="politicalStatus" style="display: flex; margin-right: 600px">
                         <Checkbox label="党员" style="margin-right: 5px;">党员</Checkbox>
@@ -74,23 +71,20 @@
                         <Checkbox label="群众" style="margin-right: 5px;">群众</Checkbox>
                         <Checkbox label="其他" style="margin-right: 5px;">其他</Checkbox>
                     </CheckboxGroup>
+                    <div class="row" style="margin-top: 10px; align-items: center;">
+                        <span style="margin-left: -500px;">学生生源地</span>
+                        <Input v-model="studentSource" placeholder="请输入生源地" style="width: 300px; margin-left: 10px"/>
+                    </div>
                 </div>
                 <div class="row" style="margin-top: 10px; align-items: center;">
                     <span style="margin-right: 5px;">证书</span>
-                    <Input v-model="certificate" placeholder="请输入证书信息" style="width: 50%; margin-right: 400px"/>
+                    <Input v-model="certificate" placeholder="请输入证书信息" style="width: 300px; margin-left: 10px"/>
+                    <span style="margin-left: 20px;">竞赛</span>
+                    <Input v-model="competition" placeholder="请输入竞赛信息" style="width: 300px; margin-left: 10px"/>
+                    <span style="margin-left: 20px;">奖学金</span>
+                    <Input v-model="scholarship" placeholder="请输入奖学金信息" style="width: 300px; margin-left: 10px"/>
                 </div>
-                <div class="row" style="margin-top: 10px; align-items: center;">
-                    <span style="margin-right: 5px;">竞赛</span>
-                    <Input v-model="competition" placeholder="请输入竞赛信息" style="width: 50%; margin-right: 400px"/>
-                </div>
-                <div class="row" style="margin-top: 10px; align-items: center;">
-                    <span style="margin-right: 5px;">奖学金</span>
-                    <Input v-model="scholarship" placeholder="请输入奖学金信息" style="width: 50%; margin-right: 400px "/>
-                </div>
-                <div class="row" style="margin-top: 10px; align-items: center;">
-                    <span style="margin-right: 5px;">学生生源地</span>
-                    <Input v-model="studentSource" placeholder="请输入生源地" style="width: 50%; margin-right: 400px"/>
-                </div>
+
             </div>
         </div>
 
@@ -326,10 +320,8 @@ export default {
 .container {
     width: 100%;
     padding: 20px;
-    max-width: 1200px;
-    margin: auto;
     overflow-y: auto; /* 启用垂直滚动条 */
-    max-height: 100%; /* 限制容器的最大高度 */
+    max-height: 100vh; /* 限制容器的最大高度为视窗高度 */
     background-color: #e6f7ff; /* Light blue background color */
 }
 

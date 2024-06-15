@@ -2,7 +2,7 @@
     <div>
         <div class="input-container">
             <div class="search-container">
-                <Input v-model="userName" placeholder="请输入用户名" style="width: 200px" />
+                <Input v-model="userName" placeholder="请输入用户名" style="width: 200px"/>
                 <Input v-model="email" placeholder="请输入邮箱" style="width: 200px"
                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
             </div>
@@ -10,35 +10,42 @@
         <div class="button-container">
             <Button type="primary" @click="fetchData">查询</Button>
             <Button type="default" @click="clearInputs">清除</Button>
+            <Button type="success" class="add-user-button" @click="showAddModal">新增</Button>
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row, index }" slot="action">
-                <Button type="primary" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
+                <Button type="primary" size="small" style="margin-right: 5px" @click="showEditModal(row)">修改</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
         <Modal v-model="detailModalVisible" title="用户详情">
-            <Form :model="currentDetailData" :labelWidth="parseInt('80')" ref="detailForm">
+            <!-- Existing detail modal content -->
+        </Modal>
+        <Modal v-model="addEditModalVisible" title="新增/修改用户" @on-ok="saveUser" :footer-hide="true">
+            <Form :model="currentEditData" :label-width="parseInt('80')" ref="editForm">
                 <FormItem label="用户名">
-                    <Input v-model="currentDetailData.userName" disabled />
+                    <Input v-model="currentEditData.userName" />
                 </FormItem>
                 <FormItem label="邮箱">
-                    <Input v-model="currentDetailData.email" disabled />
+                    <Input v-model="currentEditData.email" :placeholder="'请输入邮箱'"
+                           :pattern="'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'" />
                 </FormItem>
-                <FormItem label="审核状态">
-                    <Input v-model="currentDetailData.status" disabled />
+                <FormItem label="密码">
+                    <Input v-model="currentEditData.password" type="password" />
                 </FormItem>
-                <FormItem label="用户身份">
-                    <Input v-model="currentDetailData.flag" disabled />
+                <FormItem label="角色">
+                    <RadioGroup v-model="currentEditData.role">
+                        <Radio label="系统管理员">系统管理员</Radio>
+                        <Radio label="学校管理员">学校管理员</Radio>
+                        <Radio label="企业">企业</Radio>
+                    </RadioGroup>
                 </FormItem>
-                <FormItem label="最后登录时间">
-                    <Input v-model="formattedLastLogin" disabled />
-                </FormItem>
-                <FormItem label="创建时间">
-                    <Input v-model="formattedCreateTime" disabled />
-                </FormItem>
-                <FormItem label="更新时间">
-                    <Input v-model="formattedUpdateTime" disabled />
+                <FormItem>
+                    <div style="text-align: center;">
+                        <Button type="primary" @click="handleSubmit('formValidate')">确定</Button>
+                        <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
+                        <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+                    </div>
                 </FormItem>
             </Form>
         </Modal>
@@ -59,6 +66,13 @@ export default {
     components: { PreservationRecord },
     data() {
         return {
+            addEditModalVisible: false,
+            currentEditData: {
+                userName: '',
+                email: '',
+                password: '',
+                role: '系统管理员' // Default role
+            },
             email: '',
             userName: '',
             showDetail: false,
@@ -168,6 +182,38 @@ export default {
         show(row, index) {
             console.log(row)
             console.log(index)
+        },
+        showAddModal() {
+            this.addEditModalVisible = true;
+            // Clear currentEditData or initialize as needed for adding new user
+        },
+        showEditModal(row) {
+            this.currentEditData = { ...row };
+            this.addEditModalVisible = true;
+        },
+        saveUser() {
+            // Determine if it's an add or edit operation
+            if (this.currentEditData.userId) {
+                // Edit existing user
+                editUser(this.currentEditData)
+                    .then(res => {
+                        this.addEditModalVisible = false;
+                        this.fetchData();
+                    })
+                    .catch(err => {
+                        console.error('Error editing user:', err);
+                    });
+            } else {
+                // Add new user
+                addUser(this.currentEditData)
+                    .then(res => {
+                        this.addEditModalVisible = false;
+                        this.fetchData();
+                    })
+                    .catch(err => {
+                        console.error('Error adding user:', err);
+                    });
+            }
         },
         handleDelete(obj) {
             console.log(obj)

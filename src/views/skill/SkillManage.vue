@@ -16,7 +16,6 @@
         </el-header>
 
         <div class="graph-container">
-
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
@@ -36,7 +35,6 @@
 
         <el-dialog title="关联实体" :visible.sync="relationDialogVisible" width="30%" top="10vh">
             <el-form ref="relationForm" :model="relationForm" label-width="120px">
-
                 <el-form-item label="实体2：技能图谱">
                     <el-input v-model="relationForm.entity2" disabled></el-input>
                 </el-form-item>
@@ -61,12 +59,21 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
-import { fetchAllJobs } from '@/api/Jobmanage';
+import { fetchAllJobs } from "@/api/Jobmanage";
 import { Message } from "view-design";
-
 
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 
+const lightColors = ["#8FE9FF", "#87EAEF", "#FFC9E3", "#A7C2FF", "#FFA1E3", "#FFE269", "#BFCFEE", "#FFA0C5", "#D5FF86"];
+const darkColors = ["#7DA8FF", "#44E6C1", "#FF68A7", "#7F86FF", "#AE6CFF", "#FF5A34", "#5D7092", "#FF6565", "#6BFFDE"];
+const uLightColors = ["#CFF6FF", "#BCFCFF", "#FFECF5", "#ECFBFF", "#EAD9FF", "#FFF8DA", "#DCE2EE", "#FFE7F0", "#EEFFCE"];
+const uDarkColors = ["#CADBFF", "#A9FFEB", "#FFC4DD", "#CACDFF", "#FFD4F2", "#FFD3C9", "#EBF2FF", "#FFCBCB", "#CAFFF3"];
+const gColors = [];
+const unlightColorMap = new Map();
+lightColors.forEach((lcolor, i) => {
+    gColors.push("l(0) 0:" + lcolor + " 1:" + darkColors[i]);
+    unlightColorMap.set(gColors[i], "l(0) 0:" + uLightColors[i] + " 1:" + uDarkColors[i]);
+});
 export default {
     data() {
         return {
@@ -105,15 +112,15 @@ export default {
                 relationName: "",
                 direction: "正向关系"
             },
-            selectedJobName: '',
-            selectedJobId:'', // 存储当前选中的 jobId
+            selectedJobName: "",
+            selectedJobId: "", // 存储当前选中的 jobId
             jobs: [],
             // knowledgeGraph: null,
             skillGraph: null
         };
     },
     created() {
-    //    this.fetchJobs();
+        //    this.fetchJobs();
     },
     async mounted() {
         await this.fetchJobs();
@@ -190,17 +197,17 @@ export default {
                         this.selectedJobId = this.jobs[0].value;
                         this.selectedJobName = this.jobs[0].label;
                     } else {
-                        Message.error('Failed to fetch jobs: Invalid data format');
+                        Message.error("Failed to fetch jobs: Invalid data format");
                     }
                 })
                 .catch(error => {
-                    Message.error('Failed to fetch jobs');
+                    Message.error("Failed to fetch jobs");
                 });
         },
         handleJobChange(jobId) {
             console.log(jobId);
-            if (jobId === 'all') {
-                this.selectedJobId = '';
+            if (jobId === "all") {
+                this.selectedJobId = "";
             } else {
                 this.selectedJobId = jobId;
             }
@@ -214,9 +221,10 @@ export default {
             const childNodeIds = childNodes.map(n => n.id);
 
             // 找到所有相关的边，确保边的源节点和目标节点都在当前节点列表中
-            const childEdges = this.allEdges.filter(edge =>
-                (childNodeIds.includes(edge.source) && this.skillGraphData.nodes.some(n => n.id === edge.target)) ||
-                (childNodeIds.includes(edge.target) && this.skillGraphData.nodes.some(n => n.id === edge.source))
+            const childEdges = this.allEdges.filter(
+                edge =>
+                    (childNodeIds.includes(edge.source) && this.skillGraphData.nodes.some(n => n.id === edge.target)) ||
+                    (childNodeIds.includes(edge.target) && this.skillGraphData.nodes.some(n => n.id === edge.source))
             );
 
             // 合并新节点和边到现有数据中
@@ -228,9 +236,7 @@ export default {
 
             // 记录节点的展开状态
             this.$set(this.expandedNodes, node.id, true);
-        }
-        ,
-
+        },
         collapseChildNodes(node) {
             const nodeId = node.abilityNo;
 
@@ -240,8 +246,8 @@ export default {
 
             // 移除子节点及其相关的边
             this.skillGraphData.nodes = this.skillGraphData.nodes.filter(n => n.upabilityId !== nodeId);
-            this.skillGraphData.edges = this.skillGraphData.edges.filter(edge =>
-                !childNodeIds.includes(edge.source) && !childNodeIds.includes(edge.target)
+            this.skillGraphData.edges = this.skillGraphData.edges.filter(
+                edge => !childNodeIds.includes(edge.source) && !childNodeIds.includes(edge.target)
             );
 
             // 更新图表数据
@@ -252,7 +258,7 @@ export default {
         },
         async fetchSkillGraphData() {
             let cypherQuery = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`; // 默认查询
-            console.log(this.selectedJobId)
+            console.log(this.selectedJobId);
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedJobId) {
                 cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
@@ -270,7 +276,7 @@ export default {
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid,
-                    label: rel.type,
+                    label: rel.type
                 }));
                 // 只展示顶层节点
                 let nodes = allNodes.filter(node => node.level === 1);
@@ -293,7 +299,7 @@ export default {
                             const newEdge = {
                                 source: jobNode.id,
                                 target: node.id,
-                                label: 'HAS_CHILD'
+                                label: "HAS_CHILD"
                             };
                             allEdges.push(newEdge); // 将新关系添加到 allEdges 中
                             edges.push(newEdge); // 将新关系添加到 edges 中
@@ -305,16 +311,15 @@ export default {
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes,
-                    edges
+                    nodes:allNodes,
+                    edges:allEdges
                 };
-                console.log(this.skillGraphData)
+                console.log(this.skillGraphData);
                 this.skillGraph.changeData(this.skillGraphData);
             } catch (error) {
-                console.error('获取技能图谱数据时出错：', error);
+                console.error("获取技能图谱数据时出错：", error);
             }
         },
-
 
         updateGraph() {
             if (this.skillGraph) {
@@ -329,7 +334,7 @@ export default {
             };
 
             // If 'all' is selected, fetch all data
-            if (type === 'all') {
+            if (type === "all") {
                 this.fetchSkillGraphData();
             } else {
                 // Otherwise, fetch data for the specific node type
@@ -363,22 +368,22 @@ export default {
             </ul>`;
                 },
                 handleMenuClick(target, item) {
-                    if (target.title === 'addChild') {
+                    if (target.title === "addChild") {
                         console.log(`Add child node for ${item.getID()}`);
                         console.log(item.getModel());
                         // Here you can add your logic to add a child node
                     }
-                },
+                }
             });
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: "fruchterman",
+                    type: "force",
                     preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
-                    linkDistance: 100, // 增加这个值可以使节点间距离更大
-                    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
+                    linkDistance: 250, // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 50 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [100, 100],
@@ -411,6 +416,28 @@ export default {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
                 plugins: [menu]
+            });
+            const hierarchicalColors = [
+                '#87CEEB', // Light Sky Blue (Level 1)
+                '#1E90FF', // Bright Blue (Level 2)
+                '#DCE2EE', // Deep Green (Level 3)
+                '#8B0000', // Dark Red (Level 4)
+            ];
+
+            skillGraph.node((node) => {
+                let colorIndex;
+                if (node.level && node.level >= 1 && node.level <= 4) {
+                    colorIndex = node.level - 1; // 直接将 level 映射到颜色数组的索引上
+                } else {
+                    colorIndex = 0; // 默认颜色
+                }
+
+                return {
+                    id: node.id,
+                    style: {
+                        fill: hierarchicalColors[colorIndex],
+                    },
+                };
             });
 
             skillGraph.data(this.skillGraphData);

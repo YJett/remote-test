@@ -44,7 +44,7 @@
                     <div ref="knowledgeRadar" class="chart"></div>
                 </Card>
                 <Card class="chart-card">
-                    <div ref="literacyRadar" class="chart"></div>
+                    <div ref="literacyRadar" class="chart" style="margin-bottom: 30px"></div>
                 </Card>
             </div>
         </div>

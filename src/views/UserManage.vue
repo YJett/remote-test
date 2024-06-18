@@ -14,12 +14,21 @@
         </div>
         <Table :data="tableData1" :columns="tableColumns1" stripe>
             <template slot-scope="{ row, index }" slot="action">
+                <Button type="default" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
                 <Button type="primary" size="small" style="margin-right: 5px" @click="showEditModal(row)">修改</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
         <Modal v-model="detailModalVisible" title="用户详情">
-            <!-- Existing detail modal content -->
+            <div>
+                <p><b>用户名:</b> {{ currentDetailData.userName }}</p>
+                <p><b>邮箱:</b> {{ currentDetailData.email }}</p>
+                <p><b>最后登录时间:</b> {{  formatDate(currentDetailData.lastLogin )}}</p>
+                <p><b>创建时间:</b> {{ formatDate(currentDetailData.createTime)}}</p>
+                <p><b>更新时间:</b> {{ formatDate(currentDetailData.updateTime) }}</p>
+                <p><b>角色:</b> {{ currentDetailData.flg }}</p>
+                <p><b>审核状态:</b> {{ currentDetailData.status }}</p>
+            </div>
         </Modal>
         <Modal v-model="addEditModalVisible" title="新增/修改用户" @on-ok="saveUser" :footer-hide="true">
             <Form :model="currentEditData" :label-width="parseInt('80')" ref="editForm">
@@ -31,19 +40,26 @@
                            :pattern="'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'" />
                 </FormItem>
                 <FormItem label="密码">
-                    <Input v-model="currentEditData.password" type="password" />
+                    <Input v-model="currentEditData.pwd" type="pwd" />
                 </FormItem>
                 <FormItem label="角色">
-                    <RadioGroup v-model="currentEditData.role">
-                        <Radio label="系统管理员">系统管理员</Radio>
-                        <Radio label="学校管理员">学校管理员</Radio>
-                        <Radio label="企业">企业</Radio>
+                    <RadioGroup v-model="currentEditData.flg">
+                        <Radio label="系统管理员" value="系统管理员">系统管理员</Radio>
+                        <Radio label="学校管理员" value="学校管理员">学校管理员</Radio>
+                        <Radio label="企业管理员" value="企业管理员">企业管理员</Radio>
                     </RadioGroup>
+                </FormItem>
+                <FormItem label="审核状态">
+                    <Select v-model="currentEditData.status">
+                        <Option value="未审核">未审核</Option>
+                        <Option value="已审核">已审核</Option>
+                        <Option value="已删除" v-if="isEdit">已删除</Option>
+                    </Select>
                 </FormItem>
                 <FormItem>
                     <div style="text-align: center;">
-                        <Button type="primary" @click="handleSubmit('formValidate')">确定</Button>
-                        <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
+                        <Button type="primary" @click="saveUser">确定</Button>
+                        <Button @click="handleReset('editForm')" style="margin-left: 8px">重置</Button>
                         <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
                     </div>
                 </FormItem>
@@ -56,9 +72,8 @@
         </div>
     </div>
 </template>
-
 <script>
-import { queryUser, deleteUser } from '../api/usermanage';
+import { queryUser, deleteUser, createUser, updateUser } from '../api/usermanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
@@ -70,8 +85,9 @@ export default {
             currentEditData: {
                 userName: '',
                 email: '',
-                password: '',
-                role: '系统管理员' // Default role
+                pwd: '',
+                flg: '系统管理员', // Default flag as '系统管理员'
+                status: '未审核' // Default status as '未审核'
             },
             email: '',
             userName: '',
@@ -103,12 +119,28 @@ export default {
                 {
                     title: '审核状态',
                     key: 'status',
-                    align: 'center'
+                    align: 'center',
+                    render: (h, params) => {
+                        const statusMap = {
+                            '0': '未审核',
+                            '1': '已审核',
+                            '9': '已删除'
+                        };
+                        return h('div', statusMap[params.row.status]);
+                    }
                 },
                 {
                     title: '用户身份',
-                    key: 'flag',
-                    align: 'center'
+                    key: 'flg',
+                    align: 'center',
+                    render: (h, params) => {
+                        const flgMap = {
+                            '0': '系统管理员',
+                            '1': '学校管理员',
+                            '2': '企业管理员'
+                        };
+                        return h('div', flgMap[params.row.flg]);
+                    }
                 },
                 {
                     title: '最后登录时间',
@@ -149,7 +181,7 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 200,
                     align: 'center'
                 }
             ],
@@ -157,17 +189,7 @@ export default {
             currentDetailData: {},
             curObj: {},
             isDuty: false,
-        }
-    },
-    computed: {
-        formattedLastLogin() {
-            return this.formatDate(this.currentDetailData.lastLogin);
-        },
-        formattedCreateTime() {
-            return this.formatDate(this.currentDetailData.createTime);
-        },
-        formattedUpdateTime() {
-            return this.formatDate(this.currentDetailData.updateTime);
+            isEdit: false, // Whether it is in edit mode
         }
     },
     methods: {
@@ -185,17 +207,44 @@ export default {
         },
         showAddModal() {
             this.addEditModalVisible = true;
-            // Clear currentEditData or initialize as needed for adding new user
+            this.isEdit = false;
+            // Initialize currentEditData for adding new user
+            this.currentEditData = {
+                userId: null,
+                userName: '',
+                email: '',
+                pwd: '',
+                flg: '系统管理员',
+                status: '未审核'
+            };
         },
         showEditModal(row) {
-            this.currentEditData = { ...row };
+            this.currentEditData = {...row};
+            this.isEdit = true;
             this.addEditModalVisible = true;
         },
         saveUser() {
-            // Determine if it's an add or edit operation
-            if (this.currentEditData.userId) {
+            const statusMap = {
+                '未审核': '0',
+                '已审核': '1',
+                '已删除': '9'
+            };
+            const flgMap = {
+                '系统管理员': '0',
+                '学校管理员': '1',
+                '企业管理员': '2'
+            };
+
+            // Convert status and flg to their respective values before sending to backend
+            const payload = {
+                ...this.currentEditData,
+                status: statusMap[this.currentEditData.status],
+                flg: flgMap[this.currentEditData.flg]
+            };
+
+            if (this.isEdit) {
                 // Edit existing user
-                editUser(this.currentEditData)
+                updateUser(payload.userName, payload.email, payload.pwd, payload.status, payload.flg)
                     .then(res => {
                         this.addEditModalVisible = false;
                         this.fetchData();
@@ -205,7 +254,7 @@ export default {
                     });
             } else {
                 // Add new user
-                addUser(this.currentEditData)
+                createUser(payload.userName, payload.email, payload.pwd, payload.status, payload.flg)
                     .then(res => {
                         this.addEditModalVisible = false;
                         this.fetchData();
@@ -247,11 +296,23 @@ export default {
             this.curPage = page
         },
         showDetailModal(row) {
-            this.currentDetailData = { ...row }; // 将当前行数据赋值给详情数据
+            this.currentDetailData = {...row}; // 将当前行数据赋值给详情数据
             this.detailModalVisible = true; // 显示详情弹窗
         },
+        handleCancel() {
+            this.addEditModalVisible = false;
+        },
+        handleReset() {
+            this.currentEditData = {
+                userName: '',
+                email: '',
+                pwd: '',
+                flg: '系统管理员', // Reset to default values
+                status: '未审核'   // Reset to default values
+            };
+        }
     },
-    mounted() {
+        mounted() {
         this.fetchData();
     },
     watch: {
@@ -261,8 +322,6 @@ export default {
     },
 }
 </script>
-
-
 <style>
 .input-container {
     display: flex;
@@ -310,7 +369,7 @@ export default {
     background-color: #ffc107;
 }
 
-.action-button+.action-button {
+.action-button + .action-button {
     margin-left: 10px;
 }
 </style>

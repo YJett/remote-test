@@ -19,13 +19,10 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
-                    <el-tag v-for="(count, type) in nodeTypeCounts" :key="type" @click="filterNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;">
-                        {{ `${type}(${count})` }}
-                    </el-tag>
-                    <el-tag :key="'all'" @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">
-                        {{ `所有类型(${allNodeTypesCount})` }}
-                    </el-tag>
+                    <el-tag @click="filterNodeType('等级1')" style="cursor: pointer; margin-left: 10px;">等级1</el-tag>
+                    <el-tag @click="filterNodeType('等级2')" style="cursor: pointer; margin-left: 10px;">等级2</el-tag>
+                    <el-tag @click="filterNodeType('等级3')" style="cursor: pointer; margin-left: 10px;">等级3</el-tag>
+                    <el-tag @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">所有类型</el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="skill-graph" class="graph"></div>
@@ -164,6 +161,25 @@ export default {
                     }
                 });
         },
+        // 新增的方法，用于根据 level 筛选节点并更新图表
+        filterAndRenderByLevel(level) {
+            // 筛选出指定 level 的节点
+            const filteredNodes = this.allNodes.filter(node => node.level === level);
+            // 获取这些节点的 id 列表
+            const nodeIds = filteredNodes.map(node => node.id);
+            // 筛选与这些节点相关的边
+            const filteredEdges = this.allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+
+            // 更新图表数据
+            this.skillGraphData = {
+                nodes: filteredNodes,
+                edges: filteredEdges
+            };
+
+            // 渲染图表
+            this.skillGraph.changeData(this.skillGraphData);
+        },
+
         // async fetchJobPositions() {
         //     try {
         //         // 从数据库中获取已有的 Jobid
@@ -311,8 +327,8 @@ export default {
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes:allNodes,
-                    edges:allEdges
+                    nodes: allNodes,
+                    edges: allEdges
                 };
                 console.log(this.skillGraphData);
                 this.skillGraph.changeData(this.skillGraphData);
@@ -326,37 +342,22 @@ export default {
                 this.skillGraph.changeData(this.skillGraphData);
             }
         },
+        // 现有的 filterNodeType 方法，需稍作修改以调用新的 filterAndRenderByLevel 方法
         filterNodeType(type) {
-            // Clear the graph data
-            this.skillGraphData = {
-                nodes: [],
-                edges: []
-            };
-
-            // If 'all' is selected, fetch all data
-            if (type === "all") {
-                this.fetchSkillGraphData();
-            } else {
-                // Otherwise, fetch data for the specific node type
-                let cypherQuery = `MATCH (n:${type}) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m`;
-                kgBuilderApi.getCypherResult(cypherQuery).then(res => {
-                    let nodes = res.data.node.map(node => ({
-                        id: node.uuid,
-                        label: node.skillNm,
-                        ...node
-                    }));
-                    let edges = res.data.relationship.map(rel => ({
-                        source: rel.sourceId,
-                        target: rel.targetId,
-                        label: rel.type,
-                        uuid: rel.uuid
-                    }));
-                    this.skillGraphData = {
-                        nodes,
-                        edges
-                    };
-                    this.skillGraph.changeData(this.skillGraphData);
-                });
+            console.log('Selected Type:', type);
+            if (type === '等级1') {
+                this.filterAndRenderByLevel(1);
+            } else if (type === '等级2') {
+                this.filterAndRenderByLevel(2);
+            } else if (type === '等级3') {
+                this.filterAndRenderByLevel(3);
+            } else if (type === 'all') {
+                // 如果是 'all'，则显示所有节点和边
+                this.skillGraphData = {
+                    nodes: this.allNodes,
+                    edges: this.allEdges
+                };
+                this.skillGraph.changeData(this.skillGraphData);
             }
         },
 

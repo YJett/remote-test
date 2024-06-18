@@ -31,16 +31,6 @@
                 <div slot="header" class="clearfix">
                     <span>知识图谱</span>
                     <!-- Add tags to show node counts -->
-                    <el-tag
-                        v-for="(count, type) in nodeTypeCounts"
-                        :key="type"
-                        @click="filterNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;">
-                        {{ `${type}(${count})` }}
-                    </el-tag>
-                    <el-tag :key="'all'" @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">
-                        {{ `所有类型(${allNodeTypesCount})` }}
-                    </el-tag>
                 </div>
                 <div class="el-card__body">
                     <div id="knowledge-graph" class="graph"></div>
@@ -161,10 +151,10 @@ export default {
         // this.fetchSchools();
     },
     async mounted() {
-        await this.fetchSchools();
+        this.fetchSchools()
         this.initKnowledgeGraph(); // 初始化知识图谱
         // this.initSkillGraph(); // 初始化技能图谱
-        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+       // this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         // this.fetchSkillGraphData(); // 获取技能图谱数据
     },
     methods: {
@@ -182,6 +172,8 @@ export default {
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }
+                }).then(() => {
+                    this.fetchKnowledgeGraphData();
                 })
                 .catch(error => {
                     Message.error('Failed to fetch schools');

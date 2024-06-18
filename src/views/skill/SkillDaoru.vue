@@ -21,35 +21,20 @@
                     <i-button size="large" @click="clearFile" style="margin-left: 20px;">清除</i-button>
                 </div>
             </div>
-
-            <!-- 学校选择下拉框 -->
-            <div v-if="selectedIdentity === 'sch'" class="school-input">
-                <Select v-model="selectedSchool" placeholder="请选择学校" class="transparent-input" style="width: 300px;">
-                    <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
-                </Select>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
 import { Select, Option, Message, Upload, Button as IButton } from 'view-design';
-import { fetchAllSchools } from '@/api/schmanage';
-
 export default {
     data() {
         return {
-            selectedIdentity: 'sch',
-            selectedSchool: '',
-            uploadUrl: 'api/knowledge/importKpKnowledgeData',
+            uploadUrl: 'api/importAbilityData',
             selectedFileName: '',
             selectedFile: null,
-            schools: [],
             uploadData: {},
         };
-    },
-    created() {
-        this.fetchSchools();
     },
     methods: {
         handleBeforeUpload(file) {
@@ -98,23 +83,6 @@ export default {
             this.selectedFileName = '';
             this.selectedFile = null;
             this.$refs.upload.clearFiles();
-        },
-
-        fetchSchools() {
-            fetchAllSchools()
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        this.schools = response.data.map(school => ({
-                            value: school.schName,
-                            label: school.schName
-                        }));
-                    } else {
-                        Message.error('Failed to fetch schools: Invalid data format');
-                    }
-                })
-                .catch(error => {
-                    Message.error('Failed to fetch schools');
-                });
         },
     },
 };

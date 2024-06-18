@@ -21,6 +21,33 @@ export function deleteUser(id) {
     })
 }
 
+export function createUser(userName,email,pwd,status,flg){
+    return request({
+        url: 'users/create',
+        method: 'POST',
+        data: {
+            userName,
+            email,
+            pwd,
+            status,
+            flg
+        }
+    })
+}
+
+export function updateUser(userName,email,pwd,status,flg){
+    return request({
+        url: 'users/update',
+        method: 'PUT',
+        data: {
+            userName,
+            email,
+            pwd,
+            status,
+            flg
+        }
+    })
+}
 export function froze(guid) {
     return request({
         url: 'Account/' + guid + '/FreezeAccount',

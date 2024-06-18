@@ -13,22 +13,6 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>知识图谱</span>
-                    <!-- Add tags to show node counts -->
-                    <el-tag
-                        v-for="(count, type) in KnowNodeTypeCounts"
-                        :key="type"
-                        @click="filterKnowNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;"
-                    >
-                        {{ `${type}(${count})` }}
-                    </el-tag>
-                    <el-tag
-                        :key="'all'"
-                        @click="filterKnowNodeType('all')"
-                        style="cursor: pointer; margin-left: 10px;"
-                    >
-                        {{ `所有类型(${allKnowNodeTypesCount})` }}
-                    </el-tag>
                     <div class="sch-input">
                         <Select v-model="selectedSchool" placeholder="请选择school" @on-change="handleSchChange"
                                 style="width: 200px; font-size: 18px;">
@@ -45,21 +29,10 @@
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
                     <span>技能图谱</span>
-                    <el-tag
-                        v-for="(count, type) in SkillNodeTypeCounts"
-                        :key="type"
-                        @click="filterSkillNodeType(type)"
-                        style="cursor: pointer; margin-left: 10px;"
-                    >
-                        {{ `${type}(${count})` }}
-                    </el-tag>
-                    <el-tag
-                        :key="'all'"
-                        @click="filterSkillNodeType('all')"
-                        style="cursor: pointer; margin-left: 10px;"
-                    >
-                        {{ `所有类型(${allSkillNodeTypesCount})` }}
-                    </el-tag>
+                    <el-tag @click="filterNodeType('等级1')" style="cursor: pointer; margin-left: 10px;">等级1</el-tag>
+                    <el-tag @click="filterNodeType('等级2')" style="cursor: pointer; margin-left: 10px;">等级2</el-tag>
+                    <el-tag @click="filterNodeType('等级3')" style="cursor: pointer; margin-left: 10px;">等级3</el-tag>
+                    <el-tag @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">所有类型</el-tag>
                     <el-tag
                         :key="'refresh'"
                         @click="fetchSkillGraphData"
@@ -202,7 +175,7 @@ export default {
     async mounted() {
         await this.fetchSchools();
         await this.fetchJobs();
-        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+    //    this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         await this.fetchSkillGraphData()
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
@@ -226,11 +199,30 @@ export default {
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }
-                })
+                }).then(this.fetchKnowledgeGraphData())
                 .catch(error => {
                     Message.error('Failed to fetch schools');
                 });
         },
+                // 新增的方法，用于根据 level 筛选节点并更新图表
+                filterAndRenderByLevel(level) {
+            // 筛选出指定 level 的节点
+            const filteredNodes = this.allNodes.filter(node => node.level === level);
+            // 获取这些节点的 id 列表
+            const nodeIds = filteredNodes.map(node => node.id);
+            // 筛选与这些节点相关的边
+            const filteredEdges = this.allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
+
+            // 更新图表数据
+            this.skillGraphData = {
+                nodes: filteredNodes,
+                edges: filteredEdges
+            };
+
+            // 渲染图表
+            this.skillGraph.changeData(this.skillGraphData);
+        },
+
         handleSchChange(schId) {
             console.log(schId);
             this.selectedSchool = schId;
@@ -427,7 +419,7 @@ export default {
             });
         },
         async fetchKnowledgeGraphData() {
-            let cypherQuery = `MATCH (n:KnowledgePoint)-[r]->(m:KnowledgePoint) RETURN n, r, m LIMIT 100`; // 默认查询
+            let cypherQuery = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`; // 默认查询
             console.log(this.selectedSchool)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedSchool) {
@@ -656,12 +648,12 @@ export default {
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
-                    type: "fruchterman",
+                    type: "force2",
                     preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
-                    linkDistance: 100, // 增加这个值可以使节点间距离更大
-                    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
+               //     linkDistance: 150, // 增加这个值可以使节点间距离更大
+                //    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [100, 100],
@@ -743,6 +735,27 @@ export default {
                 // Clear all highlights
                 this.clearStates(this.skillGraph);
             });
+            const hierarchicalColors = [
+                '#87CEEB', // Light Sky Blue (Level 1)
+                '#1E90FF', // Bright Blue (Level 2)
+                '#DCE2EE', // Deep Green (Level 3)
+                '#8B0000', // Dark Red (Level 4)
+            ];
+            skillGraph.node((node) => {
+                let colorIndex;
+                if (node.level && node.level >= 1 && node.level <= 4) {
+                    colorIndex = node.level - 1; // 直接将 level 映射到颜色数组的索引上
+                } else {
+                    colorIndex = 0; // 默认颜色
+                }
+
+                return {
+                    id: node.id,
+                    style: {
+                        fill: hierarchicalColors[colorIndex],
+                    },
+                };
+            });
 
             this.skillGraph = skillGraph;
         },
@@ -772,21 +785,25 @@ export default {
         showEditEntityDialog() {
             // Show edit entity dialog
         },
-        filterKnowNodeType(type) {
-            if (type === "all") {
-                this.knowledgeGraph.getNodes().forEach(node => {
-                    this.knowledgeGraph.showItem(node);
-                });
-            } else {
-                this.knowledgeGraph.getNodes().forEach(node => {
-                    if (node.getModel().type === type) {
-                        this.knowledgeGraph.showItem(node);
-                    } else {
-                        this.knowledgeGraph.hideItem(node);
-                    }
-                });
+        // 现有的 filterNodeType 方法，需稍作修改以调用新的 filterAndRenderByLevel 方法
+        filterNodeType(type) {
+            console.log('Selected Type:', type);
+            if (type === '等级1') {
+                this.filterAndRenderByLevel(1);
+            } else if (type === '等级2') {
+                this.filterAndRenderByLevel(2);
+            } else if (type === '等级3') {
+                this.filterAndRenderByLevel(3);
+            } else if (type === 'all') {
+                // 如果是 'all'，则显示所有节点和边
+                this.skillGraphData = {
+                    nodes: this.allNodes,
+                    edges: this.allEdges
+                };
+                this.skillGraph.changeData(this.skillGraphData);
             }
         },
+
         filterSkillNodeType(type) {
             if (type === "all") {
                 this.skillGraph.getNodes().forEach(node => {

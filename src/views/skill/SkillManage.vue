@@ -384,7 +384,7 @@ export default {
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
                     linkDistance: 250, // 增加这个值可以使节点间距离更大
-                    preventOverlapPadding: 50 // 增加这个值可以使节点间距离更大
+                    preventOverlapPadding: 250 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [100, 100],

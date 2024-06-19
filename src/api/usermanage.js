@@ -35,16 +35,20 @@ export function createUser(userName,email,pwd,status,flg){
     })
 }
 
-export function updateUser(userName,email,pwd,status,flg){
+export function updateUser(userId,userName,email,pwd,status,flg,lastLogin, createTime, updateTime){
     return request({
         url: 'users/update',
         method: 'PUT',
         data: {
+            user_id: userId,
             userName,
             email,
             pwd,
             status,
-            flg
+            flg,
+            lastLogin,
+            createTime,
+            updateTime
         }
     })
 }

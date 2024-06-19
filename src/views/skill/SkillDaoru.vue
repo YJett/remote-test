@@ -52,10 +52,6 @@ export default {
                 Message.warning('请选择要上传的文件');
                 return;
             }
-            if (!this.selectedSchool) {
-                Message.warning('请选择学校');
-                return;
-            }
 
             const formData = new FormData();
             formData.append('file', this.selectedFile);

@@ -23,8 +23,8 @@
             <div>
                 <p><b>用户名:</b> {{ currentDetailData.userName }}</p>
                 <p><b>邮箱:</b> {{ currentDetailData.email }}</p>
-                <p><b>最后登录时间:</b> {{  formatDate(currentDetailData.lastLogin )}}</p>
-                <p><b>创建时间:</b> {{ formatDate(currentDetailData.createTime)}}</p>
+                <p><b>最后登录时间:</b> {{ formatDate(currentDetailData.lastLogin) }}</p>
+                <p><b>创建时间:</b> {{ formatDate(currentDetailData.createTime) }}</p>
                 <p><b>更新时间:</b> {{ formatDate(currentDetailData.updateTime) }}</p>
                 <p><b>角色:</b> {{ currentDetailData.flg }}</p>
                 <p><b>审核状态:</b> {{ currentDetailData.status }}</p>
@@ -32,6 +32,9 @@
         </Modal>
         <Modal v-model="addEditModalVisible" title="新增/修改用户" @on-ok="saveUser" :footer-hide="true">
             <Form :model="currentEditData" :label-width="parseInt('80')" ref="editForm">
+                <FormItem label="用户ID" v-if="isEdit">
+                    <Input v-model="currentEditData.userId" disabled />
+                </FormItem>
                 <FormItem label="用户名">
                     <Input v-model="currentEditData.userName" />
                 </FormItem>
@@ -72,22 +75,25 @@
         </div>
     </div>
 </template>
+
 <script>
 import { queryUser, deleteUser, createUser, updateUser } from '../api/usermanage';
-import PreservationRecord from '../components/PreservationRecord';
 
 export default {
     name: 'usermanage',
-    components: { PreservationRecord },
     data() {
         return {
             addEditModalVisible: false,
             currentEditData: {
+                userId: '',
                 userName: '',
                 email: '',
                 pwd: '',
                 flg: '系统管理员', // Default flag as '系统管理员'
-                status: '未审核' // Default status as '未审核'
+                status: '未审核', // Default status as '未审核'
+                lastLogin: '',
+                createTime: '',
+                updateTime: ''
             },
             email: '',
             userName: '',
@@ -210,12 +216,15 @@ export default {
             this.isEdit = false;
             // Initialize currentEditData for adding new user
             this.currentEditData = {
-                userId: null,
+                userId: '',
                 userName: '',
                 email: '',
                 pwd: '',
                 flg: '系统管理员',
-                status: '未审核'
+                status: '未审核',
+                lastLogin: '',
+                createTime: '',
+                updateTime: ''
             };
         },
         showEditModal(row) {
@@ -235,16 +244,23 @@ export default {
                 '企业管理员': '2'
             };
 
-            // Convert status and flg to their respective values before sending to backend
-            const payload = {
-                ...this.currentEditData,
+            let payload = {
+                userId: this.currentEditData.userId,
+                userName: this.currentEditData.userName,
+                email: this.currentEditData.email,
+                pwd: this.currentEditData.pwd,
                 status: statusMap[this.currentEditData.status],
-                flg: flgMap[this.currentEditData.flg]
+                flg: flgMap[this.currentEditData.flg],
+                lastLogin: this.currentEditData.lastLogin ? new Date(this.currentEditData.lastLogin).toISOString() : null,
+                createTime: this.currentEditData.createTime ? new Date(this.currentEditData.createTime).toISOString() : null,
+                updateTime: new Date().toISOString()
             };
+
+            console.log('Payload:', payload); // Log the payload for debugging
 
             if (this.isEdit) {
                 // Edit existing user
-                updateUser(payload.userName, payload.email, payload.pwd, payload.status, payload.flg)
+                updateUser(payload.userId, payload.userName, payload.email, payload.pwd, payload.status, payload.flg, payload.lastLogin, payload.createTime, payload.updateTime)
                     .then(res => {
                         this.addEditModalVisible = false;
                         this.fetchData();
@@ -291,9 +307,13 @@ export default {
                     this.tableData1 = res.data.list
                     this.total = res.data.total
                 })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                });
         },
         changePage(page) {
-            this.curPage = page
+            this.curPage = page;
+            this.fetchData();
         },
         showDetailModal(row) {
             this.currentDetailData = {...row}; // 将当前行数据赋值给详情数据
@@ -304,6 +324,7 @@ export default {
         },
         handleReset() {
             this.currentEditData = {
+                userId: '', // Reset userId
                 userName: '',
                 email: '',
                 pwd: '',
@@ -312,7 +333,7 @@ export default {
             };
         }
     },
-        mounted() {
+    mounted() {
         this.fetchData();
     },
     watch: {
@@ -322,6 +343,7 @@ export default {
     },
 }
 </script>
+
 <style>
 .input-container {
     display: flex;

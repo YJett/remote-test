@@ -277,8 +277,8 @@ export default {
         fetchData() {
             queryCom(this.curPage, this.email, this.comName)
                 .then(res => {
-                    this.tableData1 = res.data.list;
-                    this.total = res.data.total;
+                    this.tableData1 = res.data.list.filter(item => item.status !== '9');
+                    this.total = this.tableData1.length; // 更新总数
                 });
         },
         changePage(page) {

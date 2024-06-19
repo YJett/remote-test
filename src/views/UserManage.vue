@@ -302,10 +302,8 @@ export default {
         fetchData() {
             queryUser(this.curPage, this.email, this.userName)
                 .then(res => {
-                    console.log(res);
-                    console.log(res.data.list);
-                    this.tableData1 = res.data.list
-                    this.total = res.data.total
+                    this.tableData1 = res.data.list.filter(user => user.status !== '9');
+                    this.total = this.tableData1.length;
                 })
                 .catch(err => {
                     console.error('Error fetching data:', err);

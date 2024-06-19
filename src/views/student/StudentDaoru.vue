@@ -167,10 +167,13 @@ export default {
             fetchAllSchools()
                 .then(response => {
                     if (Array.isArray(response.data)) {
-                        this.schools = response.data.map(school => ({
-                            value: school.schName,
-                            label: school.schName
-                        }));
+                        // 过滤掉 status 为 9 的学校数据
+                        this.schools = response.data
+                            .filter(school => school.status !== 9)
+                            .map(school => ({
+                                value: school.schName,
+                                label: school.schName
+                            }));
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }

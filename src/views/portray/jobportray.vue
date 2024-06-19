@@ -211,10 +211,12 @@ export default {
         async fetchSchools() {
             try {
                 const response = await fetchAllSchools();
-                this.schools = response.data.map(school => ({
-                    label: school.schName,
-                    value: school.schId
-                }));
+                this.schools = response.data
+                    .filter(school => school.status !== 9)
+                    .map(school => ({
+                        label: school.schName,
+                        value: school.schId
+                    }));
             } catch (error) {
                 Message.error('获取学校信息失败');
             }

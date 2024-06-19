@@ -348,8 +348,8 @@ export default {
                 .then(res => {
                     console.log(res);
                     console.log(res.data.list);
-                    this.tableData1 = res.data.list
-                    this.total = res.data.total
+                    this.tableData1 = res.data.list.filter(item => item.status !== '9');
+                    this.total = this.tableData1.length; // 更新总数
                 })
         },
         changePage(page) {

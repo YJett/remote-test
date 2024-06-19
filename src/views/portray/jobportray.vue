@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!-- 岗位能力查询 -->
-        <div class="card">
+        <div class="card query-card">
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">岗位能力查询</h3>
@@ -20,13 +20,13 @@
                 </div>
             </div>
         </div>
-`
+
         <!-- 知识能力查询 -->
-        <div class="card" style="margin-top: 20px;">
+        <div class="card query-card" style="margin-top: 20px;">
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">知识能力查询</h3>
-                    <span >选择学校</span>
+                    <span>选择学校</span>
                     <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="school in schools" :key="school.value" :value="school.value">{{ school.label }}</Option>
                     </Select>
@@ -59,7 +59,7 @@
         </div>
 
         <!-- 个人素养查询 -->
-        <div class="card" style="margin-top: 20px;">
+        <div class="card query-card" style="margin-top: 20px;">
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">个人素养查询</h3>
@@ -84,7 +84,6 @@
                     <span style="margin-left: 20px;">奖学金</span>
                     <Input v-model="scholarship" placeholder="请输入奖学金信息" style="width: 300px; margin-left: 10px"/>
                 </div>
-
             </div>
         </div>
 
@@ -92,8 +91,7 @@
         <div class="button-group">
             <i-button type="primary" size="large" @click="search" style="font-size: 18px;">搜索</i-button>
             <i-button size="large" @click="reset" style="font-size: 18px; margin-left: 20px;">重置</i-button>
-            <i-button type="primary" size="large" @click="fetchLatestData" style="font-size: 18px; margin-left: 20px;">最新数据获取
-            </i-button>
+            <i-button type="primary" size="large" @click="fetchLatestData" style="font-size: 18px; margin-left: 20px;">最新数据获取</i-button>
         </div>
 
         <!-- 查询结果 -->
@@ -263,6 +261,14 @@ export default {
                     params.minScoreComparisons.push(this.selectedBasicCourseOperator);
                 }
             }
+
+            // Adding new parameters for personal qualities query
+            params.party = this.politicalStatus.length > 0 ? this.politicalStatus.join(';') : '';
+            params.certificate = this.certificate;
+            params.contest = this.competition;
+            params.scholarship = this.scholarship;
+            params.hometown = this.studentSource;
+
             console.log('请求参数:', params);
             getStudentInfo(params)
                 .then(response => {
@@ -330,6 +336,10 @@ export default {
     padding: 20px;
     margin-top: 20px;
     border-radius: 5px;
+}
+
+.query-card {
+    width: 100%;
 }
 
 .query-section {

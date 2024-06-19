@@ -12,9 +12,14 @@ import request from '@/utils/request'
  * @param {string[]} [params.types] - List of types.
  * @param {number[]} [params.minScores] - List of minimum scores.
  * @param {string[]} [params.minScoreComparisons] - List of minimum score comparisons.
+ * @param {string} [params.party] - Party.
+ * @param {string} [params.contest] - Contest.
+ * @param {string} [params.scholarship] - Scholarship.
+ * @param {string} [params.certificate] - Certificate.
+ * @param {string} [params.hometown] - Hometown.
  * @returns {Promise} - A promise that resolves to the result of the API call.
  */
-export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison, types, minScores, minScoreComparisons }) {
+export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison, types, minScores, minScoreComparisons, party, contest, scholarship, certificate, hometown }) {
     // 检查 jobid 和 schid 是否存在
     if (jobid === undefined || schid === undefined) {
         throw new Error('jobid and schid are required.');
@@ -45,6 +50,23 @@ export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison
         params.types = types;
         params.minScores = minScores;
         params.minScoreComparisons = minScoreComparisons;
+    }
+
+    // 添加第三组参数
+    if (party !== undefined) {
+        params.party = party;
+    }
+    if (contest !== undefined) {
+        params.contest = contest;
+    }
+    if (scholarship !== undefined) {
+        params.scholarship = scholarship;
+    }
+    if (certificate !== undefined) {
+        params.certificate = certificate;
+    }
+    if (hometown !== undefined) {
+        params.hometown = hometown;
     }
 
     return request({

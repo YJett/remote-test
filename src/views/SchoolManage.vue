@@ -5,7 +5,7 @@
             <div class="search-container">
                 <Input v-model="schName" placeholder="请输入学校名" style="width: 200px" />
                 <Input v-model="email" placeholder="请输入邮箱" style="width: 200px"
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
+                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
                 <Button type="primary" class="button" @click="fetchData">查询</Button>
             </div>
             <!-- 新增、删除、审核按钮 -->
@@ -18,6 +18,7 @@
         <Table :data="tableData1" :columns="tableColumns1" stripe @on-selection-change="handleSelectionChange">
             <template slot-scope="{ row, index }" slot="action">
                 <Button type="primary" size="small" style="margin-right: 5px" @click="showDetailModal(row)">查看</Button>
+                <Button type="warning" size="small" style="margin-right: 5px" @click="openEditSchoolModal(row)">修改</Button>
                 <Button type="error" size="small" @click="handleDelete(row)">删除</Button>
             </template>
         </Table>
@@ -48,13 +49,55 @@
                         <Option value="9">已删除</Option>
                     </Select><br />
                 </FormItem>
-                <FormItem label="备注" prop="comment">
-                    <Input v-model="formValidate.comment" placeholder="请输入备注" :required="false"/>
+                <FormItem label="备注">
+                    <Input v-model="formValidate.comment" placeholder="请输入备注" />
                 </FormItem>
                 <FormItem>
                     <div style="text-align: center;">
                         <Button type="primary" @click="handleSubmit('formValidate')">确定</Button>
                         <Button @click="handleReset('formValidate')" style="margin-left: 8px">重置</Button>
+                        <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
+                    </div>
+                </FormItem>
+            </Form>
+        </Modal>
+        <Modal v-model="editSchoolModalVisible" title="修改学校" :footer-hide="true">
+            <Form ref="editFormValidate" :model="editFormValidate" :rules="ruleValidate" :label-width="80">
+                <FormItem label="学校Id" prop="schId">
+                    <Input v-model="editFormValidate.schId" disabled/><br />
+                </FormItem>
+                <FormItem label="学校名" prop="schName">
+                    <Input v-model="editFormValidate.schName" /><br />
+                </FormItem>
+                <FormItem label="地址" prop="address">
+                    <Input v-model="editFormValidate.address"/><br />
+                </FormItem>
+                <FormItem label="邮编" prop="zipcode">
+                    <Input v-model="editFormValidate.zipcode"/> <br />
+                </FormItem>
+                <FormItem label="联系人" prop="contact">
+                    <Input v-model="editFormValidate.contact"/> <br />
+                </FormItem>
+                <FormItem label="电话" prop="tel">
+                    <Input v-model="editFormValidate.tel"/> <br />
+                </FormItem>
+                <FormItem label="邮箱" prop="email">
+                    <Input v-model="editFormValidate.email"/> <br />
+                </FormItem>
+                <FormItem label="审核状态" prop="status">
+                    <Select v-model="editFormValidate.status" >
+                        <Option value="0">未审核</Option>
+                        <Option value="1">已审核</Option>
+                        <Option value="9">已删除</Option>
+                    </Select><br />
+                </FormItem>
+                <FormItem label="备注">
+                    <Input v-model="editFormValidate.comment" placeholder="请输入备注" />
+                </FormItem>
+                <FormItem>
+                    <div style="text-align: center;">
+                        <Button type="primary" @click="handleEditSubmit('editFormValidate')">确定</Button>
+                        <Button @click="handleEditReset('editFormValidate')" style="margin-left: 8px">重置</Button>
                         <Button @click="handleCancel" style="margin-left: 8px">取消</Button>
                     </div>
                 </FormItem>
@@ -101,7 +144,7 @@
 <script>
 import { querySignedDRecord, queryUnsignedDRecord } from "@/api/dutyPreservation";
 import { querySignedPRecord, queryUnsignedPRecord } from "@/api/pPreservation";
-import { querySch, deleteSch, createSch, deleteBatchSch ,successBatchSch} from '../api/schmanage';
+import { querySch, deleteSch, createSch, deleteBatchSch ,successBatchSch, updateSch } from '../api/schmanage';
 import PreservationRecord from '../components/PreservationRecord';
 
 export default {
@@ -111,6 +154,18 @@ export default {
     data() {
         return {
             formValidate: {
+                schName: '',
+                address: '',
+                zipcode: '',
+                contact: '',
+                tel: '',
+                email: '',
+                status: '',
+                comment: '',
+                filepath: '',
+            },
+            editFormValidate: {
+                schId: '',
                 schName: '',
                 address: '',
                 zipcode: '',
@@ -178,13 +233,14 @@ export default {
                 ],
                 comment: [
                     {
-                        required: true,
+                        required: false,
                         message: 'comment cannot be empty',
                         trigger: 'blur'
                     }
                 ]
             },
             detailModalVisible: false, // 控制详情弹窗的显示
+            editSchoolModalVisible: false, // 控制修改弹窗的显示
             currentDetailData: {},
             addSchoolModalVisible: false,
             showDetail: false,
@@ -226,9 +282,13 @@ export default {
                     key: 'email',
                 },
                 {
+                    title: '审核状态',
+                    key: 'status',
+                },
+                {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 200,
                     align: 'center'
                 }
             ],
@@ -268,6 +328,10 @@ export default {
         },
         openAddSchoolModal() {
             this.addSchoolModalVisible = true;
+        },
+        openEditSchoolModal(row) {
+            this.editFormValidate = { ...row };
+            this.editSchoolModalVisible = true;
         },
         handleSelectionChange(selection) {
             console.log(selection);
@@ -309,11 +373,48 @@ export default {
                 }
             })
         },
+        handleEditSubmit(name) {
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    // Ensure the data structure is correct
+                    const data = {
+                        schId: this.editFormValidate.schId,
+                        schName: this.editFormValidate.schName,
+                        address: this.editFormValidate.address,
+                        zipcode: this.editFormValidate.zipcode,
+                        contact: this.editFormValidate.contact,
+                        tel: this.editFormValidate.tel,
+                        email: this.editFormValidate.email,
+                        status: this.editFormValidate.status,
+                        comment: this.editFormValidate.comment,
+                        updateTime: new Date().toISOString(),
+                    };
+
+                    updateSch(data.schId,data.schName,data.address,data.zipcode,data.tel,data.email,data.comment,data.status,data.updateTime,data.contact).then(res => {
+                        this.$Message.success({
+                            content: res.msg,
+                        });
+                        this.fetchData();
+                    }).catch(error => {
+                        this.$Message.error('Fail!');
+                        console.error(error);
+                    });
+
+                    this.editSchoolModalVisible = false;
+                } else {
+                    this.$Message.error('Fail!');
+                }
+            });
+        },
         handleReset(name) {
+            this.$refs[name].resetFields();
+        },
+        handleEditReset(name) {
             this.$refs[name].resetFields();
         },
         handleCancel() {
             this.addSchoolModalVisible = false; // 关闭弹窗
+            this.editSchoolModalVisible = false; // 关闭修改弹窗
         },
         show(row, index) {
             console.log(row)
@@ -348,15 +449,29 @@ export default {
                 .then(res => {
                     console.log(res);
                     console.log(res.data.list);
-                    this.tableData1 = res.data.list.filter(item => item.status !== '9');
+                    this.tableData1 = res.data.list
+                        .filter(item => item.status !== '9')
+                        .map(item => {
+                            item.status = this.mapStatus(item.status);
+                            return item;
+                        });
                     this.total = this.tableData1.length; // 更新总数
                 })
         },
+        mapStatus(status) {
+            switch (status) {
+                case '0':
+                    return '未审核';
+                case '1':
+                    return '已审核';
+                case '9':
+                    return '已删除';
+            }
+        },
         changePage(page) {
-            this.curPage = page
+            this.curPage = page;
         },
     },
-
     mounted() {
         this.fetchData();
     },

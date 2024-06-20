@@ -2,7 +2,7 @@
     <div>
         <div class="input-container">
             <div class="search-container">
-                <Input v-model="userName" placeholder="请输入用户名" style="width: 200px"/>
+                <Input v-model="userName" placeholder="请输入用户名" style="width: 200px" />
                 <Input v-model="email" placeholder="请输入邮箱" style="width: 200px"
                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
             </div>
@@ -26,12 +26,12 @@
                 <p><b>最后登录时间:</b> {{ formatDate(currentDetailData.lastLogin) }}</p>
                 <p><b>创建时间:</b> {{ formatDate(currentDetailData.createTime) }}</p>
                 <p><b>更新时间:</b> {{ formatDate(currentDetailData.updateTime) }}</p>
-                <p><b>角色:</b> {{ currentDetailData.flg }}</p>
-                <p><b>审核状态:</b> {{ currentDetailData.status }}</p>
+                <p><b>角色:</b> {{ getRole(currentDetailData.flg) }}</p>
+                <p><b>审核状态:</b> {{ getStatus(currentDetailData.status) }}</p>
             </div>
         </Modal>
         <Modal v-model="addEditModalVisible" title="新增/修改用户" @on-ok="saveUser" :footer-hide="true">
-            <Form :model="currentEditData" :label-width="parseInt('80')" ref="editForm">
+            <Form :model="currentEditData" :label-width="80" ref="editForm">
                 <FormItem label="用户ID" v-if="isEdit">
                     <Input v-model="currentEditData.userId" disabled />
                 </FormItem>
@@ -39,24 +39,24 @@
                     <Input v-model="currentEditData.userName" />
                 </FormItem>
                 <FormItem label="邮箱">
-                    <Input v-model="currentEditData.email" :placeholder="'请输入邮箱'"
-                           :pattern="'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'" />
+                    <Input v-model="currentEditData.email" placeholder="请输入邮箱"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
                 </FormItem>
                 <FormItem label="密码">
-                    <Input v-model="currentEditData.pwd" type="pwd" />
+                    <Input v-model="currentEditData.pwd" type="password" />
                 </FormItem>
                 <FormItem label="角色">
                     <RadioGroup v-model="currentEditData.flg">
-                        <Radio label="系统管理员" value="系统管理员">系统管理员</Radio>
-                        <Radio label="学校管理员" value="学校管理员">学校管理员</Radio>
-                        <Radio label="企业管理员" value="企业管理员">企业管理员</Radio>
+                        <Radio label="系统管理员" value="0">系统管理员</Radio>
+                        <Radio label="学校管理员" value="1">学校管理员</Radio>
+                        <Radio label="企业管理员" value="2">企业管理员</Radio>
                     </RadioGroup>
                 </FormItem>
                 <FormItem label="审核状态">
                     <Select v-model="currentEditData.status">
-                        <Option value="未审核">未审核</Option>
-                        <Option value="已审核">已审核</Option>
-                        <Option value="已删除" v-if="isEdit">已删除</Option>
+                        <Option value="0">未审核</Option>
+                        <Option value="1">已审核</Option>
+                        <Option value="9" v-if="isEdit">已删除</Option>
                     </Select>
                 </FormItem>
                 <FormItem>
@@ -68,7 +68,7 @@
                 </FormItem>
             </Form>
         </Modal>
-        <div style="margin: 10px;overflow: hidden">
+        <div style="margin: 10px; overflow: hidden">
             <div style="float: right;">
                 <Page :total="total" :current="curPage" @on-change="changePage" show-total></Page>
             </div>
@@ -89,8 +89,8 @@ export default {
                 userName: '',
                 email: '',
                 pwd: '',
-                flg: '系统管理员', // Default flag as '系统管理员'
-                status: '未审核', // Default status as '未审核'
+                flg: '0', // Default flag as '系统管理员'
+                status: '0', // Default status as '未审核'
                 lastLogin: '',
                 createTime: '',
                 updateTime: ''
@@ -220,8 +220,8 @@ export default {
                 userName: '',
                 email: '',
                 pwd: '',
-                flg: '系统管理员',
-                status: '未审核',
+                flg: '0',
+                status: '0',
                 lastLogin: '',
                 createTime: '',
                 updateTime: ''
@@ -233,24 +233,13 @@ export default {
             this.addEditModalVisible = true;
         },
         saveUser() {
-            const statusMap = {
-                '未审核': '0',
-                '已审核': '1',
-                '已删除': '9'
-            };
-            const flgMap = {
-                '系统管理员': '0',
-                '学校管理员': '1',
-                '企业管理员': '2'
-            };
-
             let payload = {
                 userId: this.currentEditData.userId,
                 userName: this.currentEditData.userName,
                 email: this.currentEditData.email,
                 pwd: this.currentEditData.pwd,
-                status: statusMap[this.currentEditData.status],
-                flg: flgMap[this.currentEditData.flg],
+                status: this.currentEditData.status,
+                flg: this.currentEditData.flg,
                 lastLogin: this.currentEditData.lastLogin ? new Date(this.currentEditData.lastLogin).toISOString() : null,
                 createTime: this.currentEditData.createTime ? new Date(this.currentEditData.createTime).toISOString() : null,
                 updateTime: new Date().toISOString()
@@ -326,9 +315,25 @@ export default {
                 userName: '',
                 email: '',
                 pwd: '',
-                flg: '系统管理员', // Reset to default values
-                status: '未审核'   // Reset to default values
+                flg: '0', // Reset to default values
+                status: '0' // Reset to default values
             };
+        },
+        getRole(flg) {
+            const flgMap = {
+                '0': '系统管理员',
+                '1': '学校管理员',
+                '2': '企业管理员'
+            };
+            return flgMap[flg];
+        },
+        getStatus(status) {
+            const statusMap = {
+                '0': '未审核',
+                '1': '已审核',
+                '9': '已删除'
+            };
+            return statusMap[status];
         }
     },
     mounted() {

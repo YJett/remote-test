@@ -52,6 +52,8 @@ export function updateUser(userId,userName,email,pwd,status,flg,lastLogin, creat
         }
     })
 }
+
+
 export function froze(guid) {
     return request({
         url: 'Account/' + guid + '/FreezeAccount',

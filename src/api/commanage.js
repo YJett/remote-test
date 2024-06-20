@@ -46,4 +46,12 @@ export function successBatchCom(ids) {
     });
 }
 
-
+export function updateCom(comId,comName,address,zipcode,contact,tel,email,filepath,comment,status,updateTime){
+    return request({
+        url: 'com/update',
+        method: 'PUT',
+        data: {
+            comId,comName,address,zipcode,contact,tel,email,filepath,comment,status,updateTime
+        }
+    })
+}

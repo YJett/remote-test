@@ -50,3 +50,12 @@ export function successBatchSch(ids) {
         data: ids
     });
 }
+export function updateSch(schId,schName,address,zipcode,tel,email,comment,status,updateTime,contact){
+    return request({
+        url: 'sch/update',
+        method: 'PUT',
+        data: {
+            schId,schName,address,zipcode,tel,email,comment,status,updateTime,contact
+        }
+    })
+}

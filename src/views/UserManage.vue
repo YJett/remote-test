@@ -47,9 +47,9 @@
                 </FormItem>
                 <FormItem label="角色">
                     <RadioGroup v-model="currentEditData.flg">
-                        <Radio label="系统管理员" value="0">系统管理员</Radio>
-                        <Radio label="学校管理员" value="1">学校管理员</Radio>
-                        <Radio label="企业管理员" value="2">企业管理员</Radio>
+                        <Radio label="0" value="0">系统管理员</Radio>
+                        <Radio label="1" value="1">学校管理员</Radio>
+                        <Radio label="2" value="2">企业管理员</Radio>
                     </RadioGroup>
                 </FormItem>
                 <FormItem label="审核状态">

@@ -265,11 +265,11 @@ export default {
             }
 
             // Adding new parameters for personal qualities query
-            params.party = this.politicalStatus.length > 0 ? this.politicalStatus.join(';') : '';
-            params.certificate = this.certificate;
-            params.contest = this.competition;
-            params.scholarship = this.scholarship;
-            params.hometown = this.studentSource;
+            params.party = this.politicalStatus.length > 0 ? this.politicalStatus.join(';') : null;
+            params.certificate = this.certificate || null;
+            params.contest = this.competition || null;
+            params.scholarship = this.scholarship || null;
+            params.hometown = this.studentSource || null;
 
             console.log('请求参数:', params);
             getStudentInfo(params)

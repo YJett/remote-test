@@ -45,9 +45,9 @@ export const asyncRoutes = {
     //     meta: { title: '公告管理' },
     //     component: () => import('../views/bulletin.vue'),
     // },
-    home: {
-        path: 'home',
-        name: 'home',
+    user: {
+        path: 'user',
+        name: 'user',
         meta: { title: '用户管理' },
         component: () => import('../views/UserManage.vue'),
     },
@@ -69,10 +69,10 @@ export const asyncRoutes = {
         meta: { title: 'majorgraph' },
         component: () => import('../views/MajorKnowGraph.vue'),
     },
-    knowdaoru: {
-        path: 'knowdaoru',
-        name: 'knowdaoru',
-        meta: { title: 'knowdaoru' },
+    home: {
+        path: 'home',
+        name: 'home',
+        meta: { title: 'home' },
         component: () => import('../views/knowledge/KnowDaoru.vue'),
     },
     knowmanage: {

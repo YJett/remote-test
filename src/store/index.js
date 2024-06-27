@@ -10,9 +10,9 @@ const store = new Vuex.Store({
         // 左侧菜单栏数据
         menuItems: [
             {
-                name: 'home', // 要跳转的路由名称 不是路径
+                name: 'user', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
-                type: 'md-home', // icon类型
+                type: 'ios-grid', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
@@ -20,12 +20,6 @@ const store = new Vuex.Store({
                 text: '基本信息',
                 type: 'ios-paper',
                 children: [
-                    // {
-                    //     name: 'home', // 要跳转的路由名称 不是路径
-                    //     size: 18, // icon大小
-                    //     type: 'md-home', // icon类型
-                    //     text: '数据导入', // 文本内容
-                    // },
                     {
                         name: 'schoolmanage', // 要跳转的路由名称 不是路径
                         size: 18, // icon大小
@@ -64,8 +58,8 @@ const store = new Vuex.Store({
                 type: 'ios-paper',
                 children: [
                     {
-                        type: 'ios-grid',
-                        name: 'knowdaoru',
+                        type: 'md-home',
+                        name: 'home',
                         text: '数据导入',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
@@ -226,9 +220,9 @@ const store = new Vuex.Store({
         ],
         adminMenuItems: [
             {
-                name: 'home', // 要跳转的路由名称 不是路径
+                name: 'user', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
-                type: 'md-home', // icon类型
+                type: 'ios-grid', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
@@ -236,12 +230,6 @@ const store = new Vuex.Store({
                 text: '基本信息',
                 type: 'ios-paper',
                 children: [
-                    // {
-                    //     name: 'home', // 要跳转的路由名称 不是路径
-                    //     size: 18, // icon大小
-                    //     type: 'md-home', // icon类型
-                    //     text: '数据导入', // 文本内容
-                    // },
                     {
                         name: 'schoolmanage', // 要跳转的路由名称 不是路径
                         size: 18, // icon大小
@@ -280,8 +268,8 @@ const store = new Vuex.Store({
                 type: 'ios-paper',
                 children: [
                     {
-                        type: 'ios-grid',
-                        name: 'knowdaoru',
+                        type: 'md-home',
+                        name: 'home',
                         text: '数据导入',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
@@ -422,8 +410,8 @@ const store = new Vuex.Store({
                 type: 'ios-paper',
                 children: [
                     {
-                        type: 'ios-grid',
-                        name: 'knowdaoru',
+                        type: 'md-home',
+                        name: 'home',
                         text: '数据导入',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,

@@ -169,6 +169,7 @@ export default {
                         console.log(this.schools[0].value);
                         this.selectedSchool = this.schools[0].value;
                         this.selectedSchName = this.schools[0].label;
+                        console.log(this.selectedSchool);
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }

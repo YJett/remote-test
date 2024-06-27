@@ -122,7 +122,7 @@ export default {
     async mounted() {
         await this.fetchJobs();
         this.initSkillGraph(); // 初始化技能图谱
-        await this.fetchSkillGraphData();
+        //  await this.fetchSkillGraphData();
     },
     methods: {
         clearStates(graph) {
@@ -212,6 +212,8 @@ export default {
                         // console.log(this.jobs[0].value);
                         this.selectedJobId = this.jobs[0].value;
                         this.selectedJobName = this.jobs[0].label;
+                        console.log(this.selectedJobId);
+                        this.fetchSkillGraphData();
                     } else {
                         Message.error("Failed to fetch jobs: Invalid data format");
                     }
@@ -277,7 +279,7 @@ export default {
             console.log(this.selectedJobId);
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedJobId) {
-                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
+                cypherQuery = `MATCH (n:Skill {jobId: ${this.selectedJobId}}) OPTIONAL MATCH (n)-[r]->(m:Skill) RETURN n, r, m`;
             }
 
             try {
@@ -294,9 +296,10 @@ export default {
                     uuid: rel.uuid,
                     label: rel.type
                 }));
-                // 只展示顶层节点
-                let nodes = allNodes.filter(node => node.level === 1);
+                // 过滤出 level 为 1 或 level 为 2 的节点
+                let nodes = allNodes.filter(node => node.level === 1 || node.level === 2);
                 let nodeIds = nodes.map(node => node.id);
+                // 确保筛选出的边的源节点和目标节点都在修改后的节点ID列表中
                 let edges = allEdges.filter(edge => nodeIds.includes(edge.source) && nodeIds.includes(edge.target));
                 // 手动添加 job 节点
                 if (this.selectedJobId) {
@@ -327,8 +330,8 @@ export default {
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes: allNodes,
-                    edges: allEdges
+                    nodes: nodes,
+                    edges: edges
                 };
                 console.log(this.skillGraphData);
                 this.skillGraph.changeData(this.skillGraphData);

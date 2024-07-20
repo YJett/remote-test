@@ -8,7 +8,7 @@
                     </Select>
                 </FormItem>
                 <FormItem label="岗位">
-                    <Select v-model="selectedJob" placeholder="请选择Job" style="width: 200px; font-size: 18px;">
+                    <Select v-model="selectedJob" placeholder="请选择岗位" style="width: 200px; font-size: 18px;">
                         <Option v-for="opt in jobs" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
                 </FormItem>

@@ -8,8 +8,7 @@
                     </Select>
                 </FormItem>
                 <FormItem label="岗位">
-                    <Select v-model="selectedJob" placeholder="请选择Job"
-                            style="width: 200px; font-size: 18px;">
+                    <Select v-model="selectedJob" placeholder="请选择Job" style="width: 200px; font-size: 18px;">
                         <Option v-for="opt in jobs" :key="opt.value" :value="opt">{{ opt.label }}</Option>
                     </Select>
                 </FormItem>
@@ -61,10 +60,10 @@
 </template>
 <script>
 import * as echarts from 'echarts';
-import {fetchAllSchools} from '@/api/schmanage';
-import {getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName, getStudentLiteracy} from '@/api/radar';
-import {Message, Modal} from 'view-design';
-import {fetchAllJobs} from "@/api/Jobmanage";
+import { fetchAllSchools } from '@/api/schmanage';
+import { getAbilityScores, getAverageScoreByType, getScoreAndKnowledgeName, getStudentLiteracy } from '@/api/radar';
+import { Message, Modal } from 'view-design';
+import { fetchAllJobs } from "@/api/Jobmanage";
 
 export default {
     name: 'RadarCharts',
@@ -74,7 +73,7 @@ export default {
             selectedJob: null, // 存储当前选中的 jobId
             jobs: [],
             selectedSchool: null,
-            studentId: '',
+            studentId: '2021051201',
             AbilityRadarData: [],
             knowledgeRadarData: [],
             studentLiteracyData: null,
@@ -254,7 +253,7 @@ export default {
                         trigger: 'item',
                     },
                     radar: {
-                        indicator: this.AbilityRadarData.map(item => ({name: item.abilityNm, max: 100})),
+                        indicator: this.AbilityRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
                         triggerEvent: true
                     },
                     series: [
@@ -301,7 +300,7 @@ export default {
                         trigger: 'item',
                     },
                     radar: {
-                        indicator: this.knowledgeRadarData.map(item => ({name: item.type, max: 100})),
+                        indicator: this.knowledgeRadarData.map(item => ({ name: item.type, max: 100 })),
                         triggerEvent: true
                     },
                     series: [
@@ -344,15 +343,15 @@ export default {
                 return date.toISOString().split('T')[0];
             };
             const infoList = [
-                {label: '姓名', value: data.studentnm},
-                {label: '学校', value: data.schnm},
-                {label: '院系', value: data.department},
-                {label: '专业', value: data.major},
-                {label: '政治面貌', value: data.party},
-                {label: '生源地', value: data.hometown},
-                {label: '入学时间', value: formatDate(data.enrollmentDate)},
-                {label: '健康状况', value: data.health},
-                {label: '出生日期', value: formatDate(data.birthday)},
+                { label: '姓名', value: data.studentnm },
+                { label: '学校', value: data.schnm },
+                { label: '院系', value: data.department },
+                { label: '专业', value: data.major },
+                { label: '政治面貌', value: data.party },
+                { label: '生源地', value: data.hometown },
+                { label: '入学时间', value: formatDate(data.enrollmentDate) },
+                { label: '健康状况', value: data.health },
+                { label: '出生日期', value: formatDate(data.birthday) },
             ];
             // Set personalInfoData to infoList
             this.personalInfoData = infoList;
@@ -374,11 +373,11 @@ export default {
                     },
                     radar: {
                         indicator: [
-                            {name: '卓越能力', max: 100},
-                            {name: '敬业精神', max: 100},
-                            {name: '勤工助学', max: 100},
-                            {name: '社团参与', max: 100},
-                            {name: '个人卫生', max: 100}
+                            { name: '卓越能力', max: 100 },
+                            { name: '敬业精神', max: 100 },
+                            { name: '勤工助学', max: 100 },
+                            { name: '社团参与', max: 100 },
+                            { name: '个人卫生', max: 100 }
                         ],
                     },
                     series: [
@@ -405,115 +404,123 @@ export default {
         },
         drawSubRadar(abilityNo, lv) {
             this.showSubRadar = true;
-            if (this.subChartInstance) {
-                this.subChartInstance.dispose();
-            }
-            if (lv > 3) {
-                this.subRadarData = [];
-                return;
-            }
-            const params = {
-                jobId: this.selectedJob.value,
-                schId: this.selectedSchool.value,
-                studentId: this.studentId,
-                lv: lv,
-                upabilityId: abilityNo
-            };
-            getAbilityScores(params.jobId, params.schId, params.studentId, params.lv, params.upabilityId)
-                .then(res => {
-                    const data = res.data;
-                    if (!data || data.length === 0) {
-                        this.subRadarData = [];
-                    } else {
-                        this.subRadarData = data;
-                        this.subChartInstance = echarts.init(this.$refs.subRadar);
-                        const option = {
-                            tooltip: {
-                                trigger: 'item',
-                            },
-                            radar: {
-                                indicator: data.map(item => ({name: item.abilityNm, max: 100})),
-                                triggerEvent: true
-                            },
-                            series: [
-                                {
-                                    name: '知识评分',
-                                    type: 'radar',
-                                    data: [
-                                        {
-                                            value: data.map(item => item.score),
-                                            name: '评分',
+            this.$nextTick(() => {
+                if (this.subChartInstance) {
+                    this.subChartInstance.dispose();
+                }
+                if (lv > 3) {
+                    this.subRadarData = [];
+                    return;
+                }
+                const params = {
+                    jobId: this.selectedJob.value,
+                    schId: this.selectedSchool.value,
+                    studentId: this.studentId,
+                    lv: lv,
+                    upabilityId: abilityNo
+                };
+                getAbilityScores(params.jobId, params.schId, params.studentId, params.lv, params.upabilityId)
+                    .then(res => {
+                        const data = res.data;
+                        if (!data || data.length === 0) {
+                            this.subRadarData = [];
+                        } else {
+                            this.subRadarData = data;
+                            this.$nextTick(() => {
+                                if (this.$refs.subRadar) {
+                                    this.subChartInstance = echarts.init(this.$refs.subRadar);
+                                    const option = {
+                                        tooltip: {
+                                            trigger: 'item',
                                         },
-                                    ],
-                                },
-                            ],
-                        };
-                        this.subChartInstance.setOption(option);
+                                        radar: {
+                                            indicator: data.map(item => ({ name: item.abilityNm, max: 100 })),
+                                            triggerEvent: true
+                                        },
+                                        series: [
+                                            {
+                                                name: '知识评分',
+                                                type: 'radar',
+                                                data: [
+                                                    {
+                                                        value: data.map(item => item.score),
+                                                        name: '评分',
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    };
+                                    this.subChartInstance.setOption(option);
 
-                        // 添加点击事件
-                        this.subChartInstance.on('click', (params) => {
-                            this.showSubRadar = true;
-                            if (params.componentType === 'radar' && params.name) {
-                                const abilityNo = data.find(item => item.abilityNm === params.name).abilityNo;
-                                this.currentUpabilityId = abilityNo;
-                                this.currentLv += 1;
-                                this.previousAbilityNm = params.name;
-                                this.$nextTick(() => {
-                                    this.drawSubRadar(abilityNo, this.currentLv);
-                                });
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    Message.error('获取数据失败');
-                });
+                                    // 添加点击事件
+                                    this.subChartInstance.on('click', (params) => {
+                                        this.showSubRadar = true;
+                                        if (params.componentType === 'radar' && params.name) {
+                                            const abilityNo = data.find(item => item.abilityNm === params.name).abilityNo;
+                                            this.currentUpabilityId = abilityNo;
+                                            this.currentLv += 1;
+                                            this.previousAbilityNm = params.name;
+                                            this.$nextTick(() => {
+                                                this.drawSubRadar(abilityNo, this.currentLv);
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Message.error('获取数据失败');
+                    });
+            });
         },
         drawSubKnowledgeRadar(type, lv) {
-            if (this.subChartInstance) {
-                this.subChartInstance.dispose();
-            }
-            if (lv > 3) {
-                this.subRadarData = [];
-                return;
-            }
-            getScoreAndKnowledgeName(this.selectedSchool.value, this.studentId, type)
-                .then(res => {
-                    const data = res.data;
-                    if (!data || data.length === 0) {
-                        this.subRadarData = [];
-                    } else {
-                        this.subRadarData = data;
-                        this.subChartInstance = echarts.init(this.$refs.subRadar);
-                        const option = {
-                            tooltip: {
-                                trigger: 'item',
-                            },
-                            radar: {
-                                indicator: data.map(item => ({name: item.knowledgenm, max: 100})),
-                                triggerEvent: true
-                            },
-                            series: [
-                                {
-                                    name: '知识评分',
-                                    type: 'radar',
-                                    data: [
-                                        {
-                                            value: data.map(item => item.score),
-                                            name: '评分',
-                                        },
-                                    ],
+            this.$nextTick(() => {
+                if (this.subChartInstance) {
+                    this.subChartInstance.dispose();
+                }
+                if (lv > 3) {
+                    this.subRadarData = [];
+                    return;
+                }
+                getScoreAndKnowledgeName(this.selectedSchool.value, this.studentId, type)
+                    .then(res => {
+                        const data = res.data;
+                        if (!data || data.length === 0) {
+                            this.subRadarData = [];
+                        } else {
+                            this.subRadarData = data;
+                            this.subChartInstance = echarts.init(this.$refs.subRadar);
+                            const option = {
+                                tooltip: {
+                                    trigger: 'item',
                                 },
-                            ],
-                        };
-                        this.subChartInstance.setOption(option);
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    Message.error('获取课程评分数据失败');
-                });
+                                radar: {
+                                    indicator: data.map(item => ({ name: item.knowledgenm, max: 100 })),
+                                    triggerEvent: true
+                                },
+                                series: [
+                                    {
+                                        name: '知识评分',
+                                        type: 'radar',
+                                        data: [
+                                            {
+                                                value: data.map(item => item.score),
+                                                name: '评分',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            };
+                            this.subChartInstance.setOption(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Message.error('获取课程评分数据失败');
+                    });
+            });
         },
 
         handleModalCancel() {
@@ -551,13 +558,15 @@ export default {
     max-height: 100vh;
     padding: 20px;
     width: 100%;
-    background-color: #e6f7ff; /* Light blue background color */
+    background-color: #e6f7ff;
+    /* Light blue background color */
 }
 
 .form-card {
     width: 100%;
     margin-bottom: 20px;
-    background-color: rgba(255, 255, 255, 0.7); /* Set background color with 90% opacity */
+    background-color: rgba(255, 255, 255, 0.7);
+    /* Set background color with 90% opacity */
 }
 
 .form-container {
@@ -572,7 +581,8 @@ export default {
     gap: 20px;
 }
 
-.query-button, .clear-button {
+.query-button,
+.clear-button {
     width: 120px;
     height: 50px;
     font-size: 18px;
@@ -592,16 +602,20 @@ export default {
     margin: 10px;
     border: 1px solid #d9d9d9;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.7); /* Set background color with 90% opacity */
-    min-width: 300px; /* Ensure a minimum width for each chart card */
+    background-color: rgba(255, 255, 255, 0.7);
+    /* Set background color with 90% opacity */
+    min-width: 300px;
+    /* Ensure a minimum width for each chart card */
 }
 
 .chart {
     width: 100%;
-    height: 300px; /* Adjust height to fit all charts */
+    height: 300px;
+    /* Adjust height to fit all charts */
 }
 
 .modal .chart {
-    height: 400px; /* Reduced height */
+    height: 400px;
+    /* Reduced height */
 }
 </style>

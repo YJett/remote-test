@@ -391,7 +391,7 @@ export default {
                                         literacyData.dedication,
                                         literacyData.workstudy,
                                         literacyData.participation,
-                                        literacyData.healthy
+                                        literacyData.healty
                                     ],
                                     name: '评分',
                                 },

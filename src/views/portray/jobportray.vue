@@ -112,8 +112,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(result, index) in results" :key="index">
-                    <td>{{ index + 1 }}</td>
+                <tr v-for="(result, index) in paginatedResults" :key="index">
+                    <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td>
                     <td>{{ result.studentNm || '' }}</td>
                     <td>{{ result.schName || '' }}</td>
                     <td>{{ result.hometown || '' }}</td>
@@ -125,6 +125,14 @@
                 </tr>
                 </tbody>
             </table>
+            <div class="pagination">
+                <i-button @click="prevPage" :disabled="currentPage === 1">上一页</i-button>
+                <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
+                <i-button @click="nextPage" :disabled="currentPage === totalPages">下一页</i-button>
+                <span>跳转到:</span>
+                <input type="number" v-model.number="jumpPage" @keyup.enter="goToPage" style="width: 50px;"/>
+                <i-button @click="goToPage">跳转</i-button>
+            </div>
         </div>
     </div>
 </template>
@@ -170,7 +178,20 @@ export default {
                 {value: '<=', label: '<='}
             ],
             schools: [],
+            currentPage: 1,
+            pageSize: 10,
+            jumpPage: 1
         };
+    },
+    computed: {
+        paginatedResults() {
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = start + this.pageSize;
+            return this.results.slice(start, end);
+        },
+        totalPages() {
+            return Math.ceil(this.results.length / this.pageSize);
+        }
     },
     created() {
         this.fetchSchools();
@@ -178,6 +199,23 @@ export default {
         this.fetchJobs();
     },
     methods: {
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        goToPage() {
+            if (this.jumpPage > 0 && this.jumpPage <= this.totalPages) {
+                this.currentPage = this.jumpPage;
+            } else {
+                Message.error('页码超出范围');
+            }
+        },
         async fetchLatestData() {
             try {
                 await getNewData();
@@ -327,16 +365,17 @@ export default {
 <style scoped>
 .container {
     width: 100%;
-    padding: 20px;
+    padding: 10px; /* 缩小整体页面的内边距 */
     overflow-y: auto; /* 启用垂直滚动条 */
     max-height: 100vh; /* 限制容器的最大高度为视窗高度 */
     background-color: #e6f7ff; /* Light blue background color */
+    font-size: 14px; /* 缩小整体页面的字体 */
 }
 
 .card {
     border: 1px solid #ccc;
-    padding: 20px;
-    margin-top: 20px;
+    padding: 10px; /* 缩小卡片的内边距 */
+    margin-top: 10px; /* 缩小卡片的上边距 */
     border-radius: 5px;
 }
 
@@ -352,24 +391,24 @@ export default {
 .row {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* 缩小行之间的间距 */
 }
 
 .button-group {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 10px; /* 缩小按钮组的上边距 */
 }
 
 .result-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 10px; /* 缩小表格的上边距 */
 }
 
 .result-table th, .result-table td {
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 5px; /* 缩小表格单元格的内边距 */
     text-align: center;
 }
 

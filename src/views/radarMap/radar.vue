@@ -73,7 +73,7 @@ export default {
             selectedJob: null, // 存储当前选中的 jobId
             jobs: [],
             selectedSchool: null,
-            studentId: '2021051201',
+            studentId: '',
             AbilityRadarData: [],
             knowledgeRadarData: [],
             studentLiteracyData: null,
@@ -530,23 +530,6 @@ export default {
             }
         }
     },
-    // beforeDestroy() {
-    //     if (this.AbilityChartInstance) {
-    //         this.AbilityChartInstance.dispose();
-    //     }
-    //     if (this.knowledgeChartInstance) {
-    //         this.knowledgeChartInstance.dispose();
-    //     }
-    //     if (this.subChartInstance) {
-    //         this.subChartInstance.dispose();
-    //     }
-    //     if (this.personalInfoChartInstance) {
-    //         this.personalInfoChartInstance.dispose();
-    //     }
-    //     if (this.literacyChartInstance) {
-    //         this.literacyChartInstance.dispose();
-    //     }
-    // },
 };
 </script>
 <style>

@@ -94,8 +94,7 @@
             <i-button type="primary" size="large" @click="fetchLatestData" style="font-size: 18px; margin-left: 20px;">最新数据获取</i-button>
         </div>
 
-        <!-- 查询结果 -->
-        <div class="card" v-if="results.length" style="margin-top: 20px;">
+        <div class="card result-card" v-if="results.length" style="margin-top: 20px;">
             <h3>查询结果</h3>
             <table class="result-table">
                 <thead>
@@ -370,6 +369,11 @@ export default {
     max-height: 100vh; /* 限制容器的最大高度为视窗高度 */
     background-color: #e6f7ff; /* Light blue background color */
     font-size: 14px; /* 缩小整体页面的字体 */
+}
+.result-card {
+    width: 100%; /* 使查询结果框与查询框一样宽 */
+    overflow-y: auto; /* 查询结果框内加入垂直滚动条 */
+    max-height: 300px; /* 设定查询结果框的最大高度 */
 }
 
 .card {

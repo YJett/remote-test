@@ -213,9 +213,9 @@ export default {
                             value: school.schId,
                             label: school.schName
                         }));
-                        console.log(this.schools[0].value);
-                        this.selectedSchool = this.schools[0].value;
-                        this.selectedSchName = this.schools[0].label;
+                        // console.log(this.schools[0].value);
+                        // this.selectedSchool = this.schools[0].value;
+                        // this.selectedSchName = this.schools[0].label;
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }

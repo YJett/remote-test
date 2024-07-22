@@ -16,6 +16,15 @@ const store = new Vuex.Store({
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
+                name: 'password', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: '修改密码', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+
+                hidden: true,
+
+            },
+            {
 
                 text: '基本信息',
                 type: 'ios-paper',
@@ -222,6 +231,15 @@ const store = new Vuex.Store({
         ],
         adminMenuItems: [
             {
+                name: 'password', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+
+            //    hidden: true,
+
+            },
+            {
                 name: 'user', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型
@@ -408,6 +426,15 @@ const store = new Vuex.Store({
              */
         ],
         userMenuItems:[
+            {
+                name: 'password', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+
+            //    hidden: true,
+
+            },
             {
                 text: '知识体系',
                 type: 'ios-paper',

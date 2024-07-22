@@ -22,6 +22,7 @@ const commonRoutes = [
         meta: { title: '404' },
         component: () => import('../components/404.vue'),
     },
+
     { path: '/', redirect: '/home' },
 ]
 
@@ -45,6 +46,13 @@ export const asyncRoutes = {
     //     meta: { title: '公告管理' },
     //     component: () => import('../views/bulletin.vue'),
     // },
+    password: {
+        path: 'password',
+        name: 'password',
+        meta: { title: '修改密码' },
+        component: () => import('../views/Password.vue'),
+    },
+
     user: {
         path: 'user',
         name: 'user',

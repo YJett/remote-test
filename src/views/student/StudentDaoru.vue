@@ -2,7 +2,13 @@
     <div class="container">
         <!-- 学校选择 -->
         <div class="school-selection centered">
-            <Select v-model="selectedSchool" placeholder="请选择学校" class="school-select">
+            <Select
+                v-model="selectedSchool"
+                placeholder="请选择学校"
+                class="transparent-input"
+                style="width: 300px;"
+                :disabled="isSchoolLocked"
+            >
                 <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
             </Select>
         </div>
@@ -60,7 +66,7 @@
 
 <script>
 import { Upload, Message } from 'view-design';
-import { fetchAllSchools } from '@/api/schmanage';
+import { fetchAllSchools, getSchNameByLoginName } from '@/api/schmanage';
 
 export default {
     data() {
@@ -75,12 +81,23 @@ export default {
             studentUploadUrl: 'api/import/studentInfoData',
             studentUploadData: {},
             schools: [],
+            isSchoolLocked: false
         };
     },
     created() {
+        this.initialize();
         this.fetchSchools();
     },
     methods: {
+        initialize() {
+            this.fetchSchools();
+            const flg = parseInt(localStorage.getItem('flg'));
+            const userName = localStorage.getItem('name');
+            if (flg === 1 && userName) {
+                this.isSchoolLocked = true;
+                this.getSchoolName(userName);
+            }
+        },
         handleCourseBeforeUpload(file) {
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
                 Message.error('请选择XLSX文件');
@@ -193,6 +210,14 @@ export default {
             this[fileNameProp] = '';
             this[fileProp] = null;
             this.$refs[refName].clearFiles();
+        },
+        getSchoolName(loginName) {
+            getSchNameByLoginName(loginName).then(response => {
+                this.selectedSchool = response.data;
+            }).catch(error => {
+                console.error('获取学校名称失败:', error);
+                Message.error('获取学校名称失败');
+            });
         }
     }
 };

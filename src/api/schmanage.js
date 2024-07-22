@@ -59,3 +59,12 @@ export function updateSch(schId,schName,address,zipcode,tel,email,comment,status
         }
     })
 }
+export function getSchNameByLoginName(loginName) {
+    return request({
+        url: 'sch/getSchNameByLoginName',
+        method: 'GET',
+        params: {
+            loginName
+        }
+    })
+}

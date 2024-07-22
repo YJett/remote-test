@@ -84,21 +84,28 @@
       },
       submitLogin() {
         // 这里添加登录逻辑
-        if (this.account && this.pwd) {
-          getToken({ username: this.account, password: this.pwd }).then(data => {
-            localStorage.setItem('token', data.data.token);
-            store.commit('setUserType', parseInt(data.data.flg));
-            this.$router.push('/');
-            getInfo().then(data => {
-              localStorage.setItem('userName', data.data.name);
-            });
-          }).catch(error => {
-            this.accountError = '登录失败，请检查用户名或密码';
-          });
-        } else {
-          this.accountError = '账号不能为空';
-          this.pwdError = '密码不能为空';
-        }
+          if (this.account && this.pwd) {
+              getToken({ username: this.account, password: this.pwd }).then(data => {
+                  localStorage.setItem('token', data.data.token);
+                  localStorage.setItem('name', data.data.userName);
+                  localStorage.setItem('flg', data.data.flg);
+                  store.commit('setUserType', parseInt(data.data.flg));
+                  store.commit('setUserName', data.data.userName);
+                  if (parseInt(data.data.flg) === 1) {
+                      this.$router.push({
+                          path: '/',
+                          query: { lockSchool: true, userName: data.data.userName }
+                      });
+                  } else {
+                      this.$router.push('/');
+                  }
+              }).catch(error => {
+                  this.accountError = '登录失败，请检查用户名或密码';
+              });
+          } else {
+              this.accountError = '账号不能为空';
+              this.pwdError = '密码不能为空';
+          }
       },
     },
   };

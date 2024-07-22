@@ -1,10 +1,15 @@
 <template>
     <div class="container">
         <div class="card">
-
             <!-- 学校选择下拉框 -->
             <div v-if="selectedIdentity === 'sch'" class="school-input">
-                <Select v-model="selectedSchool" placeholder="请选择学校" class="transparent-input" style="width: 300px;">
+                <Select
+                    v-model="selectedSchool"
+                    placeholder="请选择学校"
+                    class="transparent-input"
+                    style="width: 300px;"
+                    :disabled="isSchoolLocked"
+                >
                     <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
                 </Select>
             </div>
@@ -34,8 +39,8 @@
 </template>
 
 <script>
-import { RadioGroup, Radio, Select, Option, Message, Upload, Button as IButton } from 'view-design';
-import { fetchAllSchools } from '@/api/schmanage';
+import { Select, Option, Message, Upload, Button as IButton } from 'view-design';
+import { fetchAllSchools, getSchNameByLoginName } from '@/api/schmanage';
 
 export default {
     data() {
@@ -47,22 +52,51 @@ export default {
             selectedFile: null,
             schools: [],
             uploadData: {},
+            isSchoolLocked: false
         };
     },
     created() {
+        this.initialize();
         this.fetchSchools();
     },
     methods: {
+        initialize() {
+            this.fetchSchools();
+            const flg = parseInt(localStorage.getItem('flg'));
+            const userName = localStorage.getItem('name');
+            if (flg === 1 && userName) {
+                this.isSchoolLocked = true;
+                this.getSchoolName(userName);
+            }
+        },
+        fetchSchools() {
+            fetchAllSchools()
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        // 过滤掉 status 为 9 的学校数据
+                        this.schools = response.data
+                            .filter(school => school.status !== 9)
+                            .map(school => ({
+                                value: school.schName,
+                                label: school.schName
+                            }));
+                    } else {
+                        Message.error('Failed to fetch schools: Invalid data format');
+                    }
+                })
+                .catch(error => {
+                    Message.error('Failed to fetch schools');
+                });
+        },
         handleBeforeUpload(file) {
             if (!file.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-                Message.error('请选择XLSX文件');
+                Message.error('请选择Excel文件');
                 return false;
             }
-            this.selectedFileName = file.name;
             this.selectedFile = file;
-            return false;
+            this.selectedFileName = file.name;
+            return true;
         },
-
         uploadFile() {
             if (!this.selectedFile) {
                 Message.warning('请选择要上传的文件');
@@ -96,34 +130,22 @@ export default {
         },
 
         clearFile() {
-            this.selectedFileName = '';
             this.selectedFile = null;
+            this.selectedFileName = '';
             this.$refs.upload.clearFiles();
         },
 
-        fetchSchools() {
-            fetchAllSchools()
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        // 过滤掉 status 为 9 的学校数据
-                        this.schools = response.data
-                            .filter(school => school.status !== 9)
-                            .map(school => ({
-                                value: school.schName,
-                                label: school.schName
-                            }));
-                    } else {
-                        Message.error('Failed to fetch schools: Invalid data format');
-                    }
-                })
-                .catch(error => {
-                    Message.error('Failed to fetch schools');
-                });
+        getSchoolName(loginName) {
+            getSchNameByLoginName(loginName).then(response => {
+                this.selectedSchool = response.data;
+            }).catch(error => {
+                console.error('获取学校名称失败:', error);
+                Message.error('获取学校名称失败');
+            });
         }
     },
 };
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 

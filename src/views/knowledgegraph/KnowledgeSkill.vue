@@ -15,6 +15,7 @@
                     <span>知识图谱</span>
                     <div class="sch-input">
                         <Select v-model="selectedSchool" placeholder="请选择school" @on-change="handleSchChange"
+                                :disabled="isSchoolLocked"
                                 style="width: 200px; font-size: 18px;">
                             <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label }}</Option>
                         </Select>
@@ -83,7 +84,7 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
-import {fetchAllSchools} from "@/api/schmanage";
+import {fetchAllSchools, getSchNameByLoginName} from "@/api/schmanage";
 import { fetchAllJobs } from '@/api/Jobmanage';
 import { insertJbAbilityKnowledge } from "@/api/JbAbilityKnowledge";
 import {Message} from "view-design";
@@ -94,6 +95,7 @@ const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 export default {
     data() {
         return {
+            isSchoolLocked: false,
             expandedNodes: {},
             selectedIdentity: 'sch',
             selectedJobName: '',
@@ -173,6 +175,7 @@ export default {
         };
     },
     async mounted() {
+        this.initialize();
         await this.fetchSchools();
         await this.fetchJobs();
     //    this.fetchKnowledgeGraphData(); // 获取知识图谱数据
@@ -185,6 +188,23 @@ export default {
         this.fetchJobList(); // 获取 Job 列表
     },
     methods: {
+        initialize() {
+            this.fetchSchools();
+            const flg = parseInt(localStorage.getItem('flg'));
+            const userName = localStorage.getItem('name');
+            if (flg === 1 && userName) {
+                this.isSchoolLocked = true;
+                this.getSchoolName(userName);
+            }
+        },
+        getSchoolName(loginName) {
+            getSchNameByLoginName(loginName).then(response => {
+                this.selectedSchName = response.data;
+            }).catch(error => {
+                console.error('获取学校名称失败:', error);
+                Message.error('获取学校名称失败');
+            });
+        },
         fetchSchools() {
             fetchAllSchools()
                 .then(response => {

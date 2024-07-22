@@ -27,8 +27,14 @@
                 <div class="row">
                     <h3 style="margin-right: 20px;">知识能力查询</h3>
                     <span>选择学校</span>
-                    <Select v-model="selectedSchool" placeholder="请选择学校" style="width: 200px; margin-left: 10px; margin-right: 30px;">
-                        <Option v-for="school in schools" :key="school.value" :value="school.value">{{ school.label }}</Option>
+                    <Select
+                        v-model="selectedSchool"
+                        placeholder="请选择学校"
+                        class="transparent-input"
+                        style="width: 300px;"
+                        :disabled="isSchoolLocked"
+                    >
+                        <Option v-for="opt in schools" :key="opt.value" :value="opt.value">{{ opt.label }}</Option>
                     </Select>
                     <div style="display: flex; align-items: center; margin-right: 50px;">
                         <span>专业核心课</span>
@@ -138,7 +144,7 @@
 
 <script>
 import {Select, Option, Input, CheckboxGroup, Checkbox, Button as IButton, Message} from 'view-design';
-import {fetchAllSchools} from '@/api/schmanage';
+import {fetchAllSchools,getSchNameByLoginName} from '@/api/schmanage';
 import {fetchAllJobs} from '@/api/Jobmanage';
 import {fetchAllAbilities, getNewData} from '@/api/ability';
 import {getStudentInfo} from '@/api/jobportray';
@@ -148,6 +154,7 @@ export default {
     components: {IButton},
     data() {
         return {
+            isSchoolLocked: false,
             selectedAbilityNm: '',
             selectedJobName: '',
             selectedJobId: '',
@@ -193,11 +200,29 @@ export default {
         }
     },
     created() {
+        this.initialize();
         this.fetchSchools();
         this.fetchAbilities();
         this.fetchJobs();
     },
     methods: {
+        initialize() {
+            this.fetchSchools();
+            const flg = parseInt(localStorage.getItem('flg'));
+            const userName = localStorage.getItem('name');
+            if (flg === 1 && userName) {
+                this.isSchoolLocked = true;
+                this.getSchoolName(userName);
+            }
+        },
+        getSchoolName(loginName) {
+            getSchNameByLoginName(loginName).then(response => {
+                this.selectedSchool = response.data;
+            }).catch(error => {
+                console.error('获取学校名称失败:', error);
+                Message.error('获取学校名称失败');
+            });
+        },
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
@@ -252,7 +277,8 @@ export default {
                     .filter(school => school.status !== 9)
                     .map(school => ({
                         label: school.schName,
-                        value: school.schId
+                        value: school.schName,
+                        id: school.schId
                     }));
             } catch (error) {
                 Message.error('获取学校信息失败');
@@ -263,6 +289,9 @@ export default {
                 Message.error('请选择岗位和学校');
                 return;
             }
+            const selectedSchoolObj = this.schools.find(school => school.value === this.selectedSchool);
+            const schId = selectedSchoolObj ? selectedSchoolObj.id : '';
+
             const group1 = this.selectedAbility && this.selectedOperator && this.abilityScore;
             const group2 = (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
 
@@ -273,7 +302,7 @@ export default {
 
             const params = {};
             params.jobid = this.selectedJobId;
-            params.schid = this.selectedSchool;
+            params.schid = schId;
             if (group1) {
                 params.abilityId = this.selectedAbility;
                 params.score = this.abilityScore;

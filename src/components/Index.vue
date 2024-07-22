@@ -314,6 +314,7 @@ export default {
         },
         // 跳转页面 路由名称和参数
         gotoPage(name, params) {
+            console.log('Route name:', name,params) // 调试信息
             this.currentPage = name
             this.crumbs = this.paths[name]
             this.$router.push({ name, params })

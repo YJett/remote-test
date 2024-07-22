@@ -10,7 +10,6 @@ export default function createRoutes(data) {
         component: () => import('../components/Index.vue'),
         children,
     })
-
     data.forEach(item => {
         generateRoutes(children, item)
     })

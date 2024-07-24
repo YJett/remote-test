@@ -24,9 +24,6 @@
 
         <div class="charts-container" style="margin-top: 0">
             <div class="row" style="width: 50%">
-                <Card class="chart-card">
-                    <div ref="AbilityRadar" class="chart"></div>
-                </Card>
                 <Card class="chart-card" style="height: 50%">
                     <div class="personal-info-container">
 
@@ -37,13 +34,16 @@
                         </ul>
                     </div>
                 </Card>
+                <Card class="chart-card">
+                    <div ref="AbilityRadar" class="chart"></div>
+                </Card>
             </div>
             <div class="row" style="width: 50%">
                 <Card class="chart-card">
-                    <div ref="knowledgeRadar" class="chart"></div>
+                    <div ref="literacyRadar" class="chart" style="margin-bottom: 30px"></div>
                 </Card>
                 <Card class="chart-card">
-                    <div ref="literacyRadar" class="chart" style="margin-bottom: 30px"></div>
+                    <div ref="knowledgeRadar" class="chart"></div>
                 </Card>
             </div>
         </div>

@@ -4,9 +4,9 @@
             <!-- Header content -->
             <el-switch v-model="switchValue"></el-switch>
             <el-input v-model="inputValue"></el-input>
-            <el-button @click="showRelationDialog">关联实体</el-button>
-            <el-button @click="showAddEntityDialog">添加实体</el-button>
-            <el-button @click="showEditEntityDialog">修改实体</el-button>
+<!--            <el-button @click="showRelationDialog">关联实体</el-button>-->
+<!--            <el-button @click="showAddEntityDialog">添加实体</el-button>-->
+<!--            <el-button @click="showEditEntityDialog">修改实体</el-button>-->
 
 
 <!--            <div v-if="selectedIdentity === 'sch'" class="school-input">-->

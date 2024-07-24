@@ -3,9 +3,9 @@
         <el-header>
             <el-switch v-model="switchValue"></el-switch>
             <el-input v-model="inputValue"></el-input>
-            <el-button @click="showRelationDialog">关联实体</el-button>
-            <el-button @click="showAddEntityDialog">添加实体</el-button>
-            <el-button @click="showEditEntityDialog">修改实体</el-button>
+<!--            <el-button @click="showRelationDialog">关联实体</el-button>-->
+<!--            <el-button @click="showAddEntityDialog">添加实体</el-button>-->
+<!--            <el-button @click="showEditEntityDialog">修改实体</el-button>-->
 
             <div class="job-input">
                 <Select v-model="selectedJobId" placeholder="请选择Job" @on-change="handleJobChange"
@@ -492,15 +492,15 @@ export default {
         },
 
         // Method to show relation dialog
-        showRelationDialog() {
-            if (this.currentClickNodeSkill) {
-                // this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
-                this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
-                this.relationDialogVisible = true;
-            } else {
-                this.$message.error("请先选择知识图谱和技能图谱中的节点！");
-            }
-        },
+        // showRelationDialog() {
+        //     if (this.currentClickNodeSkill) {
+        //         // this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
+        //         this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
+        //         this.relationDialogVisible = true;
+        //     } else {
+        //         this.$message.error("请先选择知识图谱和技能图谱中的节点！");
+        //     }
+        // },
         // Method to add relation
         addRelation() {
             // Logic to add relation
@@ -508,26 +508,26 @@ export default {
             this.$message.success("成功添加关联关系！");
         },
         // Method to show add entity dialog
-        showAddEntityDialog() {
-            // Logic to show add entity dialog
-            // this.fetchKnowledgeGraphData();
-            this.fetchSkillGraphData();
-            this.$message.info("添加实体功能暂未实现！");
-        },
+        // showAddEntityDialog() {
+        //     // Logic to show add entity dialog
+        //     // this.fetchKnowledgeGraphData();
+        //     this.fetchSkillGraphData();
+        //     this.$message.info("添加实体功能暂未实现！");
+        // },
         // Method to show edit entity dialog
-        showEditEntityDialog() {
-            // Logic to show edit entity dialog
-            this.$message.info("修改实体功能暂未实现！");
-        },
-        beforeDestroy() {
-            // Destroy the knowledge graph and skill graph instances
-            // if (this.knowledgeGraph) {
-            //     this.knowledgeGraph.destroy();
-            // }
-            if (this.skillGraph) {
-                this.skillGraph.destroy();
-            }
-        }
+        // showEditEntityDialog() {
+        //     // Logic to show edit entity dialog
+        //     this.$message.info("修改实体功能暂未实现！");
+        // // },
+        // beforeDestroy() {
+        //     // Destroy the knowledge graph and skill graph instances
+        //     // if (this.knowledgeGraph) {
+        //     //     this.knowledgeGraph.destroy();
+        //     // }
+        //     if (this.skillGraph) {
+        //         this.skillGraph.destroy();
+        //     }
+        // }
     }
 };
 </script>

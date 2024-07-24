@@ -66,12 +66,12 @@
                 <el-form-item label="关系名称">
                     <el-input v-model="relationForm.relationName"></el-input>
                 </el-form-item>
-                <el-form-item label="关系方向">
-                    <el-radio-group v-model="relationForm.direction">
-                        <el-radio label="正向关系">正向关系</el-radio>
-                        <el-radio label="逆向关系">逆向关系</el-radio>
-                    </el-radio-group>
-                </el-form-item>
+<!--                <el-form-item label="关系方向">-->
+<!--                    <el-radio-group v-model="relationForm.direction">-->
+<!--                        <el-radio label="正向关系">正向关系</el-radio>-->
+<!--                        <el-radio label="逆向关系">逆向关系</el-radio>-->
+<!--                    </el-radio-group>-->
+<!--                </el-form-item>-->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="relationDialogVisible = false">取消</el-button>

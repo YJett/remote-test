@@ -200,6 +200,7 @@ export default {
         getSchoolName(loginName) {
             getSchNameByLoginName(loginName).then(response => {
                 this.selectedSchName = response.data;
+                console.log(this.selectedSchName);
             }).catch(error => {
                 console.error('获取学校名称失败:', error);
                 Message.error('获取学校名称失败');
@@ -212,10 +213,12 @@ export default {
                         this.schools = response.data.map(school => ({
                             value: school.schId,
                             label: school.schName
-                        }));
+                        }))
+                        .filter(school => school.label === this.selectedSchName);
+
                         // console.log(this.schools[0].value);
-                        // this.selectedSchool = this.schools[0].value;
-                        // this.selectedSchName = this.schools[0].label;
+                        this.selectedSchool = this.schools[0].value;
+                        this.selectedSchName = this.schools[0].label;
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }

@@ -28,4 +28,8 @@ new Vue({
     router,
     store,
     render: h => h(App),
+    created() {
+        // 在应用启动时调用初始化方法
+        this.$store.dispatch('initialize');
+    }
 })

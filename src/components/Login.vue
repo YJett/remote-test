@@ -89,6 +89,8 @@
                   localStorage.setItem('token', data.data.token);
                   localStorage.setItem('name', data.data.userName);
                   localStorage.setItem('flg', data.data.flg);
+                  localStorage.setItem('userType', data.data.flg); // 存储用户类型到 localStorage
+
                   store.commit('setUserType', parseInt(data.data.flg));
                   store.commit('setUserName', data.data.userName);
                   if (parseInt(data.data.flg) === 1) {

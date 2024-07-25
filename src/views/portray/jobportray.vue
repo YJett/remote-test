@@ -69,14 +69,13 @@
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">个人素养查询</h3>
-                    <span style="margin-right: 10px;">政治面貌</span>
-                    <CheckboxGroup v-model="politicalStatus" style="display: flex; margin-right: 600px">
-                        <Checkbox label="党员" style="margin-right: 5px;">党员</Checkbox>
-                        <Checkbox label="预备党员" style="margin-right: 5px;">预备党员</Checkbox>
-                        <Checkbox label="共青团员" style="margin-right: 5px;">共青团员</Checkbox>
-                        <Checkbox label="群众" style="margin-right: 5px;">群众</Checkbox>
-                        <Checkbox label="其他" style="margin-right: 5px;">其他</Checkbox>
-                    </CheckboxGroup>
+                    <!-- 将CheckboxGroup改为RadioGroup，并且将v-model="politicalStatus"应用到RadioGroup上 -->
+                    <RadioGroup v-model="politicalStatus" style="display: flex; margin-right: 600px">
+                        <Radio label="党员" style="margin-right: 5px;">党员</Radio>
+                        <Radio label="预备党员" style="margin-right: 5px;">预备党员</Radio>
+                        <Radio label="共青团员" style="margin-right: 5px;">共青团员</Radio>
+                        <Radio label="群众" style="margin-right: 5px;">群众</Radio>
+                    </RadioGroup>
                     <div class="row" style="margin-top: 10px; align-items: center;">
                         <span style="margin-left: -500px;">学生生源地</span>
                         <Input v-model="studentSource" placeholder="请输入生源地" style="width: 300px; margin-left: 10px"/>
@@ -170,7 +169,7 @@ export default {
             expCourseScore: '',
             selectedBasicCourseOperator: '',
             basicCourseScore: '',
-            politicalStatus: [],
+            politicalStatus: '',
             certificate: '',
             competition: '',
             scholarship: '',
@@ -293,16 +292,19 @@ export default {
             const schId = selectedSchoolObj ? selectedSchoolObj.id : '';
 
             const group1 = this.selectedAbility && this.selectedOperator && this.abilityScore;
+
             const group2 = (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
 
-            if (!group1 && !group2) {
-                Message.error('Either group1 (jobid, abilityId, score, scoreComparison) or group2 (schid, types, minScores, minScoreComparisons) must be provided.');
+            const group3 = (this.politicalStatus) || (this.certificate ) || (this.competition) || (this.studentSource ) || (this.scholarship );
+            if (!group1 && !group2 && !group3) {
+                Message.error('至少需要填写一个查询条件');
                 return;
             }
 
             const params = {};
             params.jobid = this.selectedJobId;
             params.schid = schId;
+
             if (group1) {
                 params.abilityId = this.selectedAbility;
                 params.score = this.abilityScore;
@@ -330,12 +332,13 @@ export default {
                 }
             }
 
-            // Adding new parameters for personal qualities query
-            params.party = this.politicalStatus.length > 0 ? this.politicalStatus.join(';') : null;
-            params.certificate = this.certificate || null;
-            params.contest = this.competition || null;
-            params.scholarship = this.scholarship || null;
-            params.hometown = this.studentSource || null;
+            if (group3){
+                params.party = this.politicalStatus|| null;
+                params.certificate = this.certificate || null;
+                params.contest = this.competition || null;
+                params.scholarship = this.scholarship || null;
+                params.hometown = this.studentSource || null;
+            }
 
             console.log('请求参数:', params);
             getStudentInfo(params)

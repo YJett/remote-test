@@ -29,17 +29,24 @@ export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison
     const group1 = abilityId !== undefined && score !== undefined && scoreComparison !== undefined;
 
     // 检查第二组参数 (types, minScores, minScoreComparisons)
-    const group2 = (types !== undefined && types.length > 0) ||
-        (minScores !== undefined && minScores.length > 0) ||
+    const group2 = (types !== undefined && types.length > 0) &&
+        (minScores !== undefined && minScores.length > 0) &&
         (minScoreComparisons !== undefined && minScoreComparisons.length > 0);
 
-    if (!group1 && !group2) {
-        throw new Error('Either group1 (abilityId, score, scoreComparison) or group2 (types, minScores, minScoreComparisons) must be provided.');
+    const group3 = party !== undefined ||
+        contest !== undefined ||
+        scholarship !== undefined ||
+        certificate !== undefined ||
+        hometown !== undefined;
+
+    if (!group1 && !group2 && !group3) {
+        throw new Error('Either group1 (abilityId, score, scoreComparison) or group2 (types, minScores, minScoreComparisons) or group3333 must be provided.');
     }
 
     const params = {};
     params.jobid = jobid;
     params.schid = schid;
+
     if (group1) {
         params.abilityId = abilityId;
         params.score = score;
@@ -52,20 +59,11 @@ export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison
         params.minScoreComparisons = minScoreComparisons;
     }
 
-    // 添加第三组参数
-    if (party !== undefined) {
+    if (group3) {
         params.party = party;
-    }
-    if (contest !== undefined) {
         params.contest = contest;
-    }
-    if (scholarship !== undefined) {
         params.scholarship = scholarship;
-    }
-    if (certificate !== undefined) {
         params.certificate = certificate;
-    }
-    if (hometown !== undefined) {
         params.hometown = hometown;
     }
 

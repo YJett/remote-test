@@ -15,9 +15,9 @@
                     <span>知识图谱</span>
                     <div class="sch-input">
                         <Select v-model="selectedSchool" placeholder="请选择school" @on-change="handleSchChange"
-                                :disabled="isSchoolLocked"
-                                style="width: 200px; font-size: 18px;">
-                            <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label }}</Option>
+                            :disabled="isSchoolLocked" style="width: 200px; font-size: 18px;">
+                            <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label
+                                }}</Option>
                         </Select>
                     </div>
                 </div>
@@ -34,16 +34,12 @@
                     <el-tag @click="filterNodeType('等级2')" style="cursor: pointer; margin-left: 10px;">等级2</el-tag>
                     <el-tag @click="filterNodeType('等级3')" style="cursor: pointer; margin-left: 10px;">等级3</el-tag>
                     <el-tag @click="filterNodeType('all')" style="cursor: pointer; margin-left: 10px;">所有类型</el-tag>
-                    <el-tag
-                        :key="'refresh'"
-                        @click="fetchSkillGraphData"
-                        style="cursor: pointer; margin-left: 10px;"
-                    >
+                    <el-tag :key="'refresh'" @click="fetchSkillGraphData" style="cursor: pointer; margin-left: 10px;">
                         {{ `刷新` }}
                     </el-tag>
                     <div class="job-input">
                         <Select v-model="selectedJobId" placeholder="请选择Job" @on-change="handleJobChange"
-                                style="width: 200px; font-size: 18px;">
+                            style="width: 200px; font-size: 18px;">
                             <Option v-for="job in jobs" :key="job.jobId" :value="job.value">{{ job.label }}</Option>
                         </Select>
                     </div>
@@ -66,12 +62,12 @@
                 <el-form-item label="关系名称">
                     <el-input v-model="relationForm.relationName"></el-input>
                 </el-form-item>
-<!--                <el-form-item label="关系方向">-->
-<!--                    <el-radio-group v-model="relationForm.direction">-->
-<!--                        <el-radio label="正向关系">正向关系</el-radio>-->
-<!--                        <el-radio label="逆向关系">逆向关系</el-radio>-->
-<!--                    </el-radio-group>-->
-<!--                </el-form-item>-->
+                <!--                <el-form-item label="关系方向">-->
+                <!--                    <el-radio-group v-model="relationForm.direction">-->
+                <!--                        <el-radio label="正向关系">正向关系</el-radio>-->
+                <!--                        <el-radio label="逆向关系">逆向关系</el-radio>-->
+                <!--                    </el-radio-group>-->
+                <!--                </el-form-item>-->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="relationDialogVisible = false">取消</el-button>
@@ -84,10 +80,10 @@
 <script>
 import G6 from "@antv/g6";
 import { kgBuilderApi } from "@/api";
-import {fetchAllSchools, getSchNameByLoginName} from "@/api/schmanage";
+import { fetchAllSchools, getSchNameByLoginName } from "@/api/schmanage";
 import { fetchAllJobs } from '@/api/Jobmanage';
 import { insertJbAbilityKnowledge } from "@/api/JbAbilityKnowledge";
-import {Message} from "view-design";
+import { Message } from "view-design";
 
 const KNOWLEDGEANDSHIP = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
 const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
@@ -99,7 +95,7 @@ export default {
             expandedNodes: {},
             selectedIdentity: 'sch',
             selectedJobName: '',
-            selectedJobId:'', // 存储当前选中的 jobId
+            selectedJobId: '', // 存储当前选中的 jobId
             jobs: [],
             selectedSchName: '',
             schools: [],
@@ -176,14 +172,14 @@ export default {
     },
     async mounted() {
         this.initialize();
-        await this.fetchSchools();
-        await this.fetchJobs();
-    //    this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+        this.fetchSchools();
+        this.fetchJobs();
+        //    this.fetchKnowledgeGraphData(); // 获取知识图谱数据
         await this.fetchSkillGraphData()
         this.initKnowledgeGraph(); // 初始化知识图谱
         this.initSkillGraph(); // 初始化技能图谱
-    //    this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
-    //    this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
+        //    this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
+        //    this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
         this.fetchSchoolList(); // 获取学校列表
         this.fetchJobList(); // 获取 Job 列表
     },
@@ -214,7 +210,7 @@ export default {
                             value: school.schId,
                             label: school.schName
                         }))
-                        .filter(school => school.label === this.selectedSchName);
+                            .filter(school => school.label === this.selectedSchName);
 
                         // console.log(this.schools[0].value);
                         this.selectedSchool = this.schools[0].value;
@@ -227,8 +223,8 @@ export default {
                     Message.error('Failed to fetch schools');
                 });
         },
-                // 新增的方法，用于根据 level 筛选节点并更新图表
-                filterAndRenderByLevel(level) {
+        // 新增的方法，用于根据 level 筛选节点并更新图表
+        filterAndRenderByLevel(level) {
             // 筛选出指定 level 的节点
             const filteredNodes = this.allNodes.filter(node => node.level === level);
             // 获取这些节点的 id 列表
@@ -407,39 +403,39 @@ export default {
         },
         clearStates(graph) {
             graph.getNodes() &&
-            graph.getNodes().forEach(item => {
-                if (
-                    item.getStates().findIndex(node => {
-                        return node === "highlight";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "highlight", false);
-                }
-                if (
-                    item.getStates().findIndex(node => {
-                        return node === "dark";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "dark", false);
-                }
-            });
+                graph.getNodes().forEach(item => {
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(node => {
+                            return node === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
             graph.getEdges() &&
-            graph.getEdges().forEach(item => {
-                if (
-                    item.getStates().findIndex(edge => {
-                        return edge === "highlight";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "highlight", false);
-                }
-                if (
-                    item.getStates().findIndex(edge => {
-                        return edge === "dark";
-                    }) !== -1
-                ) {
-                    graph.setItemState(item, "dark", false);
-                }
-            });
+                graph.getEdges().forEach(item => {
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "highlight";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "highlight", false);
+                    }
+                    if (
+                        item.getStates().findIndex(edge => {
+                            return edge === "dark";
+                        }) !== -1
+                    ) {
+                        graph.setItemState(item, "dark", false);
+                    }
+                });
         },
         async fetchKnowledgeGraphData() {
             let cypherQuery = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`; // 默认查询
@@ -464,8 +460,8 @@ export default {
                     label: rel.type,
                 }));
                 this.knowledgeGraphData = {
-                    nodes:allNodes,
-                    edges:allEdges
+                    nodes: allNodes,
+                    edges: allEdges
                 };
                 console.log(this.knowledgeGraphData)
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
@@ -495,8 +491,8 @@ export default {
                     label: rel.type,
                 }));
                 this.knowledgeGraphData = {
-                    nodes:allNodes,
-                    edges:allEdges
+                    nodes: allNodes,
+                    edges: allEdges
                 };
                 console.log(this.knowledgeGraphData)
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
@@ -527,8 +523,8 @@ export default {
                 this.allNodes = allNodes;
                 this.allEdges = allEdges;
                 this.skillGraphData = {
-                    nodes:allNodes,
-                    edges:allEdges
+                    nodes: allNodes,
+                    edges: allEdges
                 };
                 console.log(this.skillGraphData)
                 // Update the graph data
@@ -603,7 +599,7 @@ export default {
                 const currentTime = new Date().toLocaleString(); // 获取当前时间
                 console.log("当前节点:", nodeItem.getModel());
                 console.log("当前时间:", currentTime);
-                    // 获取当前节点的 id
+                // 获取当前节点的 id
                 const nodeId = nodeItem.getModel().id;
                 const knowledgeId = nodeItem.getModel().knowledgeId;
                 const schId = nodeItem.getModel().schId;
@@ -611,7 +607,7 @@ export default {
                 let cypherQuery = `MATCH (n {id: ${nodeId}})-[]-(relatedNode) RETURN relatedNode`;
                 const cypherQuery2 = `MATCH (kp:KnowledgePoint {knowledgeId: ${knowledgeId}, schId: ${schId}})-[]-(relatedNode) RETURN relatedNode`;
                 this.fetchSkillGraphDataAndRenderChart(cypherQuery2);
-                });
+            });
 
             knowledgeGraph.on("node:click", e => {
 
@@ -675,8 +671,8 @@ export default {
                     preventOverlap: true,
                     workerEnabled: true, // 启用 Web Worker
                     gpuEnabled: true,
-               //     linkDistance: 150, // 增加这个值可以使节点间距离更大
-                //    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
+                    //     linkDistance: 150, // 增加这个值可以使节点间距离更大
+                    //    preventOverlapPadding: 30 // 增加这个值可以使节点间距离更大
                 },
                 defaultNode: {
                     size: [100, 100],
@@ -787,7 +783,7 @@ export default {
                 this.relationForm.entity1 = JSON.stringify(this.currentClickNodeKnowledge);
                 this.relationForm.entity2 = JSON.stringify(this.currentClickNodeSkill);
                 this.relationDialogVisible = true;
-                insertJbAbilityKnowledge(this.selectedSchool,this.currentClickNodeSkill.abilityNo,this.currentClickNodeKnowledge.knowledgeId).then(res => {
+                insertJbAbilityKnowledge(this.selectedSchool, this.currentClickNodeSkill.abilityNo, this.currentClickNodeKnowledge.knowledgeId).then(res => {
                     this.$Message.success('关联成功');
                 });
             } else {

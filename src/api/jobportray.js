@@ -13,13 +13,13 @@ import request from '@/utils/request'
  * @param {number[]} [params.minScores] - List of minimum scores.
  * @param {string[]} [params.minScoreComparisons] - List of minimum score comparisons.
  * @param {string} [params.party] - Party.
- * @param {string} [params.contest] - Contest.
- * @param {string} [params.scholarship] - Scholarship.
- * @param {string} [params.certificate] - Certificate.
+ * @param {string} [params.binfo] - binfo、竞赛.
+ * @param {string} [params.ainfo] - ainfo/奖学金.
+ * @param {string} [params.cinfo] - cinfo证书.
  * @param {string} [params.hometown] - Hometown.
  * @returns {Promise} - A promise that resolves to the result of the API call.
  */
-export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison, types, minScores, minScoreComparisons, party, contest, scholarship, certificate, hometown }) {
+export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison, types, minScores, minScoreComparisons, party, binfo, ainfo, cinfo, hometown }) {
     // 检查 jobid 和 schid 是否存在
     if (jobid === undefined || schid === undefined) {
         throw new Error('jobid and schid are required.');
@@ -34,14 +34,14 @@ export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison
         (minScoreComparisons !== undefined && minScoreComparisons.length > 0);
 
     const group3 = party !== undefined ||
-        contest !== undefined ||
-        scholarship !== undefined ||
-        certificate !== undefined ||
+        binfo !== undefined ||
+        ainfo !== undefined ||
+        cinfo !== undefined ||
         hometown !== undefined;
 
-    if (!group1 && !group2 && !group3) {
-        throw new Error('Either group1 (abilityId, score, scoreComparison) or group2 (types, minScores, minScoreComparisons) or group3333 must be provided.');
-    }
+    // if (!group1 && !group2 && !group3) {
+    //     throw new Error('Either group1 (abilityId, score, scoreComparison) or group2 (types, minScores, minScoreComparisons) or group3333 must be provided.');
+    // }
 
     const params = {};
     params.jobid = jobid;
@@ -61,9 +61,9 @@ export function getStudentInfo({ jobid, schid, abilityId, score, scoreComparison
 
     if (group3) {
         params.party = party;
-        params.contest = contest;
-        params.scholarship = scholarship;
-        params.certificate = certificate;
+        params.binfo = binfo;
+        params.ainfo = ainfo;
+        params.cinfo = cinfo;
         params.hometown = hometown;
     }
 

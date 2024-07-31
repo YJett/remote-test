@@ -252,7 +252,7 @@ export default {
                 const response = await fetchAllAbilities();
                 this.abilities = response.data.map(ability => ({
                     label: ability.abilitynm,
-                    value: ability.abilityid
+                    value: ability.abilityno
                 }));
             } catch (error) {
                 Message.error('获取能力信息失败');
@@ -296,10 +296,10 @@ export default {
             const group2 = (this.selectedCoreCourseOperator && this.coreCourseScore) || (this.selectedExpCourseOperator && this.expCourseScore) || (this.selectedBasicCourseOperator && this.basicCourseScore);
 
             const group3 = (this.politicalStatus) || (this.certificate ) || (this.competition) || (this.studentSource ) || (this.scholarship );
-            if (!group1 && !group2 && !group3) {
-                Message.error('至少需要填写一个查询条件');
-                return;
-            }
+            // if (!group1 || !group2 || !group3) {
+            //     Message.error('至少需要填写一个查询条件');
+            //     return;
+            // }
 
             const params = {};
             params.jobid = this.selectedJobId;
@@ -334,9 +334,9 @@ export default {
 
             if (group3){
                 params.party = this.politicalStatus|| null;
-                params.certificate = this.certificate || null;
-                params.contest = this.competition || null;
-                params.scholarship = this.scholarship || null;
+                params.cinfo = this.certificate || null;
+                params.binfo = this.competition || null;
+                params.ainfo = this.scholarship || null;
                 params.hometown = this.studentSource || null;
             }
 
@@ -379,7 +379,7 @@ export default {
             this.expCourseScore = '';
             this.selectedBasicCourseOperator = '';
             this.basicCourseScore = '';
-            this.politicalStatus = [];
+            this.politicalStatus = '';
             this.certificate = '';
             this.competition = '';
             this.scholarship = '';

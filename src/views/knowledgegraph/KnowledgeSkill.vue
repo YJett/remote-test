@@ -174,10 +174,14 @@ export default {
         this.initialize();
         this.fetchSchools();
         this.fetchJobs();
-        //    this.fetchKnowledgeGraphData(); // 获取知识图谱数据
-        await this.fetchSkillGraphData()
         this.initKnowledgeGraph(); // 初始化知识图谱
+        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+
         this.initSkillGraph(); // 初始化技能图谱
+
+        await this.fetchSkillGraphData()
+
+
         //    this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
         //    this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
         this.fetchSchoolList(); // 获取学校列表
@@ -191,6 +195,9 @@ export default {
             if (flg === 1 && userName) {
                 this.isSchoolLocked = true;
                 this.getSchoolName(userName);
+            }
+            if (flg === 0) {
+                this.isSchoolLocked = false;
             }
         },
         getSchoolName(loginName) {
@@ -206,19 +213,29 @@ export default {
             fetchAllSchools()
                 .then(response => {
                     if (Array.isArray(response.data)) {
-                        this.schools = response.data.map(school => ({
-                            value: school.schId,
-                            label: school.schName
-                        }))
-                            .filter(school => school.label === this.selectedSchName);
+                        const flg = parseInt(localStorage.getItem('flg'));
+                        if (flg === 0) {
+                            this.schools = response.data.map(school => ({
+                                value: school.schId,
+                                label: school.schName
+                            }))
+                        } else if (flg === 1) {
+                            this.schools = response.data.map(school => ({
+                                value: school.schId,
+                                label: school.schName
+                            }))
+                                .filter(school => school.label === this.selectedSchName);
 
-                        // console.log(this.schools[0].value);
+                        }
+
+                        console.log("当前选中的school是" + this.schools[0].value);
                         this.selectedSchool = this.schools[0].value;
                         this.selectedSchName = this.schools[0].label;
+                        this.fetchKnowledgeGraphData()
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }
-                }).then(this.fetchKnowledgeGraphData())
+                })
                 .catch(error => {
                     Message.error('Failed to fetch schools');
                 });
@@ -439,7 +456,7 @@ export default {
         },
         async fetchKnowledgeGraphData() {
             let cypherQuery = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`; // 默认查询
-            console.log(this.selectedSchool)
+            console.log("fetch knowledge data current is " + this.selectedSchool)
             // 如果提供了 参数，修改查询语句以包含 jobId 条件
             if (this.selectedSchool) {
                 cypherQuery = `MATCH (n:KnowledgePoint {schId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;

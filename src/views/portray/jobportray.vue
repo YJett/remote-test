@@ -106,26 +106,36 @@
                 <tr>
                     <th>No</th>
                     <th>姓名</th>
+                    <th>学号</th>
                     <th>学校</th>
                     <th>生源地</th>
                     <th>政治面貌</th>
                     <th>奖学金情况</th>
                     <th>竞赛情况</th>
                     <th>证书</th>
-                    <th>绩点</th>
+<!--                    <th>绩点</th>-->
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="(result, index) in paginatedResults" :key="index">
                     <td>{{ index + 1 + (currentPage - 1) * pageSize }}</td>
                     <td>{{ result.studentNm || '' }}</td>
+                    <td>
+         <span
+             class="clickable"
+             @click="handleRadarPage(result)"
+             style="color: blue; cursor: pointer;"
+         >
+    {{ result.studentNo || '' }}
+    </span>
+                    </td>
                     <td>{{ result.schName || '' }}</td>
                     <td>{{ result.hometown || '' }}</td>
                     <td>{{ result.party || '' }}</td>
                     <td v-html="formatScholarship(result.scholarship)"></td>
                     <td>{{ result.contest || '' }}</td>
                     <td>{{ result.certificate || '' }}</td>
-                    <td>{{ result.gpa !== null && result.gpa !== undefined ? result.gpa : '' }}</td>
+<!--                    <td>{{ result.gpa !== null && result.gpa !== undefined ? result.gpa : '' }}</td>-->
                 </tr>
                 </tbody>
             </table>
@@ -205,6 +215,7 @@ export default {
         this.fetchJobs();
     },
     methods: {
+
         initialize() {
             this.fetchSchools();
             const flg = parseInt(localStorage.getItem('flg'));
@@ -340,11 +351,12 @@ export default {
                 params.hometown = this.studentSource || null;
             }
 
-            console.log('请求参数:', params);
+            // console.log('请求参数:', params);
             getStudentInfo(params)
                 .then(response => {
                     if (response.data) {
                         this.results = response.data.map((item, index) => ({
+                            studentNo:item.studentNo,
                             studentNm: item.studentNm,
                             schName: item.schName,
                             hometown: item.hometown,
@@ -365,6 +377,34 @@ export default {
                     console.error('Error:', error); // 添加日志
                     Message.error('查询失败');
                 });
+        },
+        handleRadarPage(result) {
+            // 从结果中提取需要的参数
+            const studentNo = result.studentNo;
+
+            // 查找学校对象并获取 schoolId
+            const SchoolObj = this.schools.find(school => school.value === result.schName);
+            const schoolId = SchoolObj ? SchoolObj.id : ''; // 确保使用正确的属性来获得 schoolId
+
+
+            // 调用 goToRadarPage 方法，并传递 schoolId、studentNo 和 jobId
+            this.goToRadarPage(schoolId, studentNo, this.selectedJobId);
+        },
+
+        // 跳转到雷达图页面的方法
+        goToRadarPage(schoolId, studentNo, jobId) {
+            // console.log('Navigating to radar page with parameters:');
+            // console.log('School ID:', schoolId);
+            // console.log('Student Number:', studentNo);
+            // console.log('Job ID:', jobId);
+            this.$router.push({
+                path: '/radar',
+                query: {
+                    schId: schoolId,
+                    jobId: jobId,
+                    studentNo: studentNo
+                },
+            });
         },
         reset() {
             this.selectedJobId = '';

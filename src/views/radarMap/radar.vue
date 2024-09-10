@@ -92,18 +92,46 @@ export default {
             personalInfoData: null,// 用于存储上一级的 abilityNm
         };
     },
-    mounted() {
+    async created() {
+        try {
+            await Promise.all([this.fetchSchools(), this.fetchJobs()]);
+        } catch (error) {
+            console.error('数据加载失败:', error);
+        }
+    },
+    async mounted() {
+        this.fetchSchools();
+        this.fetchJobs();
         this.calculateModalTop(); // 在 mounted 钩子中计算 modalTop
         window.addEventListener('resize', this.calculateModalTop); // 监听窗口大小变化
+
+        const query = this.$route.query;
+
+        // 打印路由参数
+        console.log('Query Parameters:', query.schId,query.jobId,query.studentNo);
+
+        if (query.schId && query.jobId && query.studentNo) {
+
+            // 自动填充表单
+            this.studentId = query.studentNo;
+            await this.$nextTick();
+            this.selectedSchool =  query.schId
+            this.selectedJob =  query.jobId;
+
+            console.log('Selected School:', this.selectedSchool);
+            console.log('Selected Job:', this.selectedJob);
+            console.log('studentId:', this.studentId);
+
+            // 自动执行画图
+            this.handleSearch1();
+        }
+
     },
     destroyed() {
         window.removeEventListener('resize', this.calculateModalTop);
     },
-    created() {
-        this.fetchSchools();
-        this.fetchJobs();
-    },
     methods: {
+
         calculateModalTop() {
             this.modalTop = (window.innerHeight - 400) / 2; // 计算 modalTop
         },
@@ -139,8 +167,18 @@ export default {
                     Message.error('获取学校列表失败');
                 });
         },
-        handleSearch() {
+        handleSearch1() {
             if (this.selectedSchool && this.studentId && this.selectedJob) {
+                this.fetchAbilityData();
+                this.fetchKnowledgeData();
+                this.fetchStudentLiteracyData();
+            } else {
+                Message.warning('请填写学校ID、岗位和学生学号');
+            }
+        },
+        handleSearch() {
+            console.log("handleSearch的参数",this.selectedSchool,this.selectedJob,this.studentId);
+            if (this.selectedSchool.value && this.studentId.value && this.selectedJob.value) {
                 this.fetchAbilityData();
                 this.fetchKnowledgeData();
                 this.fetchStudentLiteracyData();
@@ -182,10 +220,13 @@ export default {
                 this.literacyChartInstance.clear();
             }
         },
+
         fetchAbilityData() {
+            let jobId = this.selectedJob?.value ?? this.selectedJob;
+            let schId = this.selectedSchool?.value ?? this.selectedSchool;
             const params = {
-                jobId: this.selectedJob.value,
-                schId: this.selectedSchool.value,
+                jobId: jobId,
+                schId: schId,
                 studentId: this.studentId,
                 lv: 1,
             };
@@ -200,8 +241,10 @@ export default {
                     Message.error('获取能力数据失败');
                 });
         },
+
         fetchKnowledgeData() {
-            getAverageScoreByType(this.selectedSchool.value, this.studentId)
+            const schId = this.selectedSchool?.value ?? this.selectedSchool;
+            getAverageScoreByType(schId, this.studentId)
                 .then(res => {
                     const data = res.data;
                     this.processKnowledgeData(data);
@@ -212,8 +255,10 @@ export default {
                     Message.error('获取知识评分数据失败');
                 });
         },
+
         fetchStudentLiteracyData() {
-            getStudentLiteracy(this.selectedSchool.value, this.studentId)
+            let schId = this.selectedSchool?.value ?? this.selectedSchool;
+            getStudentLiteracy(schId, this.studentId)
                 .then(res => {
                     const data = res.data;
                     if (!data || Object.keys(data).length === 0) {
@@ -413,8 +458,8 @@ export default {
                     return;
                 }
                 const params = {
-                    jobId: this.selectedJob.value,
-                    schId: this.selectedSchool.value,
+                    jobId: this.selectedJob?.value ?? this.selectedJob,
+                    schId: this.selectedSchool?.value ?? this.selectedSchool,
                     studentId: this.studentId,
                     lv: lv,
                     upabilityId: abilityNo
@@ -484,7 +529,8 @@ export default {
                     this.subRadarData = [];
                     return;
                 }
-                getScoreAndKnowledgeName(this.selectedSchool.value, this.studentId, type)
+                let schId = this.selectedSchool?.value ?? this.selectedSchool;
+                getScoreAndKnowledgeName(schId, this.studentId, type)
                     .then(res => {
                         const data = res.data;
                         if (!data || data.length === 0) {

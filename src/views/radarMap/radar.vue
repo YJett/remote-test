@@ -113,14 +113,14 @@ export default {
         if (query.schId && query.jobId && query.studentNo) {
 
             // 自动填充表单
-            this.studentId = query.studentNo;
+            this.studentId1 = query.studentNo;
             await this.$nextTick();
-            this.selectedSchool =  query.schId
-            this.selectedJob =  query.jobId;
+            this.selectedSchool1 =  query.schId
+            this.selectedJob1 =  query.jobId;
 
-            console.log('Selected School:', this.selectedSchool);
-            console.log('Selected Job:', this.selectedJob);
-            console.log('studentId:', this.studentId);
+            console.log('Selected School:', this.selectedSchool1);
+            console.log('Selected Job:', this.selectedJob1);
+            console.log('studentId:', this.studentId1);
 
             // 自动执行画图
             this.handleSearch1();
@@ -168,17 +168,20 @@ export default {
                 });
         },
         handleSearch1() {
-            if (this.selectedSchool && this.studentId && this.selectedJob) {
-                this.fetchAbilityData();
-                this.fetchKnowledgeData();
-                this.fetchStudentLiteracyData();
+            console.log("handleSearch1的参数",this.selectedSchool1,this.selectedJob1,this.studentId1);
+
+            if (this.selectedSchool1 && this.studentId1 && this.selectedJob1) {
+                this.fetchAbilityData1();
+                this.fetchKnowledgeData1();
+                this.fetchStudentLiteracyData1();
             } else {
-                Message.warning('请填写学校ID、岗位和学生学号');
+                Message.warning('请填写跳转学校ID、岗位和学生学号');
             }
         },
         handleSearch() {
             console.log("handleSearch的参数",this.selectedSchool,this.selectedJob,this.studentId);
-            if (this.selectedSchool.value && this.studentId.value && this.selectedJob.value) {
+
+            if (this.selectedSchool && this.studentId && this.selectedJob) {
                 this.fetchAbilityData();
                 this.fetchKnowledgeData();
                 this.fetchStudentLiteracyData();
@@ -220,17 +223,34 @@ export default {
                 this.literacyChartInstance.clear();
             }
         },
-
-        fetchAbilityData() {
-            let jobId = this.selectedJob?.value ?? this.selectedJob;
-            let schId = this.selectedSchool?.value ?? this.selectedSchool;
+        fetchAbilityData1() {
             const params = {
-                jobId: jobId,
-                schId: schId,
+                jobId: this.selectedJob1,
+                schId: this.selectedSchool1,
+                studentId: this.studentId1,
+                lv: 1,
+            };
+            console.log("ability1的参数",params);
+            getAbilityScores(this.selectedJob1, this.selectedSchool1, this.studentId1, params.lv)
+                .then(res => {
+                    const data = res.data;
+                    this.processData(data);
+                    this.drawAbilityRadar1();
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取能力数据失败');
+                });
+        },
+        fetchAbilityData() {
+            const params = {
+                jobId: this.selectedJob.value,
+                schId: this.selectedSchool.value,
                 studentId: this.studentId,
                 lv: 1,
             };
-            getAbilityScores(params.jobId, params.schId, params.studentId, params.lv)
+            console.log("ability的参数",params);
+            getAbilityScores(this.selectedJob.value, this.selectedSchool.value, this.studentId, params.lv)
                 .then(res => {
                     const data = res.data;
                     this.processData(data);
@@ -241,10 +261,20 @@ export default {
                     Message.error('获取能力数据失败');
                 });
         },
-
+        fetchKnowledgeData1() {
+            getAverageScoreByType(this.selectedSchool1, this.studentId1)
+                .then(res => {
+                    const data = res.data;
+                    this.processKnowledgeData(data);
+                    this.drawKnowledgeRadar1();
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取知识评分数据失败');
+                });
+        },
         fetchKnowledgeData() {
-            const schId = this.selectedSchool?.value ?? this.selectedSchool;
-            getAverageScoreByType(schId, this.studentId)
+            getAverageScoreByType(this.selectedSchool.value, this.studentId)
                 .then(res => {
                     const data = res.data;
                     this.processKnowledgeData(data);
@@ -255,10 +285,25 @@ export default {
                     Message.error('获取知识评分数据失败');
                 });
         },
-
+        fetchStudentLiteracyData1() {
+            getStudentLiteracy(this.selectedSchool1, this.studentId1)
+                .then(res => {
+                    const data = res.data;
+                    if (!data || Object.keys(data).length === 0) {
+                        Message.warning('结果数据为空');
+                        return;
+                    }
+                    this.studentLiteracyData = data;
+                    this.drawPersonalInfo();
+                    this.drawLiteracyRadar();
+                })
+                .catch(error => {
+                    console.error(error);
+                    Message.error('获取学生素养数据失败');
+                });
+        },
         fetchStudentLiteracyData() {
-            let schId = this.selectedSchool?.value ?? this.selectedSchool;
-            getStudentLiteracy(schId, this.studentId)
+            getStudentLiteracy(this.selectedSchool.value, this.studentId)
                 .then(res => {
                     const data = res.data;
                     if (!data || Object.keys(data).length === 0) {
@@ -331,6 +376,53 @@ export default {
                 });
             });
         },
+        drawAbilityRadar1() {
+            this.$nextTick(() => {
+                if (this.AbilityChartInstance) {
+                    this.AbilityChartInstance.dispose();
+                }
+                this.AbilityChartInstance = echarts.init(this.$refs.AbilityRadar);
+                const option = {
+                    title: {
+                        text: '能力评分雷达图',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                    },
+                    radar: {
+                        indicator: this.AbilityRadarData.map(item => ({ name: item.abilityNm, max: 100 })),
+                        triggerEvent: true
+                    },
+                    series: [
+                        {
+                            name: '能力评分',
+                            type: 'radar',
+                            data: [
+                                {
+                                    value: this.AbilityRadarData.map(item => item.score),
+                                    name: '评分',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                this.AbilityChartInstance.setOption(option);
+
+                // 添加点击事件
+                this.AbilityChartInstance.on('click', (params) => {
+                    if (params.componentType === 'radar' && params.name) {
+                        const abilityNo = this.abilityMap[params.name];
+                        this.currentUpabilityId = abilityNo;
+                        this.currentLv = 2;
+                        this.previousAbilityNm = params.name;
+                        this.showSubRadar = true;
+                        this.$nextTick(() => {
+                            this.drawSubRadar1(abilityNo, this.currentLv);
+                        });
+                    }
+                });
+            });
+        },
         drawKnowledgeRadar() {
             this.$nextTick(() => {
                 if (this.knowledgeChartInstance) {
@@ -372,6 +464,52 @@ export default {
                         this.showSubRadar = true;
                         this.$nextTick(() => {
                             this.drawSubKnowledgeRadar(type, this.currentLv);
+                        });
+                    }
+                });
+            });
+        },
+        drawKnowledgeRadar1() {
+            this.$nextTick(() => {
+                if (this.knowledgeChartInstance) {
+                    this.knowledgeChartInstance.dispose();
+                }
+                this.knowledgeChartInstance = echarts.init(this.$refs.knowledgeRadar);
+                const option = {
+                    title: {
+                        text: '知识评分雷达图',
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                    },
+                    radar: {
+                        indicator: this.knowledgeRadarData.map(item => ({ name: item.type, max: 100 })),
+                        triggerEvent: true
+                    },
+                    series: [
+                        {
+                            name: '知识评分',
+                            type: 'radar',
+                            data: [
+                                {
+                                    value: this.knowledgeRadarData.map(item => item.avg_score),
+                                    name: '评分',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                this.knowledgeChartInstance.setOption(option);
+
+                // 添加点击事件
+                this.knowledgeChartInstance.on('click', (params) => {
+                    if (params.componentType === 'radar' && params.name) {
+                        const type = params.name;
+                        this.currentLv = 2;
+                        this.previousAbilityNm = type;
+                        this.showSubRadar = true;
+                        this.$nextTick(() => {
+                            this.drawSubKnowledgeRadar1(type, this.currentLv);
                         });
                     }
                 });
@@ -447,6 +585,7 @@ export default {
                 this.literacyChartInstance.setOption(option);
             });
         },
+
         drawSubRadar(abilityNo, lv) {
             this.showSubRadar = true;
             this.$nextTick(() => {
@@ -458,8 +597,8 @@ export default {
                     return;
                 }
                 const params = {
-                    jobId: this.selectedJob?.value ?? this.selectedJob,
-                    schId: this.selectedSchool?.value ?? this.selectedSchool,
+                    jobId: this.selectedJob.value,
+                    schId: this.selectedSchool.value,
                     studentId: this.studentId,
                     lv: lv,
                     upabilityId: abilityNo
@@ -520,6 +659,79 @@ export default {
                     });
             });
         },
+        drawSubRadar1(abilityNo, lv) {
+            this.showSubRadar = true;
+            this.$nextTick(() => {
+                if (this.subChartInstance) {
+                    this.subChartInstance.dispose();
+                }
+                if (lv > 3) {
+                    this.subRadarData = [];
+                    return;
+                }
+                const params = {
+                    jobId: this.selectedJob.value,
+                    schId: this.selectedSchool.value,
+                    studentId: this.studentId,
+                    lv: lv,
+                    upabilityId: abilityNo
+                };
+                getAbilityScores(params.jobId, params.schId, params.studentId, params.lv, params.upabilityId)
+                    .then(res => {
+                        const data = res.data;
+                        if (!data || data.length === 0) {
+                            this.subRadarData = [];
+                        } else {
+                            this.subRadarData = data;
+                            this.$nextTick(() => {
+                                if (this.$refs.subRadar) {
+                                    this.subChartInstance = echarts.init(this.$refs.subRadar);
+                                    const option = {
+                                        tooltip: {
+                                            trigger: 'item',
+                                        },
+                                        radar: {
+                                            indicator: data.map(item => ({ name: item.abilityNm, max: 100 })),
+                                            triggerEvent: true
+                                        },
+                                        series: [
+                                            {
+                                                name: '知识评分',
+                                                type: 'radar',
+                                                data: [
+                                                    {
+                                                        value: data.map(item => item.score),
+                                                        name: '评分',
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    };
+                                    this.subChartInstance.setOption(option);
+
+                                    // 添加点击事件
+                                    this.subChartInstance.on('click', (params) => {
+                                        this.showSubRadar = true;
+                                        if (params.componentType === 'radar' && params.name) {
+                                            const abilityNo = data.find(item => item.abilityNm === params.name).abilityNo;
+                                            this.currentUpabilityId = abilityNo;
+                                            this.currentLv += 1;
+                                            this.previousAbilityNm = params.name;
+                                            this.$nextTick(() => {
+                                                this.drawSubRadar1(abilityNo, this.currentLv);
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Message.error('获取数据失败');
+                    });
+            });
+        },
         drawSubKnowledgeRadar(type, lv) {
             this.$nextTick(() => {
                 if (this.subChartInstance) {
@@ -529,8 +741,54 @@ export default {
                     this.subRadarData = [];
                     return;
                 }
-                let schId = this.selectedSchool?.value ?? this.selectedSchool;
-                getScoreAndKnowledgeName(schId, this.studentId, type)
+                getScoreAndKnowledgeName(this.selectedSchool.value, this.studentId, type)
+                    .then(res => {
+                        const data = res.data;
+                        if (!data || data.length === 0) {
+                            this.subRadarData = [];
+                        } else {
+                            this.subRadarData = data;
+                            this.subChartInstance = echarts.init(this.$refs.subRadar);
+                            const option = {
+                                tooltip: {
+                                    trigger: 'item',
+                                },
+                                radar: {
+                                    indicator: data.map(item => ({ name: item.knowledgenm, max: 100 })),
+                                    triggerEvent: true
+                                },
+                                series: [
+                                    {
+                                        name: '知识评分',
+                                        type: 'radar',
+                                        data: [
+                                            {
+                                                value: data.map(item => item.score),
+                                                name: '评分',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            };
+                            this.subChartInstance.setOption(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Message.error('获取课程评分数据失败');
+                    });
+            });
+        },
+        drawSubKnowledgeRadar1(type, lv) {
+            this.$nextTick(() => {
+                if (this.subChartInstance) {
+                    this.subChartInstance.dispose();
+                }
+                if (lv > 3) {
+                    this.subRadarData = [];
+                    return;
+                }
+                getScoreAndKnowledgeName(this.selectedSchool1, this.studentId1, type)
                     .then(res => {
                         const data = res.data;
                         if (!data || data.length === 0) {

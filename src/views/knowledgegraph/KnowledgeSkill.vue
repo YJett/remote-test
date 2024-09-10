@@ -189,7 +189,7 @@ export default {
     },
     methods: {
         initialize() {
-            this.fetchSchools();
+      //      this.fetchSchools();
             const flg = parseInt(localStorage.getItem('flg'));
             const userName = localStorage.getItem('name');
             if (flg === 1 && userName) {
@@ -212,8 +212,10 @@ export default {
         fetchSchools() {
             fetchAllSchools()
                 .then(response => {
+                    console.log(response.data);
                     if (Array.isArray(response.data)) {
                         const flg = parseInt(localStorage.getItem('flg'));
+                        console.log(flg,this.selectedSchName);
                         if (flg === 0) {
                             this.schools = response.data.map(school => ({
                                 value: school.schId,
@@ -224,11 +226,12 @@ export default {
                                 value: school.schId,
                                 label: school.schName
                             }))
-                                .filter(school => school.label === this.selectedSchName);
+                            .filter(school => school.label === this.selectedSchName);
 
                         }
+                        console.log(this.schools);
 
-                        console.log("当前选中的school是" + this.schools[0].value);
+                //        console.log("当前选中的school是" + this.schools[0].value);
                         this.selectedSchool = this.schools[0].value;
                         this.selectedSchName = this.schools[0].label;
                         this.fetchKnowledgeGraphData()
@@ -237,6 +240,7 @@ export default {
                     }
                 })
                 .catch(error => {
+                    console.log(error);
                     Message.error('Failed to fetch schools');
                 });
         },

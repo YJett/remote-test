@@ -5,7 +5,7 @@
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">岗位能力查询</h3>
-                    <span>选择岗位</span>
+                    <span>选择岗位<span style="color: red;font-size: 12px; font-weight: bold;">*必选</span></span>
                     <Select v-model="selectedJobId" placeholder="请选择岗位" style="width: 200px; margin-left: 10px; margin-right: 30px;">
                         <Option v-for="job in jobs" :key="job.value" :value="job.value">{{ job.label }}</Option>
                     </Select>
@@ -26,7 +26,7 @@
             <div class="query-section">
                 <div class="row">
                     <h3 style="margin-right: 20px;">知识能力查询</h3>
-                    <span>选择学校</span>
+                    <span>选择学校<span style="color: red;font-size: 12px; font-weight: bold;">*必选</span></span>
                     <Select
                         v-model="selectedSchool"
                         placeholder="请选择学校"
@@ -208,6 +208,51 @@ export default {
             return Math.ceil(this.results.length / this.pageSize);
         }
     },
+    mounted() {
+        // 恢复查询结果
+        const savedResults = localStorage.getItem('studentResults');
+        if (savedResults) {
+            this.results = JSON.parse(savedResults);
+        }
+
+        // 恢复表单输入
+        const savedFormData = localStorage.getItem('formData');
+        const savedPage = localStorage.getItem('currentPage');
+        if (savedPage) {
+            this.currentPage = parseInt(savedPage, 10);
+        }
+
+        // 恢复选择的岗位和学校
+        const savedJobId = localStorage.getItem('selectedJobId');
+        if (savedJobId) {
+            this.selectedJobId = savedJobId;
+        }
+
+        const savedSchool = localStorage.getItem('selectedSchool');
+        if (savedSchool) {
+            this.selectedSchool = savedSchool;
+        }
+        if (savedFormData) {
+            const formData = JSON.parse(savedFormData);
+            this.selectedJobId = formData.selectedJobId;
+            this.selectedSchool = formData.selectedSchool;
+            this.selectedAbility = formData.selectedAbility;
+            this.selectedOperator = formData.selectedOperator;
+            this.abilityScore = formData.abilityScore;
+            this.selectedCoreCourseOperator = formData.selectedCoreCourseOperator;
+            this.coreCourseScore = formData.coreCourseScore;
+            this.selectedExpCourseOperator = formData.selectedExpCourseOperator;
+            this.expCourseScore = formData.expCourseScore;
+            this.selectedBasicCourseOperator = formData.selectedBasicCourseOperator;
+            this.basicCourseScore = formData.basicCourseScore;
+            this.politicalStatus = formData.politicalStatus;
+            this.certificate = formData.certificate;
+            this.competition = formData.competition;
+            this.scholarship = formData.scholarship;
+            this.studentSource = formData.studentSource;
+        }
+    },
+
     created() {
         this.initialize();
         this.fetchSchools();
@@ -368,6 +413,9 @@ export default {
                         }));
                         if (this.results.length === 0) {
                             Message.info('查询无结果');
+                        } else {
+                            // 存储查询结果到 localStorage 中
+                            localStorage.setItem('studentResults', JSON.stringify(this.results));
                         }
                     } else {
                         Message.error('查询结果数据格式不正确');
@@ -377,6 +425,32 @@ export default {
                     console.error('Error:', error); // 添加日志
                     Message.error('查询失败');
                 });
+            // 存储表单输入到 localStorage
+            const formData = {
+                selectedJobId: this.selectedJobId,
+                selectedSchool: this.selectedSchool,
+                selectedAbility: this.selectedAbility,
+                selectedOperator: this.selectedOperator,
+                abilityScore: this.abilityScore,
+                selectedCoreCourseOperator: this.selectedCoreCourseOperator,
+                coreCourseScore: this.coreCourseScore,
+                selectedExpCourseOperator: this.selectedExpCourseOperator,
+                expCourseScore: this.expCourseScore,
+                selectedBasicCourseOperator: this.selectedBasicCourseOperator,
+                basicCourseScore: this.basicCourseScore,
+                politicalStatus: this.politicalStatus,
+                certificate: this.certificate,
+                competition: this.competition,
+                scholarship: this.scholarship,
+                studentSource: this.studentSource
+            };
+            localStorage.setItem('formData', JSON.stringify(formData));
+            localStorage.setItem('results', JSON.stringify(this.results));
+
+            // 你可以选择存储其他需要保持的状态，如页码、选择的岗位和学校等
+            localStorage.setItem('currentPage', this.currentPage);
+            localStorage.setItem('selectedJobId', this.selectedJobId);
+            localStorage.setItem('selectedSchool', this.selectedSchool);
         },
         handleRadarPage(result) {
             // 从结果中提取需要的参数
@@ -425,6 +499,8 @@ export default {
             this.scholarship = '';
             this.studentSource = '';
             this.results = [];
+            localStorage.removeItem('studentResults');
+            localStorage.removeItem('formData');
         },
         formatScholarship(scholarship) {
             return scholarship ? scholarship.replace(/;/g, '<br>') : '';

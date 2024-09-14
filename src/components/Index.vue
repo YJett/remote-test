@@ -537,15 +537,23 @@ aside {
     align-items: center;
     color: #202020;
     font-size:0;
+    margin-bottom: 0;
+
     justify-content: center;
     background-color: transparent; /* 设置背景色为透明 */
 }
 .logo {
     display: block;
     width: 100%;
+    margin-bottom: 0;
+    height: 100%;
+    padding-bottom: 0;
+
     background-color: transparent; /* 设置背景色为透明 */
 }
 .logo img {
+    vertical-align:middle;
+    display: block; /* 防止图片下方有间隙 */
     width: 100%; /* 使图片宽度与父元素一致 */
     height: 100%;
 }

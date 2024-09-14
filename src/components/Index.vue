@@ -535,14 +535,19 @@ aside {
 .logo-c {
     display: flex;
     align-items: center;
-    color: rgba(255,255,255,.8);
-    font-size: 16px;
-    margin: 20px 0;
+    color: #202020;
+    font-size:0;
     justify-content: center;
+    background-color: transparent; /* 设置背景色为透明 */
 }
 .logo {
-    width: 40px;
-    margin-right: 10px;
+    display: block;
+    width: 100%;
+    background-color: transparent; /* 设置背景色为透明 */
+}
+.logo img {
+    width: 100%; /* 使图片宽度与父元素一致 */
+    height: 100%;
 }
 .aside-big {
     width: 220px;

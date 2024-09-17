@@ -583,7 +583,7 @@ const store = new Vuex.Store({
             } else if(userType===1) {
                 commit('setMenus', state.userMenuItems);
             } else {
-                commit('setMenus', state.menuItems);
+                commit('setMenus', state.companyMenuItems);
             }
         },
         initialize({ dispatch }) {

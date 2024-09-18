@@ -365,6 +365,7 @@ export default {
         },
 
         initSkillGraph() {
+            /*
             const menu = new G6.Menu({
                 getContent(evt) {
                     return `<ul>
@@ -379,6 +380,7 @@ export default {
                     }
                 }
             });
+            */
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
@@ -419,7 +421,7 @@ export default {
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
-                plugins: [menu]
+              //  plugins: [menu]
             });
             const hierarchicalColors = [
                 '#87CEEB', // Light Sky Blue (Level 1)

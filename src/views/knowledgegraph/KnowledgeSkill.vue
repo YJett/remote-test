@@ -554,12 +554,14 @@ export default {
             })
         },
         initKnowledgeGraph() {
+            /*
             const menu = new G6.Menu({
                 getContent(evt) {
                     return `<ul>
                     <li title='addChild'>Add Child Node</li>
                     </ul>`;
                 },
+
                 handleMenuClick(target, item) {
                     if (target.title === 'addChild') {
                         console.log(`Add child node for ${item.getID()}`);
@@ -567,7 +569,8 @@ export default {
                         // Here you can add your logic to add a child node
                     }
                 },
-            });
+
+            });*/
 
 
             const knowledgeGraph = new G6.Graph({
@@ -611,7 +614,7 @@ export default {
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
-                plugins: [menu]
+             //   plugins: [menu]
             });
             knowledgeGraph.data(this.knowledgeGraphData);
             knowledgeGraph.render();
@@ -671,6 +674,7 @@ export default {
         },
 
         initSkillGraph() {
+            /*
             const menu = new G6.Menu({
                 getContent(evt) {
                     return `<ul>
@@ -685,6 +689,7 @@ export default {
                     }
                 },
             });
+            */
             const skillGraph = new G6.Graph({
                 container: "skill-graph",
                 layout: {
@@ -725,7 +730,7 @@ export default {
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
-                plugins: [menu]
+             //   plugins: [menu]
             });
 
             skillGraph.data(this.skillGraphData);

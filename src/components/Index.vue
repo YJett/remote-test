@@ -535,27 +535,14 @@ aside {
 .logo-c {
     display: flex;
     align-items: center;
-    color: #202020;
-    font-size:0;
-    margin-bottom: 0;
-
+    color: rgba(255,255,255,.8);
+    font-size: 16px;
+    margin: 20px 0;
     justify-content: center;
-    background-color: transparent; /* 设置背景色为透明 */
 }
 .logo {
-    display: block;
-    width: 100%;
-    margin-bottom: 0;
-    height: 100%;
-    padding-bottom: 0;
-
-    background-color: transparent; /* 设置背景色为透明 */
-}
-.logo img {
-    vertical-align:middle;
-    display: block; /* 防止图片下方有间隙 */
-    width: 100%; /* 使图片宽度与父元素一致 */
-    height: 100%;
+    width: 40px;
+    margin-right: 10px;
 }
 .aside-big {
     width: 220px;

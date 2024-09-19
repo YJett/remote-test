@@ -355,50 +355,18 @@ const store = new Vuex.Store({
             },
         ],
         companyMenuItems: [
-            {
-                name: 'password', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
-                type: 'ios-grid', // icon类型
-                text: '修改密码', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
 
-                //    hidden: true,
-
-            },
             {
                 name: 'user', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
-            {
 
-                text: '基本信息',
-                type: 'ios-paper',
-                children: [
-                    {
-                        name: 'schoolmanage', // 要跳转的路由名称 不是路径
-                        size: 18, // icon大小
-                        type: 'ios-grid', // icon类型
-                        text: '学校信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                    },
-                    {
-                        name: 'companymanage', // 要跳转的路由名称 不是路径
-                        size: 18, // icon大小
-                        type: 'ios-grid', // icon类型
-                        text: '企业信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                    }],
-            },
             {
                 text: '能力体系',
                 type: 'ios-paper',
                 children: [
-                    {
-                        type: 'ios-grid',
-                        name: 'labilitydaoru',
-                        text: '数据导入',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
                     {
                         size: 18, // icon大小
                         type: 'ios-grid', // icon类型
@@ -408,84 +376,7 @@ const store = new Vuex.Store({
                         // hidden: true,
                     }],
             },
-            {
-                text: '知识体系',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'md-home',
-                        name: 'home',
-                        text: '数据导入',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
-                    {
-                        size: 18, // icon大小
-                        type: 'ios-grid', // icon类型
-                        name: 'knowmanage',
-                        text: '体系管理',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    }],
-            },
 
-            {
-                text: '学生数据',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 'studentdaoru',
-                        text: '数据导入',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    }
-                    // {
-                    //     size: 18, // icon大小
-                    //     type: 'ios-grid', // icon类型
-                    //     name: 'studentmatch',
-                    //     text: '数据匹配',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // },
-                    // {
-                    //     type: 'ios-grid',
-                    //     name: 'studentquery',
-                    //     text: '数据查询',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                ],
-            },
-            // {
-            //     name: 'test1', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test1', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'test2', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test2', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'test3', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test3', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'graphmatch', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-paper', // icon类型
-            //     text: 'graphmatch（测试）', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            {
-                name: 'knowledgeskill', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
-                type: 'ios-paper', // icon类型
-                text: '能力知识匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            },
             {
                 name: 'radar', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小

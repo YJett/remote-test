@@ -5,7 +5,7 @@ import store from './store'
 import { getDocumentTitle, resetTokenAndClearUser } from './utils'
 
 // 是否有菜单数据
-let hasMenus = false
+let hasMenus = true
 router.beforeEach(async (to, from, next) => {
     document.title = getDocumentTitle(to.meta.title)
     LoadingBar.start()

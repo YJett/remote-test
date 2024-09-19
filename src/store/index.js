@@ -19,6 +19,50 @@ const store = new Vuex.Store({
 
             },
             {
+                name: 'user', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-grid', // icon类型
+                text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
+            {
+
+                text: '基本信息',
+                type: 'ios-paper',
+                children: [
+                    {
+                        name: 'schoolmanage', // 要跳转的路由名称 不是路径
+                        size: 18, // icon大小
+                        type: 'ios-grid', // icon类型
+                        text: '学校信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                    },
+                    {
+                        name: 'companymanage', // 要跳转的路由名称 不是路径
+                        size: 18, // icon大小
+                        type: 'ios-grid', // icon类型
+                        text: '企业信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                    }],
+            },
+            {
+                text: '能力体系',
+                type: 'ios-paper',
+                children: [
+                    {
+                        type: 'ios-grid',
+                        name: 'labilitydaoru',
+                        text: '数据导入',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    },
+                    {
+                        size: 18, // icon大小
+                        type: 'ios-grid', // icon类型
+                        name: 'labilitymanage',
+                        text: '体系管理',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    }],
+            },
+            {
                 text: '知识体系',
                 type: 'ios-paper',
                 children: [
@@ -49,22 +93,7 @@ const store = new Vuex.Store({
                         text: '数据导入',
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
-                    },
-                    // {
-                    //     size: 18, // icon大小
-                    //     type: 'ios-grid', // icon类型
-                    //     name: 'studentmatch',
-                    //     text: '数据匹配',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // },
-                    // {
-                    //     type: 'ios-grid',
-                    //     name: 'studentquery',
-                    //     text: '数据查询',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // }
+                    }
                 ],
             },
             {
@@ -172,46 +201,8 @@ const store = new Vuex.Store({
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
                     }
-                    // {
-                    //     size: 18, // icon大小
-                    //     type: 'ios-grid', // icon类型
-                    //     name: 'studentmatch',
-                    //     text: '数据匹配',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // },
-                    // {
-                    //     type: 'ios-grid',
-                    //     name: 'studentquery',
-                    //     text: '数据查询',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
                 ],
             },
-            // {
-            //     name: 'test1', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test1', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'test2', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test2', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'test3', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-grid', // icon类型
-            //     text: 'test3', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
-            // {
-            //     name: 'graphmatch', // 要跳转的路由名称 不是路径
-            //     size: 18, // icon大小
-            //     type: 'ios-paper', // icon类型
-            //     text: 'graphmatch（测试）', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            // },
             {
                 name: 'knowledgeskill', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
@@ -230,57 +221,6 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
-
-            /*
-            {
-                text: '二级菜单',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 't1',
-                        text: '表格',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
-                    {
-                        size: 18, // icon大小
-                        type: 'md-arrow-forward', // icon类型
-                        text: '外链',
-                        url: 'https://www.baidu.com',
-                        isExternal: true, // 外链 跳到一个外部的 URL 页面
-                    },
-                    {
-                        text: '三级菜单',
-                        type: 'ios-paper',
-                        children: [
-                            {
-                                type: 'ios-notifications-outline',
-                                name: 'msg',
-                                text: '查看消息',
-                            },
-                            {
-                                type: 'md-lock',
-                                name: 'password',
-                                text: '修改密码',
-                            },
-                            {
-                                type: 'md-person',
-                                name: 'userinfo',
-                                text: '基本资料',
-                            },
-                            {
-                                size: 18, // icon大小
-                                type: 'md-arrow-forward', // icon类型
-                                text: '外链',
-                                url: 'https://www.baidu.com',
-                                isExternal: true, // 外链 跳到一个外部的 URL 页面
-                            },
-                        ],
-                    },
-                ],
-            },
-             */
         ],
         userMenuItems:[
             {
@@ -324,21 +264,6 @@ const store = new Vuex.Store({
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
                     },
-                    // {
-                    //     size: 18, // icon大小
-                    //     type: 'ios-grid', // icon类型
-                    //     name: 'studentmatch',
-                    //     text: '数据匹配',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // },
-                    // {
-                    //     type: 'ios-grid',
-                    //     name: 'studentquery',
-                    //     text: '数据查询',
-                    //     // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                    //     // hidden: true,
-                    // }
                 ],
             },
             {
@@ -389,57 +314,6 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
-
-            /*
-            {
-                text: '二级菜单',
-                type: 'ios-paper',
-                children: [
-                    {
-                        type: 'ios-grid',
-                        name: 't1',
-                        text: '表格',
-                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
-                        // hidden: true,
-                    },
-                    {
-                        size: 18, // icon大小
-                        type: 'md-arrow-forward', // icon类型
-                        text: '外链',
-                        url: 'https://www.baidu.com',
-                        isExternal: true, // 外链 跳到一个外部的 URL 页面
-                    },
-                    {
-                        text: '三级菜单',
-                        type: 'ios-paper',
-                        children: [
-                            {
-                                type: 'ios-notifications-outline',
-                                name: 'msg',
-                                text: '查看消息',
-                            },
-                            {
-                                type: 'md-lock',
-                                name: 'password',
-                                text: '修改密码',
-                            },
-                            {
-                                type: 'md-person',
-                                name: 'userinfo',
-                                text: '基本资料',
-                            },
-                            {
-                                size: 18, // icon大小
-                                type: 'md-arrow-forward', // icon类型
-                                text: '外链',
-                                url: 'https://www.baidu.com',
-                                isExternal: true, // 外链 跳到一个外部的 URL 页面
-                            },
-                        ],
-                    },
-                ],
-            },
-             */
         ],
         rewardDict: {
             1: '志愿时长',

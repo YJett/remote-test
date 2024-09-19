@@ -460,8 +460,10 @@ const store = new Vuex.Store({
             // Set activeMenuItems based on userType
             if (userType === 0) {
                 state.menuItems = state.adminMenuItems
-            } else {
+            } else if(userType===1){
                 state.menuItems = state.userMenuItems
+            }else{
+                state.menuItems = state.companyMenuItems
             }
         }
     },

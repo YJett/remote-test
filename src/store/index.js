@@ -280,14 +280,6 @@ const store = new Vuex.Store({
             },
         ],
         companyMenuItems: [
-
-            {
-                name: 'user', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
-                type: 'ios-grid', // icon类型
-                text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-            },
-
             {
                 text: '能力体系',
                 type: 'ios-paper',
@@ -300,6 +292,32 @@ const store = new Vuex.Store({
                         // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
                         // hidden: true,
                     }],
+            },
+            {
+                text: '知识体系',
+                type: 'ios-paper',
+                children: [
+                    {
+                        type: 'md-home',
+                        name: 'home',
+                        text: '数据导入',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    },
+                    {
+                        size: 18, // icon大小
+                        type: 'ios-grid', // icon类型
+                        name: 'knowmanage',
+                        text: '体系管理',
+                        // hidden 属性 隐藏此菜单 可以通过在地址栏上输入对应的 URL 来显示页面
+                        // hidden: true,
+                    }],
+            },
+            {
+                name: 'knowledgeskill', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-paper', // icon类型
+                text: '能力知识匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
 
             {

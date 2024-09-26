@@ -325,6 +325,7 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
+
         ],
         rewardDict: {
             1: '志愿时长',

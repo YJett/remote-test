@@ -228,12 +228,14 @@ export default {
                             }))
                             .filter(school => school.label === this.selectedSchName);
 
-                        }
-                        else if (flg === 2) {
+                        }else if (flg === 2) {
                             this.schools = response.data.map(school => ({
                                 value: school.schId,
                                 label: school.schName
                             }))
+                        }
+
+
                         console.log(this.schools);
 
                 //        console.log("当前选中的school是" + this.schools[0].value);

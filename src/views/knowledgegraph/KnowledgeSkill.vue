@@ -4,8 +4,10 @@
             <!-- Header content -->
 <!--            <el-switch v-model="switchValue"></el-switch>-->
             <el-button @click="showRelationDialog">关联实体</el-button>
+            <!--
             <el-button @click="showAddEntityDialog">添加实体</el-button>
             <el-button @click="showEditEntityDialog">修改实体</el-button>
+        -->
         </el-header>
 
         <div class="graph-container">

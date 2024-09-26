@@ -196,7 +196,7 @@ export default {
                 this.isSchoolLocked = true;
                 this.getSchoolName(userName);
             }
-            if (flg === 0) {
+            if (flg === 0 || flg ===2) {
                 this.isSchoolLocked = false;
             }
         },

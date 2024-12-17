@@ -252,6 +252,7 @@ export default {
             console.log("ability的参数",params);
             getAbilityScores(this.selectedJob.value, this.selectedSchool.value, this.studentId, params.lv)
                 .then(res => {
+                    console.log("ability的数据",res);
                     const data = res.data;
                     this.processData(data);
                     this.drawAbilityRadar();

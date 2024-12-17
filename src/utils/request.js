@@ -11,7 +11,7 @@ const service = axios.create({
     timeout: 3000,
     //    baseURL: 'https://bucuo-1391155-1308220348.ap-shanghai.run.tcloudbase.com/api/',
 
-    //    withCredentials: true,
+        withCredentials: true,
 })
 
 service.interceptors.request.use(

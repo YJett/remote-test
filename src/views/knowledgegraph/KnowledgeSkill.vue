@@ -2,7 +2,7 @@
     <div>
         <el-header>
             <!-- Header content -->
-<!--            <el-switch v-model="switchValue"></el-switch>-->
+            <!--            <el-switch v-model="switchValue"></el-switch>-->
             <el-button @click="showRelationDialog">关联实体</el-button>
             <!--
             <el-button @click="showAddEntityDialog">添加实体</el-button>
@@ -21,6 +21,7 @@
                             <Option v-for="school in schools" :key="school.schId" :value="school.value">{{ school.label
                                 }}</Option>
                         </Select>
+                        <span v-if="isLoadingKnowledgeGraph" style="margin-left: 10px;">加载中...</span>
                     </div>
                 </div>
                 <div class="el-card__body">
@@ -93,6 +94,7 @@ const SKILLANDSHIP = `MATCH (n:Skill)-[r]->(m:Skill) RETURN n, r, m LIMIT 100`;
 export default {
     data() {
         return {
+            isLoadingKnowledgeGraph: false,
             isSchoolLocked: false,
             expandedNodes: {},
             selectedIdentity: 'sch',
@@ -173,83 +175,95 @@ export default {
         };
     },
     async mounted() {
-        this.initialize();
-        this.fetchSchools();
+        await this.initialize(); // 等待 initialize 完成
+        await this.fetchSchools(); // 等待 fetchSchools 完成
         this.fetchJobs();
         this.initKnowledgeGraph(); // 初始化知识图谱
-        this.fetchKnowledgeGraphData(); // 获取知识图谱数据
+        await this.fetchKnowledgeGraphData(); // 获取知识图谱数据
 
         this.initSkillGraph(); // 初始化技能图谱
+        await this.fetchSkillGraphData();
 
-        await this.fetchSkillGraphData()
-
-
-        //    this.fetchKnowledgeGraphDataAndRenderChart(KNOWLEDGEANDSHIP); // 获取知识图谱数据
-        //    this.fetchSkillGraphDataAndRenderChart(SKILLANDSHIP); // 获取技能图谱数据
         this.fetchSchoolList(); // 获取学校列表
         this.fetchJobList(); // 获取 Job 列表
     },
     methods: {
-        initialize() {
-      //      this.fetchSchools();
+        async initialize() {
             const flg = parseInt(localStorage.getItem('flg'));
             const userName = localStorage.getItem('name');
             if (flg === 1 && userName) {
                 this.isSchoolLocked = true;
-                this.getSchoolName(userName);
+                try {
+                    await this.getSchoolName(userName); // 等待 getSchoolName 完成
+                } catch (error) {
+                    console.error('初始化学校名称失败:', error);
+                    Message.error('初始化学校名称失败，请重新登录或联系管理员');
+                }
             }
-            if (flg === 0 || flg ===2) {
+            if (flg === 0 || flg === 2) {
                 this.isSchoolLocked = false;
             }
         },
         getSchoolName(loginName) {
-            getSchNameByLoginName(loginName).then(response => {
+            return getSchNameByLoginName(loginName).then(response => {
                 this.selectedSchName = response.data;
-                console.log(this.selectedSchName);
+                console.log("当前选择的学校名称是" + this.selectedSchName);
             }).catch(error => {
                 console.error('获取学校名称失败:', error);
                 Message.error('获取学校名称失败');
+                throw error; // 抛出错误以便上层捕获
             });
         },
         fetchSchools() {
-            fetchAllSchools()
+            return fetchAllSchools()
                 .then(response => {
-                    console.log(response.data);
+                    console.log("fetchAllSchools 响应:", response.data);
                     if (Array.isArray(response.data)) {
                         const flg = parseInt(localStorage.getItem('flg'));
-                        console.log(flg,this.selectedSchName);
-                        if (flg === 0) {
-                            this.schools = response.data.map(school => ({
-                                value: school.schId,
-                                label: school.schName
-                            }))
-                        } else if (flg === 1) {
-                            this.schools = response.data.map(school => ({
-                                value: school.schId,
-                                label: school.schName
-                            }))
-                            .filter(school => school.label === this.selectedSchName);
+                        console.log("flg:", flg, "selectedSchName:", this.selectedSchName);
+                        let schools = response.data.map(school => ({
+                            value: school.schId,
+                            label: school.schName
+                        }));
+                        console.log("映射后的学校列表:", schools);
 
-                        }else if (flg === 2) {
-                            this.schools = response.data.map(school => ({
-                                value: school.schId,
-                                label: school.schName
-                            }))
+                        if (flg === 0) {
+                            this.schools = schools;
+                        } else if (flg === 1) {
+                            if (!this.selectedSchName) {
+                                console.warn("selectedSchName 未定义或为空，无法过滤学校列表");
+                                Message.warning("无法确定学校名称，请重新登录或联系管理员");
+                                this.schools = [];
+                            } else {
+                                this.schools = schools.filter(school => school.label === this.selectedSchName);
+                                console.log("过滤后的学校列表:", this.schools);
+                                if (this.schools.length === 0) {
+                                    console.warn(`没有找到名称为 "${this.selectedSchName}" 的学校`);
+                                    Message.warning(`没有找到名称为 "${this.selectedSchName}" 的学校，请检查数据或联系管理员`);
+                                }
+                            }
+                        } else if (flg === 2) {
+                            this.schools = schools;
                         }
 
+                        console.log("最终的学校列表:", this.schools);
 
-                        console.log(this.schools);
-
-                //        console.log("当前选中的school是" + this.schools[0].value);
-                        this.selectedSchool = this.schools[0].value;
-                        this.selectedSchName = this.schools[0].label;
-                        this.fetchKnowledgeGraphData()
+                        // 检查 this.schools 是否有数据
+                        if (this.schools.length > 0) {
+                            this.selectedSchool = this.schools[0].value;
+                            this.selectedSchName = this.schools[0].label;
+                            console.log("设置 selectedSchool:", this.selectedSchool, "selectedSchName:", this.selectedSchName);
+                            this.fetchKnowledgeGraphData();
+                        } else {
+                            console.warn("学校列表为空，无法设置 selectedSchool 和 selectedSchName");
+                            Message.warning("学校列表为空，请检查数据或联系管理员");
+                        }
                     } else {
                         Message.error('Failed to fetch schools: Invalid data format');
                     }
                 })
                 .catch(error => {
-                    console.log(error);
+                    console.error(error);
                     Message.error('Failed to fetch schools');
                 });
         },
@@ -469,8 +483,7 @@ export default {
         },
         async fetchKnowledgeGraphData() {
             let cypherQuery = `MATCH (n:KnowledgePoint) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`; // 默认查询
-            console.log("fetch knowledge data current is " + this.selectedSchool)
-            // 如果提供了 参数，修改查询语句以包含 jobId 条件
+            console.log("fetch knowledge data current is " + this.selectedSchool);
             if (this.selectedSchool) {
                 cypherQuery = `MATCH (n:KnowledgePoint {schId: ${this.selectedSchool}}) OPTIONAL MATCH (n)-[r]->(m:KnowledgePoint) RETURN n, r, m`;
             }
@@ -478,24 +491,70 @@ export default {
             try {
                 const res = await kgBuilderApi.getCypherResult(cypherQuery);
                 // 处理查询结果，更新技能图谱数据
-                let allNodes = res.data.node.map(node => ({
+                let allNodes = [];
+                let allEdges = [];
+
+                // 获取图表容器
+                const container = document.getElementById('knowledge-graph');
+                if (!container) {
+                    console.error("知识图谱容器不存在");
+                    return;
+                }
+
+                // 移除之前的提示信息
+                const existingMessages = container.querySelectorAll('.message-div');
+                existingMessages.forEach(msg => msg.remove());
+
+                // 检查 res.data 是否为空
+                if (!res.data || (!res.data.node && !res.data.relationship)) {
+                    // 如果数据为空，清空图表并显示提示
+                    console.log("后端返回数据为空，清空图表");
+                    this.knowledgeGraph.clear(); // 清空图表
+                    this.knowledgeGraph.changeData({ nodes: [], edges: [] }); // 显式设置空数据，确保状态重置
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message-div'; // 添加类名以便后续识别
+                    messageDiv.style.cssText = 'text-align: center; padding: 20px;';
+                    messageDiv.innerText = '暂无数据';
+                    container.appendChild(messageDiv); // 添加提示
+                    return; // 直接返回，避免后续逻辑
+                }
+
+                // 如果数据不为空，正常处理
+                allNodes = res.data.node.map(node => ({
                     id: node.uuid,
                     label: node.knowledgeNm,
                     ...node
                 }));
-                let allEdges = res.data.relationship.map(rel => ({
+                allEdges = res.data.relationship.map(rel => ({
                     source: rel.sourceId,
                     target: rel.targetId,
                     uuid: rel.uuid,
                     label: rel.type,
                 }));
+
                 this.knowledgeGraphData = {
                     nodes: allNodes,
                     edges: allEdges
                 };
-                console.log(this.knowledgeGraphData)
+                console.log("获取到的知识节点数据是 " + JSON.stringify(res.data));
                 this.knowledgeGraph.changeData(this.knowledgeGraphData);
             } catch (error) {
+                console.error("获取知识图谱数据失败: ", error);
+                // 清空图表并显示错误提示
+                this.knowledgeGraph.clear();
+                this.knowledgeGraph.changeData({ nodes: [], edges: [] }); // 显式设置空数据
+                const container = document.getElementById('knowledge-graph');
+                if (container) {
+                    // 移除之前的提示信息
+                    const existingMessages = container.querySelectorAll('.message-div');
+                    existingMessages.forEach(msg => msg.remove());
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message-div'; // 添加类名以便后续识别
+                    messageDiv.style.cssText = 'text-align: center; padding: 20px; color: red;';
+                    messageDiv.innerText = '加载数据失败，请稍后重试';
+                    container.appendChild(messageDiv); // 添加提示
+                }
             }
         },
         fetchKnowledgeGraphDataAndRenderChart(cypher) {
@@ -623,7 +682,7 @@ export default {
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
-             //   plugins: [menu]
+                //   plugins: [menu]
             });
             knowledgeGraph.data(this.knowledgeGraphData);
             knowledgeGraph.render();
@@ -739,7 +798,7 @@ export default {
                 modes: {
                     default: ["drag-canvas", "zoom-canvas", "click-select", "drag-node"]
                 },
-             //   plugins: [menu]
+                //   plugins: [menu]
             });
 
             skillGraph.data(this.skillGraphData);

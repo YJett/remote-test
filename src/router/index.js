@@ -161,6 +161,12 @@ export const asyncRoutes = {
         meta: { title: '学生画像' },
         component: () => import('../views/radarMap/radar.vue'),
     },
+    teachingAssistant: {
+        path: 'teaching-assistant',
+        name: 'teachingAssistant',
+        meta: { title: '辅助教学' },
+        component: () => import('../views/TeachingAssistant.vue'),
+    },
 
 }
 

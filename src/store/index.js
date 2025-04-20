@@ -114,6 +114,12 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
+            {
+                name: 'teachingAssistant', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-school', // icon类型
+                text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
         ],
         //管理员
         adminMenuItems: [
@@ -222,6 +228,12 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
+            {
+                name: 'teachingAssistant', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-school', // icon类型
+                text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
         ],
         // 学校
         userMenuItems:[
@@ -280,7 +292,12 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
-
+            {
+                name: 'teachingAssistant', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-school', // icon类型
+                text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
             {
                 name: 'radar', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
@@ -335,7 +352,12 @@ const store = new Vuex.Store({
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
-
+            {
+                name: 'teachingAssistant', // 要跳转的路由名称 不是路径
+                size: 18, // icon大小
+                type: 'ios-school', // icon类型
+                text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+            },
         ],
         rewardDict: {
             1: '志愿时长',

@@ -137,6 +137,11 @@ export default {
   },
   methods: {
     handleBeforeUpload(file) {
+      // 未登录时禁止上传
+      if (!this.$store.state.userInfo) {
+        this.$Message.error('请先登录');
+        return false;
+      }
       // 验证文件类型
       const isValidType = Object.keys(this.allowedFileTypes).includes(file.type)
       if (!isValidType) {
@@ -227,6 +232,11 @@ export default {
       }
     },
     handlePPTBeforeUpload(file) {
+      // 未登录时禁止上传PPT模板
+      if (!this.$store.state.userInfo) {
+        this.$Message.error('请先登录');
+        return false;
+      }
       // 处理PPT模板上传前的逻辑
       const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
       if (!isValidType) {
@@ -255,6 +265,11 @@ export default {
       console.error('模板上传失败:', error)
     },
     async generatePPT() {
+      // 未登录时禁止生成PPT
+      if (!this.$store.state.userInfo) {
+        this.$Message.error('请先登录');
+        return;
+      }
       if (!this.selectedFile) {
         this.$Message.warning('请先选择文件')
         return
@@ -353,6 +368,11 @@ export default {
       }
     },
     async confirmOutline() {
+      // 未登录时禁止确认生成PPT
+      if (!this.$store.state.userInfo) {
+        this.$Message.error('请先登录');
+        return;
+      }
       if (!this.markdownContent.trim()) {
         this.$Message.warning('请输入大纲内容')
         return
@@ -409,6 +429,11 @@ export default {
       this.resetSteps()
     },
     showCourseGraph() {
+      // 未登录时禁止查看课程图谱
+      if (!this.$store.state.userInfo) {
+        this.$Message.error('请先登录');
+        return;
+      }
       // 显示课程图谱的逻辑
       this.$Message.info('正在加载课程图谱...')
     },
@@ -437,48 +462,54 @@ export default {
     },  // 这里的逗号是正确的，因为后面还有方法
     
     // 添加检查后端服务连接的方法
-    // 改进后端服务连接检查方法
-    async checkBackendConnection() {
-      try {
-        // 使用简单的GET请求检查连接
-        const response = await this.$axios.get('http://127.0.0.1:5000/health', {
-          timeout: 5000
-        }).catch(async error => {
-          // 如果health接口不存在，尝试其他已知接口
-          if (error.response && error.response.status === 404) {
-            return await this.$axios.get('http://127.0.0.1:5000/generate_outline', {
-              timeout: 5000,
-              // 只检查连接，不需要处理响应内容
-              validateStatus: function (status) {
-                return status >= 200 && status < 600
-              }
-            });
-          }
-          throw error; // 如果不是404错误，继续抛出
-        });
-        
-        this.showStatus('后端服务连接成功', 'success');
-        return true;
-      } catch (error) {
-        let errorMsg = '无法连接到后端服务，请确保服务已启动';
-        
-        if (error.response) {
-          if (error.response.status === 500) {
-            errorMsg = '后端服务已连接，但存在内部错误';
-          }
-        }
-        
-        this.showStatus(errorMsg, 'error');
-        return false;
-      }
-    }
+    // async checkBackendConnection() {
+    //   try {
+    //     // 使用简单的GET请求检查连接
+    //     const response = await this.$axios.get('http://127.0.0.1:5000/health', {
+    //       timeout: 5000
+    //     }).catch(async error => {
+    //       // 如果health接口不存在，尝试其他已知接口
+    //       if (error.response && error.response.status === 404) {
+    //         return await this.$axios.get('http://127.0.0.1:5000/generate_outline', {
+    //           timeout: 5000,
+    //           // 只检查连接，不需要处理响应内容
+    //           validateStatus: function (status) {
+    //             return status >= 200 && status < 600
+    //           }
+    //         });
+    //       }
+    //       throw error; // 如果不是404错误，继续抛出
+    //     });
+    //     
+    //     this.showStatus('后端服务连接成功', 'success');
+    //     return true;
+    //   } catch (error) {
+    //     let errorMsg = '无法连接到后端服务，请确保服务已启动';
+    //     
+    //     if (error.response) {
+    //       if (error.response.status === 500) {
+    //         errorMsg = '后端服务已连接，但存在内部错误';
+    //       }
+    //     }
+    //     
+    //     this.showStatus(errorMsg, 'error');
+    //     return false;
+    //   }
+    // }
   },
   
   // 添加mounted钩子
-  mounted() {
-    // 组件挂载时检查后端连接
-    this.checkBackendConnection()
-  }
+  // mounted() {
+  // 组件挂载时检查后端连接
+  // this.checkBackendConnection()
+  // }
+  // mounted() {
+  //   // 登录检测逻辑：如果未登录则跳转到登录页
+  //   if (!this.$store.state.userInfo) {
+  //     this.$Message.error('请先登录');
+  //     this.$router.push('/login');
+  //   }
+  // },
 }
 </script>
 

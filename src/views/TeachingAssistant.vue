@@ -137,11 +137,6 @@ export default {
   },
   methods: {
     handleBeforeUpload(file) {
-      // 未登录时禁止上传
-      if (!this.$store.state.userInfo) {
-        this.$Message.error('请先登录');
-        return false;
-      }
       // 验证文件类型
       const isValidType = Object.keys(this.allowedFileTypes).includes(file.type)
       if (!isValidType) {
@@ -232,11 +227,7 @@ export default {
       }
     },
     handlePPTBeforeUpload(file) {
-      // 未登录时禁止上传PPT模板
-      if (!this.$store.state.userInfo) {
-        this.$Message.error('请先登录');
-        return false;
-      }
+      // 删除未登录时禁止上传PPT模板的校验
       // 处理PPT模板上传前的逻辑
       const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
       if (!isValidType) {
@@ -265,16 +256,10 @@ export default {
       console.error('模板上传失败:', error)
     },
     async generatePPT() {
-      // 未登录时禁止生成PPT
-      if (!this.$store.state.userInfo) {
-        this.$Message.error('请先登录');
-        return;
-      }
       if (!this.selectedFile) {
         this.$Message.warning('请先选择文件')
         return
       }
-      
       if (!this.courseName.trim()) {
         this.$Message.warning('请输入课程名')
         return
@@ -368,16 +353,10 @@ export default {
       }
     },
     async confirmOutline() {
-      // 未登录时禁止确认生成PPT
-      if (!this.$store.state.userInfo) {
-        this.$Message.error('请先登录');
-        return;
-      }
       if (!this.markdownContent.trim()) {
         this.$Message.warning('请输入大纲内容')
         return
       }
-      
       if (!this.courseName.trim()) {
         this.$Message.warning('请输入课程名')
         return
@@ -429,11 +408,6 @@ export default {
       this.resetSteps()
     },
     showCourseGraph() {
-      // 未登录时禁止查看课程图谱
-      if (!this.$store.state.userInfo) {
-        this.$Message.error('请先登录');
-        return;
-      }
       // 显示课程图谱的逻辑
       this.$Message.info('正在加载课程图谱...')
     },

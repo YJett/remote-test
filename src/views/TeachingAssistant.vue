@@ -13,7 +13,7 @@
           <label>上传文件</label>
           <div style="width: 200px; display: flex; justify-content: flex-start">
             <Upload
-              action="http://127.0.0.1:5000/generate_outline"
+              action="http://202.120.84.249:5000/generate_outline"
               :before-upload="handleBeforeUpload"
               :on-success="handleSuccess"
               :on-error="handleError"
@@ -38,7 +38,7 @@
           <label>PPT模板</label>
           <div style="width: 200px; display: flex; justify-content: flex-start">
             <Upload
-              action="http://127.0.0.1:5000/upload_template"
+              action="http://202.120.84.249:5000/upload_template"
               :before-upload="handlePPTBeforeUpload"
               :on-success="handlePPTSuccess"
               :on-error="handlePPTError"
@@ -209,7 +209,7 @@ export default {
         
         this.showStatus('正在尝试替代方式上传...', 'info');
         
-        const response = await this.$axios.post('http://127.0.0.1:5000/generate_outline', formData, {
+        const response = await this.$axios.post('http://202.120.84.249:5000/generate_outline', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -280,7 +280,7 @@ export default {
         this.updateProgress(1, '正在生成大纲...', 30)
         
         // 修改请求配置，增加超时时间和错误处理
-        const outlineResponse = await this.$axios.post('http://127.0.0.1:5000/generate_outline', formData, {
+        const outlineResponse = await this.$axios.post('http://202.120.84.249:5000/generate_outline', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -379,7 +379,7 @@ export default {
         }
         
         // 修改为正确的URL路径
-        const response = await this.$axios.post('http://127.0.0.1:5000/generate_ppt', requestData, {
+        const response = await this.$axios.post('http://202.120.84.249:5000/generate_ppt', requestData, {
           responseType: 'blob'  // 设置响应类型为blob
         })
         

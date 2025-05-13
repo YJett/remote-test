@@ -13,12 +13,12 @@
           <label>上传文件</label>
           <div style="width: 200px; display: flex; justify-content: flex-start">
             <Upload
-              action="/flask-api/generate_outline"
+              action="http://202.120.84.249:5000/generate_outline"
               :before-upload="handleBeforeUpload"
               :on-success="handleSuccess"
               :on-error="handleError"
               :show-upload-list="false"
-              :with-credentials="true"
+              :with-credentials="false"
               tip="支持上传docx、txt、pdf格式文件"
               tip-class="upload-tip"
               class="upload-component"
@@ -38,11 +38,12 @@
           <label>PPT模板</label>
           <div style="width: 200px; display: flex; justify-content: flex-start">
             <Upload
-              action="/flask-api/upload_template"
+              action="http://202.120.84.249:5000/upload_template"
               :before-upload="handlePPTBeforeUpload"
               :on-success="handlePPTSuccess"
               :on-error="handlePPTError"
               :show-upload-list="false"
+              :with-credentials="false"
               tip="支持上传pptx格式文件，单个文件大小不超过20MB"
               tip-class="upload-tip"
               class="upload-component"
@@ -61,7 +62,7 @@
         </div>
       </div>
     </div>
-
+    
     <!-- 进度显示 -->
     <div v-if="showProgress" class="progress-container">
       <div class="progress-steps">
@@ -209,7 +210,7 @@ export default {
         
         this.showStatus('正在尝试替代方式上传...', 'info');
         
-        const response = await this.$axios.post('/flask-api/generate_outline', formData, {
+        const response = await this.$axios.post('http://202.120.84.249:5000/generate_outline', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -280,7 +281,7 @@ export default {
         this.updateProgress(1, '正在生成大纲...', 30)
         
         // 修改请求配置，增加超时时间和错误处理
-        const outlineResponse = await this.$axios.post('/flask-api/generate_outline', formData, {
+        const outlineResponse = await this.$axios.post('http://202.120.84.249:5000/generate_outline', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -379,7 +380,7 @@ export default {
         }
         
         // 修改为正确的URL路径
-        const response = await this.$axios.post('/flask-api/generate_ppt', requestData, {
+        const response = await this.$axios.post('http://202.120.84.249:5000/generate_ppt', requestData, {
           responseType: 'blob'  // 设置响应类型为blob
         })
         
@@ -433,57 +434,11 @@ export default {
       } else {
         this.$Message.info(message)
       }
-    },  // 这里的逗号是正确的，因为后面还有方法
-    
-    // 添加检查后端服务连接的方法
-    // async checkBackendConnection() {
-    //   try {
-    //     // 使用简单的GET请求检查连接
-    //     const response = await this.$axios.get('/flask-api/health', {
-    //       timeout: 5000
-    //     }).catch(async error => {
-    //       // 如果health接口不存在，尝试其他已知接口
-    //       if (error.response && error.response.status === 404) {
-    //         return await this.$axios.get('/flask-api/generate_outline', {
-    //           timeout: 5000,
-    //           // 只检查连接，不需要处理响应内容
-    //           validateStatus: function (status) {
-    //             return status >= 200 && status < 600
-    //           }
-    //         });
-    //       }
-    //       throw error; // 如果不是404错误，继续抛出
-    //     });
-    //     
-    //     this.showStatus('后端服务连接成功', 'success');
-    //     return true;
-    //   } catch (error) {
-    //     let errorMsg = '无法连接到后端服务，请确保服务已启动';
-    //     
-    //     if (error.response) {
-    //       if (error.response.status === 500) {
-    //         errorMsg = '后端服务已连接，但存在内部错误';
-    //       }
-    //     }
-    //     
-    //     this.showStatus(errorMsg, 'error');
-    //     return false;
-    //   }
-    // }
+    },  
   },
-  
-  // 添加mounted钩子
-  // mounted() {
-  // 组件挂载时检查后端连接
-  // this.checkBackendConnection()
-  // }
-  // mounted() {
-  //   // 登录检测逻辑：如果未登录则跳转到登录页
-  //   if (!this.$store.state.userInfo) {
-  //     this.$Message.error('请先登录');
-  //     this.$router.push('/login');
-  //   }
-  // },
+  mounted() {
+    this.testBackendConnection();
+  }
 }
 </script>
 

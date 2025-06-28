@@ -23,8 +23,16 @@ module.exports = {
         pathRewrite: {
           ["^" + '/kg-api']: ""
         }
+      },
+      // 修改Flask后端代理配置
+      '/flask-api': {
+        target: 'http://202.120.84.249:5000',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/flask-api': ''
+        }
       }
-    },
+    }
   },
   configureWebpack: {
     name: name,
@@ -32,22 +40,7 @@ module.exports = {
       alias: {
         "@": resolve("src")
       }
-    },
-    module: {
-      rules: [
-        {
-          test: /\.pdf$/,
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                name: 'assets/[name].[hash:8].[ext]',
-              },
-            },
-          ],
-        },
-      ],
-    },
+    }
   },
-  publicPath: './',
+  publicPath: './'
 }

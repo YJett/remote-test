@@ -19,3 +19,12 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# 忽略 node_modules 目录
+node_modules/
+
+# 忽略 backend 目录
+backend/
+
+# 忽略 src/components/Login.vue 文件
+src/components/Login.vue

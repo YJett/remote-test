@@ -109,10 +109,18 @@ const store = new Vuex.Store({
                 text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
-                name: 'jobportray', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
+                // name: 'jobportray', // 要跳转的路由名称 不是路径
+                // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                children: [
+                    {
+                        type: 'ios-grid',
+                        name: 'resumegenerate',
+                        size: 18,
+                        text: '简历生成',
+                    }
+                ],
             },
         ],
         //管理员
@@ -221,10 +229,18 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                children: [
+                    {
+                        name: 'resumegenerate',
+                        size: 18,
+                        type: 'ios-grid',
+                        text: '简历生成',
+                    },
+                ],
             },
         ],
         // 学校
-        userMenuItems:[
+        userMenuItems: [
             {
                 name: 'password', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
@@ -279,6 +295,14 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                children: [
+                    {
+                        name: 'resumegenerate',
+                        size: 18,
+                        type: 'ios-grid',
+                        text: '简历生成',
+                    },
+                ],
             },
 
             {
@@ -330,10 +354,18 @@ const store = new Vuex.Store({
                 text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
             },
             {
-                name: 'jobportray', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
+                // name: 'jobportray', // 要跳转的路由名称 不是路径
+                // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                children: [
+                    {
+                        name: 'resumegenerate',
+                        size: 18,
+                        type: 'ios-grid',
+                        text: '简历生成',
+                    },
+                ],
             },
 
         ],
@@ -356,9 +388,9 @@ const store = new Vuex.Store({
             // Set activeMenuItems based on userType
             if (userType === 0) {
                 state.menuItems = state.adminMenuItems
-            } else if(userType===1){
+            } else if (userType === 1) {
                 state.menuItems = state.userMenuItems
-            }else{
+            } else {
                 state.menuItems = state.companyMenuItems
             }
         }
@@ -369,7 +401,7 @@ const store = new Vuex.Store({
             // 根据 userType 设置 menuItems
             if (userType === 0) {
                 commit('setMenus', state.adminMenuItems);
-            } else if(userType===1) {
+            } else if (userType === 1) {
                 commit('setMenus', state.userMenuItems);
             } else {
                 commit('setMenus', state.companyMenuItems);

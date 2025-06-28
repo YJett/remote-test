@@ -1,38 +1,53 @@
 const name = "test"; // 标题
 const path = require("path");
 function resolve(dir) {
-    return path.join(__dirname, dir);
-  }
+  return path.join(__dirname, dir);
+}
 module.exports = {
-    devServer: {
-        open: true,
-        host: '0.0.0.0',
-        port: 8071,
-        proxy: {
-            '/api': {
-                target: 'http://localhost:8081/api', // 对应自己的接口
-                changeOrigin: true,
-                ws: true,
-                pathRewrite: {
-                    '^/api': '',
-                },
-            },
-            '/kg-api': {
-                target: `http://localhost:8082`,
-                changeOrigin: true,
-                pathRewrite: {
-                  ["^" + '/kg-api']: ""
-                }
-              }
+  devServer: {
+    open: true,
+    host: '0.0.0.0',
+    port: 8071,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8081/api', // 对应自己的接口
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/api': '',
         },
-    },
-    configureWebpack: {
-        name: name,
-        resolve: {
-          alias: {
-            "@": resolve("src")
-          }
-        }
       },
-    publicPath: './',
+      '/kg-api': {
+        target: `http://localhost:8082`,
+        changeOrigin: true,
+        pathRewrite: {
+          ["^" + '/kg-api']: ""
+        }
+      }
+    },
+  },
+  configureWebpack: {
+    name: name,
+    resolve: {
+      alias: {
+        "@": resolve("src")
+      }
+    },
+    module: {
+      rules: [
+        {
+          test: /\.pdf$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: 'assets/[name].[hash:8].[ext]',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  publicPath: './',
 }

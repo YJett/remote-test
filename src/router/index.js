@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+
 Vue.use(Router)
 
 const commonRoutes = [
@@ -28,18 +29,18 @@ const commonRoutes = [
 
 // 本地所有的页面 需要配合后台返回的数据生成页面
 export const asyncRoutes = {
-//     boatUserManage: {
-//         path: 'user',
-//         name: 'user',
-//         meta: { title: '用户管理' },
-//         component: () => import('../views/BoatUserManage.vue'),
-//     },
-//     home: {
-//         path: 'home',
-//         name: 'home',
-//         meta: { title: '主页' },
-//         component: () => import('../views/Home.vue'),
-//     },
+    //     boatUserManage: {
+    //         path: 'user',
+    //         name: 'user',
+    //         meta: { title: '用户管理' },
+    //         component: () => import('../views/BoatUserManage.vue'),
+    //     },
+    //     home: {
+    //         path: 'home',
+    //         name: 'home',
+    //         meta: { title: '主页' },
+    //         component: () => import('../views/Home.vue'),
+    //     },
     // bulletin: {
     //     path: 'bulletin',
     //     name: 'bulletin',
@@ -154,6 +155,12 @@ export const asyncRoutes = {
         name: 'jobportray',
         meta: { title: 'jobportray' },
         component: () => import('../views/portray/jobportray.vue'),
+    },
+    resumegenerate: {
+        path: 'resumegenerate',
+        name: 'resumegenerate',
+        meta: { title: '简历生成' },
+        component: () => import('../views/resumegenerate.vue'),
     },
     radar: {
         path: 'radar',

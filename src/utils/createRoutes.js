@@ -18,7 +18,6 @@ export default function createRoutes(data) {
     result.push(
         { path: '*', redirect: '/404' },
     )
-
     return result
 }
 

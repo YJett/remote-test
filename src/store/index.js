@@ -14,15 +14,14 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型
                 text: '修改密码', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-
-                //    hidden: true,
-
+                hidden: true, // 隐藏此菜单项
             },
             {
                 name: 'user', // 要跳转的路由名称 不是路径
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
             {
 
@@ -34,6 +33,7 @@ const store = new Vuex.Store({
                         size: 18, // icon大小
                         type: 'ios-grid', // icon类型
                         text: '学校信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                        hidden: true, // 隐藏此菜单项
                     },
                     {
                         name: 'companymanage', // 要跳转的路由名称 不是路径
@@ -86,6 +86,7 @@ const store = new Vuex.Store({
             {
                 text: '学生数据',
                 type: 'ios-paper',
+                hidden: true, // 隐藏整个菜单组
                 children: [
                     {
                         type: 'ios-grid',
@@ -113,6 +114,7 @@ const store = new Vuex.Store({
                 // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单组
                 children: [
                     {
                         type: 'ios-grid',
@@ -127,6 +129,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-school', // icon类型
                 text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
         ],
         //管理员
@@ -145,6 +148,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-grid', // icon类型
                 text: '用户信息', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
             {
 
@@ -156,6 +160,7 @@ const store = new Vuex.Store({
                         size: 18, // icon大小
                         type: 'ios-grid', // icon类型
                         text: '学校信息管理', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                        hidden: true, // 隐藏此菜单项
                     },
                     {
                         name: 'companymanage', // 要跳转的路由名称 不是路径
@@ -208,6 +213,7 @@ const store = new Vuex.Store({
             {
                 text: '学生数据',
                 type: 'ios-paper',
+                hidden: true, // 隐藏整个菜单组
                 children: [
                     {
                         type: 'ios-grid',
@@ -235,6 +241,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单组
                 children: [
                     {
                         name: 'resumegenerate',
@@ -249,6 +256,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-school', // icon类型
                 text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
         ],
         // 学校
@@ -286,6 +294,7 @@ const store = new Vuex.Store({
             {
                 text: '学生数据',
                 type: 'ios-paper',
+                hidden: true, // 隐藏整个菜单组
                 children: [
                     {
                         type: 'ios-grid',
@@ -307,6 +316,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单组
                 children: [
                     {
                         name: 'resumegenerate',
@@ -321,6 +331,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-school', // icon类型
                 text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
             {
                 name: 'radar', // 要跳转的路由名称 不是路径
@@ -375,6 +386,7 @@ const store = new Vuex.Store({
                 // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单组
                 children: [
                     {
                         name: 'resumegenerate',
@@ -389,6 +401,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-school', // icon类型
                 text: '辅助教学', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
+                hidden: true, // 隐藏此菜单项
             },
         ],
         rewardDict: {

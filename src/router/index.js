@@ -23,8 +23,6 @@ const commonRoutes = [
         meta: { title: '404' },
         component: () => import('../components/404.vue'),
     },
-
-    { path: '/', redirect: '/jobportray' },
 ]
 
 // 本地所有的页面 需要配合后台返回的数据生成页面

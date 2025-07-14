@@ -1,6 +1,6 @@
 import { LoadingBar } from 'view-design'
 import createRoutes from '@/utils/createRoutes'
-import router from './router'
+import router, { asyncRoutes } from './router'
 import store from './store'
 import { getDocumentTitle, resetTokenAndClearUser } from './utils'
 
@@ -24,7 +24,16 @@ router.beforeEach(async (to, from, next) => {
                 // 动态添加路由
                 router.addRoutes(routes)
                 hasMenus = true
-                next({ path: to.path || '/' })
+                if (to.path === '/') {
+                    const firstRoute = findFirstAvailableRoute(menuItems)
+                    if (firstRoute) {
+                        next({ path: firstRoute, replace: true })
+                    } else {
+                        next('/404')
+                    }
+                } else {
+                    next({ ...to, replace: true })
+                }
             } catch (error) {
                 resetTokenAndClearUser()
                 next(`/login?redirect=${to.path}`)
@@ -43,3 +52,21 @@ router.beforeEach(async (to, from, next) => {
 router.afterEach(() => {
     LoadingBar.finish()
 })
+
+function findFirstAvailableRoute(items) {
+    for (const item of items) {
+        if (item.hidden) {
+            continue
+        }
+        if (item.name && asyncRoutes[item.name]) {
+            return asyncRoutes[item.name].path
+        }
+        if (item.children) {
+            const childRoute = findFirstAvailableRoute(item.children)
+            if (childRoute) {
+                return childRoute
+            }
+        }
+    }
+    return null
+}

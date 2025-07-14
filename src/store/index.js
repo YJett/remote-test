@@ -272,16 +272,16 @@ const store = new Vuex.Store({
                 text: '能力知识匹配',
             },
             {
-                name: 'jobportray',
-                size: 18,
-                type: 'ios-paper',
-                text: '人岗匹配',
-            },
-            {
                 name: 'radar',
                 size: 18,
                 type: 'ios-paper',
                 text: '学生画像',
+            },
+            {
+                name: 'jobportray',
+                size: 18,
+                type: 'ios-paper',
+                text: '人岗匹配',
             },
             {
                 name: 'resumegenerate',

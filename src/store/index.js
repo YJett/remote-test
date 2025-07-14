@@ -272,25 +272,23 @@ const store = new Vuex.Store({
                 text: '能力知识匹配',
             },
             {
-                name: 'radar', // 要跳转的路由名称 不是路径
-                size: 18, // icon大小
-                type: 'ios-paper', // icon类型
-                text: '学生画像', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                hidden: true,
-                children: [
-                    {
-                        name: 'resumegenerate',
-                        size: 18,
-                        type: 'ios-grid',
-                        text: '简历生成',
-                    },
-                ],
-            },
-            {
                 name: 'jobportray',
                 size: 18,
                 type: 'ios-paper',
                 text: '人岗匹配',
+            },
+            {
+                name: 'radar',
+                size: 18,
+                type: 'ios-paper',
+                text: '学生画像',
+            },
+            {
+                name: 'resumegenerate',
+                size: 18,
+                type: 'ios-grid',
+                text: '简历生成',
+                hidden: true,
             },
             {
                 name: 'teachingAssistant',

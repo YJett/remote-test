@@ -114,7 +114,7 @@ const store = new Vuex.Store({
                 // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                hidden: true, // 隐藏此菜单组
+                hidden: true,
                 children: [
                     {
                         type: 'ios-grid',
@@ -241,7 +241,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                hidden: true, // 隐藏此菜单组
+                hidden: true,
                 children: [
                     {
                         name: 'resumegenerate',
@@ -316,7 +316,7 @@ const store = new Vuex.Store({
                 size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                hidden: true, // 隐藏此菜单组
+                hidden: true,
                 children: [
                     {
                         name: 'resumegenerate',
@@ -386,7 +386,7 @@ const store = new Vuex.Store({
                 // size: 18, // icon大小
                 type: 'ios-paper', // icon类型
                 text: '人岗匹配', // 点击侧边栏跳到一个单独的路由页面，需要提前在 router.js 定义
-                hidden: true, // 隐藏此菜单组
+                hidden: true,
                 children: [
                     {
                         name: 'resumegenerate',

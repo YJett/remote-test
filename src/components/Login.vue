@@ -101,7 +101,7 @@ export default {
       registerEmailError: '',
       registerPwdError: '',
       confirmPwdError: '',
-      schoolList: [] // ✅ 学校名列表
+      schoolList: [] // 学校名列表
     };
   },
   created() {
